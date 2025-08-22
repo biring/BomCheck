@@ -134,21 +134,25 @@ def reorder_header_to_list(df: pd.DataFrame, order: list) -> pd.DataFrame:
     mdf = df[order]
     return mdf
 
-def fill_empty_cell_with_data_from_above_cell(df: pd.DataFrame, column: str) -> pd.DataFrame:
+def fill_empty_item_cells(df: pd.DataFrame, item: str, component: str) -> pd.DataFrame:
     """
-    Fills the empty cells in the specified column with the value from the previous row in the same column.
+    Fills empty cells in the specified item column based on rules using the component column.
 
-    This function iterates over the rows in the DataFrame and checks if the cell in the specified column is empty.
-    If a cell is empty, it is filled with the value from the row above it.
+    The function processes the DataFrame row by row:
+    - If a cell in the `item` column is empty:
+      * If the corresponding `component` cell contains "ALT", the value is copied from the previous row in the `item` column.
+      * Otherwise, the cell is filled with the next sequential item number (derived from the maximum existing number).
+    - Non-empty cells remain unchanged.
 
     Args:
-    - df (pd.DataFrame): DataFrame containing the data.
-    - column (str): The column where the fill operation is applied.
+        df (pd.DataFrame): Input DataFrame containing the data.
+        item (str): The column name where empty values need to be filled.
+        component (str): The column name used to determine if a row is an "ALT" case.
 
     Returns:
-    - pd.DataFrame: The updated DataFrame with empty cells filled from the previous row.
+        pd.DataFrame: The updated DataFrame with empty `item` cells filled.
     """
-    print(f' Filling empty cells in the "{column}" column with values from the row above.')
+    print(f' Filling empty cells in the "{item}" column with values from the row above.')
 
     # Get the total number of rows in the DataFrame
     num_rows = len(df)
@@ -159,14 +163,26 @@ def fill_empty_cell_with_data_from_above_cell(df: pd.DataFrame, column: str) -> 
     # Define what is considered an empty cell
     empty = ""
 
+    # Get the max item number
+    s = pd.to_numeric(df[item], errors="coerce")  # blanks -> NaN, numbers stay numeric
+    next_item_number = (int(s.max()) if s.notna().any() else 0) + 1
+    
     # Loop through the DataFrame starting from the second row (index 1)
     for n in range(1, num_rows):
         # Check if the current cell in the specified column is empty
-        if df.iloc[n][column] == empty:
+        if df.iloc[n][item] == empty:
+            # When it is an alternative
+            if "ALT" in df.iloc[n][component]:
+                # Use the number from above
+                new_value = df.iloc[n - 1, df.columns.get_loc(item)]
+            else:
+                # Assign the next number
+                new_value = next_item_number
+                next_item_number += 1
             # Log the change from the previous value to the current one
-            print(f'  Changed "{df.iloc[n, df.columns.get_loc(column)]}" to "{df.iloc[n - 1, df.columns.get_loc(column)]}"')
+            print(f'  Changed "{df.iloc[n, df.columns.get_loc(item)]}" to "{new_value}"')
             # Fill the empty cell with the value from the previous row
-            df.iloc[n, df.columns.get_loc(column)] = df.iloc[n - 1, df.columns.get_loc(column)]
+            df.iloc[n, df.columns.get_loc(item)] = new_value
             counter += 1
 
     # Print a summary of the number of cells updated

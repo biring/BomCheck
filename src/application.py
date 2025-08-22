@@ -100,8 +100,8 @@ def sequence_cbom_for_db_upload() -> None:
     # set datatype for columns
     df = frames.set_bom_column_datatype(df)
 
-    # fill empty cells with data from above cell.
-    df = frames.fill_empty_cell_with_data_from_above_cell(df)
+    # fill empty item cells.
+    df = frames.fill_empty_item_cells(df)
     # fill empty cells with data using alternative of the same components
     df = frames.fill_empty_cell_using_data_from_above_alternative(df)
     # replace alternative with data
@@ -200,7 +200,7 @@ def sequence_ebom_for_db_upload():
     df = frames.set_bom_column_datatype(df)
 
     # fill empty cells with data from above cell.
-    df = frames.fill_empty_cell_with_data_from_above_cell(df)
+    df = frames.fill_empty_item_cells(df)
     # fill empty cells with data using alternative of the same components
     df = frames.fill_empty_cell_using_data_from_above_alternative(df)
     # replace alternative with data

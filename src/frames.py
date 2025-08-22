@@ -110,7 +110,7 @@ component_dict = {
         "Relay"],
     "Resistor": [
         "Resistance", "Wire wound resistor", "Wire wound non flame resistor",
-        "Resistor"],
+        "Resistor", "Metal film resistor"],
     "Sensor": [
         "Sensor"],
     "Spring": [
@@ -1128,12 +1128,12 @@ def drop_items_with_empty_designator(df: pd.DataFrame) -> pd.DataFrame:
 
     return mdf
 
-def fill_empty_cell_with_data_from_above_cell(df: pd.DataFrame) -> pd.DataFrame:
+def fill_empty_item_cells(df: pd.DataFrame) -> pd.DataFrame:
     # user interface message
     print()
-    print('Filling empty cell with data from above cell.. ')
+    print('Filling empty item cells.. ')
 
-    df = columns.fill_empty_cell_with_data_from_above_cell(df, itemHdr)
+    df = columns.fill_empty_item_cells(df, itemHdr, componentHdr)
 
     print('Done.')
 
