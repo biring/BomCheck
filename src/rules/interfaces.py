@@ -20,7 +20,6 @@ License:
  - Internal Use Only
 """
 
-
 # Re-export selected API from internal modules to expose as public API
 # noinspection PyProtectedMember
 from ._v3_cell_value import (
