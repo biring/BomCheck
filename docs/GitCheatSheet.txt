@@ -55,38 +55,45 @@ git branch -a                           # List all branches (local + remote)
 git branch                              # List local branches
 git branch -r                           # List remote-tracking branches
 
-2. See the status of modified files
+2. Switch to the correct branch, if needed
+git switch <feature_branch>             # Existing local
+git switch -c <feature_branch> --track origin/<feature_branch> # If branch is not local yet:
+
+3. Update branch with latest changes (to avoid conflicts)
+git pull --rebase origin <feature_branch> # This keeps history linear.
+⚠️ Resolve conflicts: edit files → git add <file> → git rebase --continue.
+⚠️ Abort if needed: git rebase --abort
+
+4. See the status of modified files
 git status                              # Verbose status of staged and unstaged changes
 git status -s                           # Short summary format (e.g., M for modified)
 
-3. Review the changes made to the code
-git diff                                # Show unstaged changes to verify what’s about to be committed.
-
-4. Stage changes (add files)
+5. Stage changes (add files)
 git add <file-name>                     # Stage a specific file
-git add .                               # Stage changes in the current directory
+git add -u                              # Stage all tracked files
+git add .                               # Stage changes in the current directory (new + modified, no deletions)
 git add -A                              # Stage all changes (tracked, untracked, and deletions)
 
-5. Review what’s staged before committing
+6. Review what’s staged before committing
 git diff --staged                       # Show changes that are staged
 git diff <file-name>                    # Show unstaged changes for a specific file
 
-6. Commit the staged changes
+7. Commit the staged changes
 git commit -m "Short summary" -m "Detailed description of changes"
 git commit --verbose                    # Opens editor with visible diff of staged changes
 
-7. Pull the latest changes before pushing (to avoid conflicts)
-git pull origin <branch>                # Default pull: fetch + merge
-
 8. Push changes to the remote branch
-git push origin <branch>                # Push your commits upstream
+git push -u origin <feature_branch>     # First push to set upstream
+git push origin <feature_branch>        # Push your commits upstream
+git push --force-with-lease             # After rebase
 
 9. Verify your recent commit(s)
 git log -N                              # Show the last N commits
 git log --oneline                       # Compact view: commit hash + message
+git log --oneline --graph --decorate --all #Log with graph
 
 10. Check status again to confirm sync
-git status                              # Ensure nothing is left uncommitted or unsynced
+git status                              # Ensure everything is committed and synced
 
 -------------------------------------------------------------------------------------------------------
 FINAL COMMIT TO <feature_branch>
