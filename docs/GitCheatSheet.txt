@@ -56,13 +56,10 @@ git branch                              # List local branches
 git branch -r                           # List remote-tracking branches
 
 2. Switch to the correct branch, if needed
-git switch <feature_branch>             # Existing local
-git switch -c <feature_branch> --track origin/<feature_branch> # If branch is not local yet:
+git switch <feature_branch>             # Assume local already exists
 
 3. Update branch with latest changes (to avoid conflicts)
-git pull --rebase origin <feature_branch> # This keeps history linear.
-⚠️ Resolve conflicts: edit files → git add <file> → git rebase --continue.
-⚠️ Abort if needed: git rebase --abort
+git pull origin <feature_branch>        # Sync with remote (fast-forward if needed)
 
 4. See the status of modified files
 git status                              # Verbose status of staged and unstaged changes
@@ -83,9 +80,7 @@ git commit -m "Short summary" -m "Detailed description of changes"
 git commit --verbose                    # Opens editor with visible diff of staged changes
 
 8. Push changes to the remote branch
-git push -u origin <feature_branch>     # First push to set upstream
 git push origin <feature_branch>        # Push your commits upstream
-git push --force-with-lease             # After rebase
 
 9. Verify your recent commit(s)
 git log -N                              # Show the last N commits
