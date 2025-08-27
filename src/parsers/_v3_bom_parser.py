@@ -57,7 +57,7 @@ def _is_v3_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> bool:
         bool: True if all required identifiers are found, False otherwise.
     """
     # Check for all required identifiers in a single row to qualify as a Version 3 board BOM
-    if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, REQUIRED_V3_BOARD_TABLE_IDENTIFIERS):
+    if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, REQUIRED_V3_ROW_IDENTIFIERS):
         # TODO: logger.info(f"✅ Sheet '{name}' is version 3 board BOM.")
         # when match found, exit
         return True
@@ -90,12 +90,12 @@ def _parse_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> Board:
     board.sheet_name = sheet_name
 
     # Extract board-level metadata block from the top of the sheet
-    header_block = common.extract_header_block(sheet_data, REQUIRED_V3_BOARD_TABLE_IDENTIFIERS)
+    header_block = common.extract_header_block(sheet_data, REQUIRED_V3_ROW_IDENTIFIERS)
     # Parse and assign header metadata
     board.header = _parse_board_header(header_block)
 
     # Extract the BOM component table from the lower part of the sheet
-    table_block = common.extract_table_block(sheet_data, REQUIRED_V3_BOARD_TABLE_IDENTIFIERS)
+    table_block = common.extract_table_block(sheet_data, REQUIRED_V3_ROW_IDENTIFIERS)
     # Parse and assign the BOM rows
     board.rows = _parse_board_table(table_block)
 

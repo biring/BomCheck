@@ -1,9 +1,7 @@
 """
 Internal constants and field mappings for version 3 BOM model support.
 
-This module defines string constants and mapping dictionaries used to translate
-raw Excel headers into structured model attributes (Header, Row). It enables
-automated parsing workflows within the Version 3 BOM parser.
+This module defines string constants and mapping dictionaries used to translate raw Excel headers into structured model attributes (Header, Row). It enables automated parsing workflows within the Version 3 BOM parser.
 
 Main capabilities:
  - Definitions for board-level and component-level Excel fields
@@ -11,12 +9,12 @@ Main capabilities:
  - Identifiers used to detect Version 3 BOM templates
 
 Example Usage:
-    # Internal module usage (within `models` or parsing logic):
-    from src.models import _v3_field_constants as v3
-    field = v3.BoardHeaderFields.BOM_DATE
+    # Preferred usage via public package interface:
+    # Not exposed publicly; this is an internal module.
 
-    # Unit test usage (allowed and expected for testing internals):
-    from src.models._v3_field_constants import TABLE_FIELD_MAP
+    # Direct module usage (acceptable in unit tests or internal scripts only):
+    import src.models._v3_fields as fields
+    field = v3.BoardHeaderFields.BOM_DATE
 
 Dependencies:
  - Python >= 3.10
@@ -32,12 +30,11 @@ License:
 """
 
 
-class BoardHeaderFields:
+class HeaderFields:
     """
-    Field constants for board-level metadata in Version 3 BOM sheets.
+    Field constants for board header in Version 3 BOM sheets.
 
-    Each class attribute corresponds to a known header label in the Excel sheet,
-    used to extract metadata like model number, revision, supplier, and costs.
+    Each class attribute corresponds to a known header label in the Excel sheet, used to extract metadata like model number, revision, supplier, and costs.
 
     These fields map to internal dataclass attributes via `HEADER_FIELD_MAP`.
 
@@ -70,10 +67,7 @@ class BoardHeaderFields:
 """
 Mapping of board-level Excel header fields to Header dataclass attributes.
 
-This dictionary translates raw Excel labels from the Version 3 BOM template 
-(as defined in `BoardHeaderFields`) into corresponding attribute names 
-of the internal `Header` dataclass. It enables consistent field matching 
-during BOM parsing and model population.
+This dictionary translates raw Excel labels from the Version 3 BOM template (as defined in `HeaderFields`) into corresponding attribute names of the internal `Header` dataclass. It enables consistent field matching during BOM parsing and model population.
 
 Key:
     str: Excel label for a board-level metadata field (e.g., "Model No:")
@@ -81,23 +75,22 @@ Value:
     str: Attribute name in the `Header` dataclass (e.g., "model_no")
 """
 BOARD_HEADER_TO_ATTR_MAP = {
-    BoardHeaderFields.MODEL_NUMBER: "model_no",
-    BoardHeaderFields.BUILD_STAGE: "build_stage",
-    BoardHeaderFields.BOARD_NAME: "board_name",
-    BoardHeaderFields.BOARD_SUPPLIER: "manufacturer",
-    BoardHeaderFields.BOM_DATE: "date",
-    BoardHeaderFields.MATERIAL_COST: "material_cost",
-    BoardHeaderFields.OVERHEAD_COST: "overhead_cost",
-    BoardHeaderFields.TOTAL_COST: "total_cost"
+    HeaderFields.MODEL_NUMBER: "model_no",
+    HeaderFields.BUILD_STAGE: "build_stage",
+    HeaderFields.BOARD_NAME: "board_name",
+    HeaderFields.BOARD_SUPPLIER: "manufacturer",
+    HeaderFields.BOM_DATE: "date",
+    HeaderFields.MATERIAL_COST: "material_cost",
+    HeaderFields.OVERHEAD_COST: "overhead_cost",
+    HeaderFields.TOTAL_COST: "total_cost"
 }
 
 
-class BoardTableFields:
+class RowFields:
     """
-    Field constants for component table columns in Version 3 BOM sheets.
+    Field constants for component rows in Version 3 BOM sheets.
 
-    Each class attribute represents a standardized column header in the board's
-    component table, such as part number, quantity, or pricing information.
+    Each class attribute represents a standardized header in the board rows, such as part number, quantity, or pricing information.
 
     These fields map to internal dataclass attributes via `TABLE_FIELD_MAP`.
 
@@ -137,9 +130,7 @@ class BoardTableFields:
 """
 Mapping of component table column labels to Row dataclass attributes.
 
-This dictionary translates raw Excel column headers from the Version 3 BOM template 
-(as defined in `BoardTableFields`) into corresponding attribute names 
-of the internal `Row` dataclass. It enables automated parsing of component-level 
+This dictionary translates raw Excel column headers from the Version 3 BOM template (as defined in `RowFields`) into corresponding attribute names of the internal `Row` dataclass. It enables automated parsing of component-level 
 data into structured models during BOM ingestion.
 
 Key:
@@ -148,52 +139,48 @@ Value:
     str: Attribute name in the `Row` dataclass (e.g., "qty")
 """
 TABLE_LABEL_TO_ATTR_MAP = {
-    BoardTableFields.ITEM: "item",
-    BoardTableFields.COMPONENT: "component_type",
-    BoardTableFields.PACKAGE: "device_package",
-    BoardTableFields.DESCRIPTION: "description",
-    BoardTableFields.UNITS: "unit",
-    BoardTableFields.CLASSIFICATION: "classification",
-    BoardTableFields.MANUFACTURER: "manufacturer",
-    BoardTableFields.MFG_PART_NO: "mfg_part_number",
-    BoardTableFields.UL_VDE_NUMBER: "ul_vde_number",
-    BoardTableFields.VALIDATED_AT: "validated_at",
-    BoardTableFields.QTY: "qty",
-    BoardTableFields.DESIGNATOR: "designator",
-    BoardTableFields.UNIT_PRICE: "unit_price",
-    BoardTableFields.SUB_TOTAL: "sub_total"
+    RowFields.ITEM: "item",
+    RowFields.COMPONENT: "component_type",
+    RowFields.PACKAGE: "device_package",
+    RowFields.DESCRIPTION: "description",
+    RowFields.UNITS: "unit",
+    RowFields.CLASSIFICATION: "classification",
+    RowFields.MANUFACTURER: "manufacturer",
+    RowFields.MFG_PART_NO: "mfg_part_number",
+    RowFields.UL_VDE_NUMBER: "ul_vde_number",
+    RowFields.VALIDATED_AT: "validated_at",
+    RowFields.QTY: "qty",
+    RowFields.DESIGNATOR: "designator",
+    RowFields.UNIT_PRICE: "unit_price",
+    RowFields.SUB_TOTAL: "sub_total"
 }
 
 """
 Required column labels used to detect Version 3 BOM templates.
 
-This list defines the minimum set of Excel column headers that must be present 
-in a sheet for it to be recognized as conforming to the Version 3 BOM format. 
-These fields are typically found in the component table section of the sheet.
+This list defines the minimum set of Excel column headers that must be present in a sheet for it to be recognized as conforming to the Version 3 BOM format. These fields are typically found in the component table section of the sheet.
 
 Returns:
     list[str]: List of field labels used to validate a Version 3 BOM sheet.
 """
 REQUIRED_V3_BOM_IDENTIFIERS: list[str] = [
-    BoardTableFields.CLASSIFICATION,
-    BoardTableFields.DESIGNATOR,
-    BoardTableFields.MANUFACTURER,
-    BoardTableFields.MFG_PART_NO
+    RowFields.CLASSIFICATION,
+    RowFields.DESIGNATOR,
+    RowFields.MANUFACTURER,
+    RowFields.MFG_PART_NO
 ]
 
 """
-Required column labels used to identify Version 3 BOM board tables.
+Required column labels used to identify Version 3 BOM board rows.
 
-This list contains key Excel column headers that must be present in a sheet's 
-component table for it to be recognized as following the Version 3 BOM board template. 
-These fields help ensure structural compatibility before parsing.
+This list contains key Excel column headers that must be present in a sheet's component table for it to be recognized as following the Version 3 BOM board template. These fields help ensure structural compatibility before parsing.
 
 Returns:
     list[str]: Column labels expected in a valid Version 3 board-level BOM table.
 """
-REQUIRED_V3_BOARD_TABLE_IDENTIFIERS: list[str] = [
-    BoardTableFields.CLASSIFICATION,
-    BoardTableFields.DESIGNATOR,
-    BoardTableFields.MANUFACTURER,
-    BoardTableFields.MFG_PART_NO
+REQUIRED_V3_ROW_IDENTIFIERS: list[str] = [
+    RowFields.CLASSIFICATION,
+    RowFields.DESIGNATOR,
+    RowFields.MANUFACTURER,
+    RowFields.MFG_PART_NO
 ]

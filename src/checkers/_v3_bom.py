@@ -33,7 +33,7 @@ License:
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing*
 
 from dataclasses import dataclass
-from src.models.interfaces import Bom, Board, Header, Row, BoardHeaderFields, BoardTableFields
+from src.models.interfaces import Bom, Board, Header, Row, HeaderFields, RowFields
 import src.utils.parser as ps
 import src.rules.interfaces as rules
 
@@ -166,42 +166,42 @@ def _check_header(file_name: str, sheet_name: str, header: Header) -> list[Error
     try:
         rules.assert_model_number(header.model_no)
     except Exception as exc:
-        _add_error(BoardHeaderFields.MODEL_NUMBER, exc)
+        _add_error(HeaderFields.MODEL_NUMBER, exc)
 
     try:
         rules.assert_board_name(header.board_name)
     except Exception as exc:
-        _add_error(BoardHeaderFields.BOARD_NAME, exc)
+        _add_error(HeaderFields.BOARD_NAME, exc)
 
     try:
         ps.parse_to_non_empty_string(header.manufacturer)
     except Exception as exc:
-        _add_error(BoardHeaderFields.BOARD_SUPPLIER, exc)
+        _add_error(HeaderFields.BOARD_SUPPLIER, exc)
 
     try:
         rules.assert_build_stage(header.build_stage)
     except Exception as exc:
-        _add_error(BoardHeaderFields.BUILD_STAGE, exc)
+        _add_error(HeaderFields.BUILD_STAGE, exc)
 
     try:
         rules.assert_date_format(header.date)
     except Exception as exc:
-        _add_error(BoardHeaderFields.BOM_DATE, exc)
+        _add_error(HeaderFields.BOM_DATE, exc)
 
     try:
         rules.assert_price(header.material_cost)
     except Exception as exc:
-        _add_error(BoardHeaderFields.MATERIAL_COST, exc)
+        _add_error(HeaderFields.MATERIAL_COST, exc)
 
     try:
         rules.assert_price(header.overhead_cost)
     except Exception as exc:
-        _add_error(BoardHeaderFields.OVERHEAD_COST, exc)
+        _add_error(HeaderFields.OVERHEAD_COST, exc)
 
     try:
         rules.assert_price(header.total_cost)
     except Exception as exc:
-        _add_error(BoardHeaderFields.TOTAL_COST, exc)
+        _add_error(HeaderFields.TOTAL_COST, exc)
 
     return errors
 
@@ -260,42 +260,42 @@ def _check_row_cell_value(file_name: str, sheet_name: str, index: str, row: Row)
     try:
         rules.assert_item(row.item)
     except Exception as exc:
-        _add_error(BoardTableFields.ITEM, exc)
+        _add_error(RowFields.ITEM, exc)
 
     try:
         ps.parse_to_non_empty_string(row.description)
     except Exception as exc:
-        _add_error(BoardTableFields.DESCRIPTION, exc)
+        _add_error(RowFields.DESCRIPTION, exc)
 
     try:
         rules.assert_classification(row.classification)
     except Exception as exc:
-        _add_error(BoardTableFields.CLASSIFICATION, exc)
+        _add_error(RowFields.CLASSIFICATION, exc)
 
     try:
         ps.parse_to_non_empty_string(row.manufacturer)
     except Exception as exc:
-        _add_error(BoardTableFields.MANUFACTURER, exc)
+        _add_error(RowFields.MANUFACTURER, exc)
 
     try:
         ps.parse_to_non_empty_string(row.mfg_part_number)
     except Exception as exc:
-        _add_error(BoardTableFields.MFG_PART_NO, exc)
+        _add_error(RowFields.MFG_PART_NO, exc)
 
     try:
         rules.assert_qty(row.qty)
     except Exception as exc:
-        _add_error(BoardTableFields.QTY, exc)
+        _add_error(RowFields.QTY, exc)
 
     try:
         rules.assert_price(row.unit_price)
     except Exception as exc:
-        _add_error(BoardTableFields.UNIT_PRICE, exc)
+        _add_error(RowFields.UNIT_PRICE, exc)
 
     try:
         rules.assert_price(row.sub_total)
     except Exception as exc:
-        _add_error(BoardTableFields.SUB_TOTAL, exc)
+        _add_error(RowFields.SUB_TOTAL, exc)
 
     return errors
 
@@ -327,36 +327,36 @@ def _check_row_cell_logic(file_name: str, sheet_name: str, index: str, row: Row)
     try:
         rules.assert_quantity_zero_when_item_blank(row)
     except Exception as exc:
-        _add_error(BoardTableFields.QTY, exc)
+        _add_error(RowFields.QTY, exc)
 
     try:
         rules.assert_quantity_positive_when_item_positive(row)
     except Exception as exc:
-        _add_error(BoardTableFields.QTY, exc)
+        _add_error(RowFields.QTY, exc)
 
     try:
         rules.assert_designator_count_matches_quantity(row)
     except Exception as exc:
-        _add_error(BoardTableFields.DESIGNATOR, exc)
+        _add_error(RowFields.DESIGNATOR, exc)
 
     try:
         rules.assert_designator_required_for_positive_item_and_qty(row)
     except Exception as exc:
-        _add_error(BoardTableFields.DESIGNATOR, exc)
+        _add_error(RowFields.DESIGNATOR, exc)
 
     try:
         rules.assert_unit_price_positive_when_quantity_positive(row)
     except Exception as exc:
-        _add_error(BoardTableFields.UNIT_PRICE, exc)
+        _add_error(RowFields.UNIT_PRICE, exc)
 
     try:
         rules.assert_subtotal_zero_when_quantity_zero(row)
     except Exception as exc:
-        _add_error(BoardTableFields.SUB_TOTAL, exc)
+        _add_error(RowFields.SUB_TOTAL, exc)
 
     try:
         rules.assert_subtotal_matches_product(row)
     except Exception as exc:
-        _add_error(BoardTableFields.SUB_TOTAL, exc)
+        _add_error(RowFields.SUB_TOTAL, exc)
 
     return errors

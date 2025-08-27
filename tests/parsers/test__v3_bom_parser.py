@@ -70,7 +70,7 @@ class TestIsV3BoardSheet(unittest.TestCase):
         """
         # ARRANGE
         # Prepare a DataFrame with only some of the required identifiers (incomplete)
-        partial_identifiers = REQUIRED_V3_BOARD_TABLE_IDENTIFIERS[:-1] + ["Other"]
+        partial_identifiers = REQUIRED_V3_ROW_IDENTIFIERS[:-1] + ["Other"]
         sheet_data = [partial_identifiers] + [[None] * len(partial_identifiers)]
         test_df = pd.DataFrame(sheet_data)
         expected = False
@@ -90,7 +90,7 @@ class TestIsV3BoardSheet(unittest.TestCase):
         """
         # ARRANGE
         # Prepare a DataFrame that includes all required identifiers plus extras
-        all_identifiers = REQUIRED_V3_BOARD_TABLE_IDENTIFIERS + ["Extra Column"]
+        all_identifiers = REQUIRED_V3_ROW_IDENTIFIERS + ["Extra Column"]
         sheet_data = [all_identifiers] + [[None] * len(all_identifiers)]
         test_df = pd.DataFrame(sheet_data)
         expected = True

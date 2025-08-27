@@ -28,7 +28,7 @@ License:
 import unittest
 from dataclasses import replace
 
-from src.models.interfaces import Bom, Board, Header, BoardHeaderFields, BoardTableFields
+from src.models.interfaces import Bom, Board, Header, HeaderFields, RowFields
 
 # noinspection PyProtectedMember
 from src.checkers._v3_bom import (
@@ -96,14 +96,14 @@ class TestCheckRowCellValue(unittest.TestCase):
         line = "2"
 
         expected_errors = [
-            BoardTableFields.ITEM,
-            BoardTableFields.DESCRIPTION,
-            BoardTableFields.CLASSIFICATION,
-            BoardTableFields.MANUFACTURER,
-            BoardTableFields.MFG_PART_NO,
-            BoardTableFields.QTY,
-            BoardTableFields.UNIT_PRICE,
-            BoardTableFields.SUB_TOTAL,
+            RowFields.ITEM,
+            RowFields.DESCRIPTION,
+            RowFields.CLASSIFICATION,
+            RowFields.MANUFACTURER,
+            RowFields.MFG_PART_NO,
+            RowFields.QTY,
+            RowFields.UNIT_PRICE,
+            RowFields.SUB_TOTAL,
         ]
 
         # ACT
@@ -165,13 +165,13 @@ class TestCheckRowCellLogic(unittest.TestCase):
         sheet_name = "Sheet1"
         line = "2"
         expected_error_fields = [
-            BoardTableFields.QTY,
-            BoardTableFields.QTY,
-            BoardTableFields.DESIGNATOR,
-            BoardTableFields.DESIGNATOR,
-            BoardTableFields.UNIT_PRICE,
-            BoardTableFields.SUB_TOTAL,
-            BoardTableFields.SUB_TOTAL
+            RowFields.QTY,
+            RowFields.QTY,
+            RowFields.DESIGNATOR,
+            RowFields.DESIGNATOR,
+            RowFields.UNIT_PRICE,
+            RowFields.SUB_TOTAL,
+            RowFields.SUB_TOTAL
         ]
 
         for row, expected in zip(rows, expected_error_fields):
@@ -232,14 +232,14 @@ class TestCheckHeader(unittest.TestCase):
         file_name, sheet_name = "a.xlsx", "HDR"
 
         expected_fields = (
-            BoardHeaderFields.MODEL_NUMBER,
-            BoardHeaderFields.BOARD_NAME,
-            BoardHeaderFields.BOARD_SUPPLIER,
-            BoardHeaderFields.BUILD_STAGE,
-            BoardHeaderFields.BOM_DATE,
-            BoardHeaderFields.MATERIAL_COST,
-            BoardHeaderFields.OVERHEAD_COST,
-            BoardHeaderFields.TOTAL_COST,
+            HeaderFields.MODEL_NUMBER,
+            HeaderFields.BOARD_NAME,
+            HeaderFields.BOARD_SUPPLIER,
+            HeaderFields.BUILD_STAGE,
+            HeaderFields.BOM_DATE,
+            HeaderFields.MATERIAL_COST,
+            HeaderFields.OVERHEAD_COST,
+            HeaderFields.TOTAL_COST,
         )
 
         # ACT
@@ -298,9 +298,9 @@ class TestCheckRows(unittest.TestCase):
         sheet_name = "Sheet1"
 
         expected_fields = (
-            BoardTableFields.DESCRIPTION,
-            BoardTableFields.CLASSIFICATION,
-            BoardTableFields.SUB_TOTAL,
+            RowFields.DESCRIPTION,
+            RowFields.CLASSIFICATION,
+            RowFields.SUB_TOTAL,
         )
         expected_errors = 3
 

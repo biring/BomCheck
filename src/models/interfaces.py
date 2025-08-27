@@ -26,11 +26,11 @@ License:
 """
 
 from src.models._v3_fields import (
-    BoardHeaderFields,
-    BoardTableFields,
+    HeaderFields,
+    RowFields,
     TABLE_LABEL_TO_ATTR_MAP,
     BOARD_HEADER_TO_ATTR_MAP,
-    REQUIRED_V3_BOARD_TABLE_IDENTIFIERS,
+    REQUIRED_V3_ROW_IDENTIFIERS,
     REQUIRED_V3_BOM_IDENTIFIERS
 )
 from src.models._v3_raw import (
@@ -41,11 +41,11 @@ from src.models._v3_raw import (
 )
 
 __all__ = [
-    'BoardHeaderFields',
-    'BoardTableFields',
+    'HeaderFields',
+    'RowFields',
     'TABLE_LABEL_TO_ATTR_MAP',
     'BOARD_HEADER_TO_ATTR_MAP',
-    'REQUIRED_V3_BOARD_TABLE_IDENTIFIERS',
+    'REQUIRED_V3_ROW_IDENTIFIERS',
     'REQUIRED_V3_BOM_IDENTIFIERS',
     'Board',
     'Bom',
