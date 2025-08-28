@@ -1,40 +1,38 @@
 """
 Raw data model for the version 3 BOM template.
 
-This module defines structured Python dataclasses that mirror the layout of
-version 3 excel based Bill of Materials (BOM) files. It captures metadata,
-board-level information, and individual rows exactly as they appear in
-the source, with all fields represented as plain strings.
+This module defines structured Python dataclasses that mirror the layout of version 3 excel based Bill of Materials (BOM) files. It captures metadata, board-level information, and individual rows exactly as they appear in the source, with all fields represented as plain strings.
 
-These models serve as the initial parsed representation created by BOM parsers
-before any standardization, normalization, or mapping to canonical models.
+These models serve as the initial parsed representation created by BOM parsers before any standardization, normalization, or mapping to canonical models.
 
 Main capabilities:
- - Encodes board-level BOM metadata (model number, revision, supplier, cost breakdown)
- - Encodes component-level BOM rows (reference, part number, quantity, price)
- - Supports multiple board BOMs within a single file
- - Provides factory methods (`empty`) for zero-initialized object creation
+     - Encodes board-level BOM metadata (model number, revision, supplier, cost breakdown)
+     - Encodes component-level BOM rows (reference, part number, quantity, price)
+     - Supports multiple board BOMs within a single file
+     - Provides factory methods (`empty`) for zero-initialized object creation
 
 Example Usage:
-    from src.models import Bom
-    empty_bom = Bom.empty()
+    # Preferred usage via public package interface:
+    # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    from src.models._v3_model import Board
-    board = Board.empty()
+    import src.models._v3_model import model
+    board = model.Board.empty()
 
 Dependencies:
- - Python >= 3.10
- - Standard Library: dataclasses
+     - Python >= 3.10
+     - Standard Library: dataclasses
 
 Notes:
- - All fields are strings to simplify parsing and tolerate missing values.
- - This model reflects raw BOM data; downstream processing should not modify it.
- - Used primarily by `v3_bom_parser` to convert Excel sheets to structured form.
+     - All fields are strings to simplify parsing and tolerate missing values.
+     - This model reflects raw BOM data; downstream processing should not modify it.
+     - Used primarily by `v3_bom_parser` to convert Excel sheets to structured form.
 
 License:
- - Internal Use Only
+     - Internal Use Only
 """
+
+__all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing
 
 from dataclasses import dataclass, field
 
@@ -44,8 +42,7 @@ class Row:
     """
     Represents a single row in the BOM table.
 
-    All fields are strings and default to the empty string ("") to simplify parsing
-    and ensure consistent handling of missing or blank values.
+    All fields are strings and default to the empty string ("") to simplify parsing and ensure consistent handling of missing or blank values.
 
     Attributes:
         item (str): Line item number.
@@ -78,14 +75,23 @@ class Row:
     unit_price: str = ""
     sub_total: str = ""
 
+    @classmethod
+    def empty(cls) -> "Row":
+        """
+        Factory method to create an empty row instance.
+
+        Returns:
+            Row: A Row object with empty fields.
+        """
+        return cls()
+
 
 @dataclass
 class Header:
     """
     Represents the header of a single board BOM.
 
-    All fields are plain strings with default values of "" to simplify normalization
-    and tolerate missing values.
+    All fields are plain strings with default values of "" to simplify normalization and tolerate missing values.
 
     Attributes:
         model_no (str): Product model number.
@@ -106,6 +112,16 @@ class Header:
     overhead_cost: str = ""
     total_cost: str = ""
 
+    @classmethod
+    def empty(cls) -> "Header":
+        """
+        Factory method to create an empty header instance.
+
+        Returns:
+            Header: A Header object with empty fields.
+        """
+        return cls()
+
 
 @dataclass
 class Board:
@@ -117,7 +133,7 @@ class Board:
         sheet_name (str): Name of the Excel sheet from which this board data is read.
         rows (list[Row]): List of component rows associated with this board.
     """
-    header: Header
+    header: Header = field(default_factory=Header)
     sheet_name: str = ""
     rows: list[Row] = field(default_factory=list)
 
@@ -129,7 +145,7 @@ class Board:
         Returns:
             Board: A Board object with default header and an empty component list.
         """
-        return cls(sheet_name="", header=Header())
+        return cls()
 
 
 @dataclass
@@ -152,4 +168,4 @@ class Bom:
         Returns:
             Bom: An empty Bom object.
         """
-        return cls(file_name="", boards=[])
+        return cls()

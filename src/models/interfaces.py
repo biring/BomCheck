@@ -1,39 +1,40 @@
 """
 Public interface for `models` package.
 
-This module exposes the stable API surface of the `models` package.
-It re-exports dataclass models and constants used to represent and parse
-BOMs. Internal modules must not be imported directly.
+This module serves as a facade, re-exporting selected functions from internal checker modules. Consumers should import from here instead of directly accessing internal files, preserving flexibility to change internal structure without breaking external code.
 
 Main capabilities:
- - Exposes Board, Bom, Header, and Row dataclasses
- - Exposes field mappings and template identifiers
- - Hides internal implementation from external consumers
+    - Exposes Board, Bom, Header, and Row dataclasses
+    - Exposes field mappings and template identifiers
+    - Hides internal implementation from external consumers
 
 Example Usage:
-    from src.models.interface import *
-    board = Board.empty()
+    from src.models import interfaces as models
+    board = models.Board.empty()
 
 Dependencies:
- - Python >= 3.10
+    - Python >= 3.10
 
 Notes:
- - Only symbols listed in `__all__` are exposed via `src.models`.
- - Designed to maintain a clean, testable, and stable external API.
+    - Only symbols listed in `__all__` are exposed via `src.models`.
+    - Designed to maintain a clean, testable, and stable external API.
 
 License:
- - Internal Use Only
+    - Internal Use Only
 """
 
-from src.models._v3_fields import (
+# Re-export selected API from internal modules to expose as public API
+# noinspection PyProtectedMember
+from ._v3_fields import (
     HeaderFields,
     RowFields,
-    TABLE_LABEL_TO_ATTR_MAP,
-    BOARD_HEADER_TO_ATTR_MAP,
-    REQUIRED_V3_ROW_IDENTIFIERS,
-    REQUIRED_V3_BOM_IDENTIFIERS
+    ROW_TO_ATTR_MAP,
+    HEADER_TO_ATTR_MAP,
+    REQ_V3_ROW_IDENTIFIERS,
+    REQ_V3_BOM_IDENTIFIERS
 )
-from src.models._v3_raw import (
+# noinspection PyProtectedMember
+from ._v3_raw import (
     Board,
     Bom,
     Header,
@@ -43,10 +44,10 @@ from src.models._v3_raw import (
 __all__ = [
     'HeaderFields',
     'RowFields',
-    'TABLE_LABEL_TO_ATTR_MAP',
-    'BOARD_HEADER_TO_ATTR_MAP',
-    'REQUIRED_V3_ROW_IDENTIFIERS',
-    'REQUIRED_V3_BOM_IDENTIFIERS',
+    'ROW_TO_ATTR_MAP',
+    'HEADER_TO_ATTR_MAP',
+    'REQ_V3_ROW_IDENTIFIERS',
+    'REQ_V3_BOM_IDENTIFIERS',
     'Board',
     'Bom',
     'Header',

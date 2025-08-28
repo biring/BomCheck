@@ -4,9 +4,9 @@ Internal constants and field mappings for version 3 BOM model support.
 This module defines string constants and mapping dictionaries used to translate raw Excel headers into structured model attributes (Header, Row). It enables automated parsing workflows within the Version 3 BOM parser.
 
 Main capabilities:
- - Definitions for board-level and component-level Excel fields
- - Mappings from Excel labels to internal model attribute names
- - Identifiers used to detect Version 3 BOM templates
+    - Definitions for board-level and component-level Excel fields
+    - Mappings from Excel labels to internal model attribute names
+    - Identifiers used to detect Version 3 BOM templates
 
 Example Usage:
     # Preferred usage via public package interface:
@@ -14,20 +14,22 @@ Example Usage:
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
     import src.models._v3_fields as fields
-    field = v3.BoardHeaderFields.BOM_DATE
+    fields = v3.BoardHeaderFields.BOM_DATE
 
 Dependencies:
- - Python >= 3.10
- - Standard Library only
+    - Python >= 3.10
+    - Standard Library only
 
 Notes:
- - This module is internal to `src.models`. It is not part of the public API.
- - External code should import public interfaces via `src.models.interface`.
- - Use in unit tests is acceptable to validate parsing logic and constants.
+    - This module is internal to `src.models`. It is not part of the public API.
+    - External code should import public interfaces via `src.models.interface`.
+    - Use in unit tests is acceptable to validate parsing logic and constants.
 
 License:
- - Internal Use Only
+    - Internal Use Only
 """
+
+__all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing
 
 
 class HeaderFields:
@@ -35,8 +37,6 @@ class HeaderFields:
     Field constants for board header in Version 3 BOM sheets.
 
     Each class attribute corresponds to a known header label in the Excel sheet, used to extract metadata like model number, revision, supplier, and costs.
-
-    These fields map to internal dataclass attributes via `HEADER_FIELD_MAP`.
 
     Class Methods:
         names(): Returns a list of all defined header field strings.
@@ -74,7 +74,7 @@ Key:
 Value:
     str: Attribute name in the `Header` dataclass (e.g., "model_no")
 """
-BOARD_HEADER_TO_ATTR_MAP = {
+HEADER_TO_ATTR_MAP = {
     HeaderFields.MODEL_NUMBER: "model_no",
     HeaderFields.BUILD_STAGE: "build_stage",
     HeaderFields.BOARD_NAME: "board_name",
@@ -91,8 +91,6 @@ class RowFields:
     Field constants for component rows in Version 3 BOM sheets.
 
     Each class attribute represents a standardized header in the board rows, such as part number, quantity, or pricing information.
-
-    These fields map to internal dataclass attributes via `TABLE_FIELD_MAP`.
 
     Class Methods:
         names(): Returns a list of all defined table field strings.
@@ -138,7 +136,7 @@ Key:
 Value:
     str: Attribute name in the `Row` dataclass (e.g., "qty")
 """
-TABLE_LABEL_TO_ATTR_MAP = {
+ROW_TO_ATTR_MAP = {
     RowFields.ITEM: "item",
     RowFields.COMPONENT: "component_type",
     RowFields.PACKAGE: "device_package",
@@ -163,7 +161,7 @@ This list defines the minimum set of Excel column headers that must be present i
 Returns:
     list[str]: List of field labels used to validate a Version 3 BOM sheet.
 """
-REQUIRED_V3_BOM_IDENTIFIERS: list[str] = [
+REQ_V3_BOM_IDENTIFIERS: list[str] = [
     RowFields.CLASSIFICATION,
     RowFields.DESIGNATOR,
     RowFields.MANUFACTURER,
@@ -178,7 +176,7 @@ This list contains key Excel column headers that must be present in a sheet's co
 Returns:
     list[str]: Column labels expected in a valid Version 3 board-level BOM table.
 """
-REQUIRED_V3_ROW_IDENTIFIERS: list[str] = [
+REQ_V3_ROW_IDENTIFIERS: list[str] = [
     RowFields.CLASSIFICATION,
     RowFields.DESIGNATOR,
     RowFields.MANUFACTURER,
