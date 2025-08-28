@@ -36,6 +36,8 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 from dataclasses import dataclass, field
 
+from .interfaces import ROW_TO_ATTR_MAP, HEADER_TO_ATTR_MAP
+
 
 @dataclass
 class Row:
@@ -85,6 +87,16 @@ class Row:
         """
         return cls()
 
+    def __str__(self) -> str:
+        """
+        Return a human-readable multiline string representation of the row. Shows all fields as key=value, one per line.
+        """
+        lines = []
+        for excel_label, model_field in ROW_TO_ATTR_MAP.items():
+            value = getattr(self, model_field, "")
+            lines.append(f"{excel_label}={value}")
+        return "\n".join(lines)
+
 
 @dataclass
 class Header:
@@ -121,6 +133,16 @@ class Header:
             Header: A Header object with empty fields.
         """
         return cls()
+
+    def __str__(self) -> str:
+        """
+        Return a human-readable multiline string representation of the header. Shows all fields as key=value, one per line.
+        """
+        lines = []
+        for excel_label, model_field in HEADER_TO_ATTR_MAP.items():
+            value = getattr(self, model_field, "")
+            lines.append(f"{excel_label}={value}")
+        return "\n".join(lines)
 
 
 @dataclass
