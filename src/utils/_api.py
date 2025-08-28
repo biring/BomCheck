@@ -25,6 +25,10 @@ License:
 
 """
 
+# noinspection PyProtectedMember
+from ._console import (
+    prompt_string_input
+)
 # Import the implementation symbols from internal modules
 # noinspection PyProtectedMember
 from ._sanitizer import (
@@ -36,6 +40,7 @@ from ._sanitizer import (
 # Define exactly what is public.
 # __all__ is the single source of truth for the public API.
 __all__ = [
+    "prompt_string_input",
     "normalize_spaces",
     "normalize_to_string",
     "remove_all_whitespace",
