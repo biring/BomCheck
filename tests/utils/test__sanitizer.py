@@ -1,36 +1,32 @@
 """
 Unit tests for text sanitization utility functions.
 
-This module verifies the correctness of core text cleaning helpers from
-`src.utils.text_sanitizer`. These tests ensure robust and consistent preprocessing
-behavior across a variety of input types and edge cases.
-
-Main capabilities tested:
- - `normalize_to_string`: Converts arbitrary inputs into safe string representations
- - `normalize_spaces`: Collapses multiple spaces and trims excess spacing
- - `remove_all_whitespace`: Removes all types of whitespace from a string
+This module verifies the correctness of core text cleaning helpers from `utils._sanitizer`. These tests ensure robust and consistent preprocessing behavior across a variety of input types and edge cases.
 
 Example Usage:
     # From project root:
-    python -m unittest tests/utils/test_text_sanitizer.py
+    python -m unittest tests/utils/test__sanitizer.py
 
 Dependencies:
- - Python >= 3.9
- - Standard Library: unittest
- - External: pandas
+     - Python >= 3.9
+     - Standard Library: unittest
+     - External: pandas
 
 Notes:
- - Assumes all utility functions are pure and deterministic.
- - Intended for use in automated test pipelines and local test runs.
- - Aligns with the public API exposed by `src.utils`.
+     - Assumes all utility functions are pure and deterministic.
+     - Intended for use in automated test pipelines and local test runs.
 
 License:
  - Internal Use Only
 """
 
 import unittest
+
 import pandas as pd
-from src.utils import normalize_spaces, normalize_to_string, remove_all_whitespace
+
+
+# noinspection PyProtectedMember
+import src.utils._sanitizer as sanitizer
 
 
 class TestTextSanitizer(unittest.TestCase):
@@ -39,14 +35,12 @@ class TestTextSanitizer(unittest.TestCase):
         """
         Verifies string normalization across a variety of input types.
 
-        Ensures that `normalize_to_string` consistently returns a valid string
-        representation for common data types. Specifically:
+        Ensures that `normalize_to_string` consistently returns a valid string representation for common data types. Specifically:
          - Converts `None`, NaN, `pd.NA`, and `pd.NaT` to empty strings.
          - Preserves input strings unchanged.
          - Converts integers, floats, booleans, and other types using `str()`.
 
-        This test validates that the function is safe to use in data preprocessing
-        pipelines that require all values to be string-normalized.
+        This test validates that the function is safe to use in data preprocessing pipelines that require all values to be string-normalized.
         """
         test_cases = [
             (None, ""),
@@ -61,7 +55,7 @@ class TestTextSanitizer(unittest.TestCase):
         ]
 
         for input_value, expected_output in test_cases:
-            result = normalize_to_string(input_value)
+            result = sanitizer.normalize_to_string(input_value)
             with self.subTest(In=input_value, Out=result, Exp=expected_output):
                 self.assertEqual(result, expected_output)
 
@@ -74,8 +68,7 @@ class TestTextSanitizer(unittest.TestCase):
         - Removes leading and trailing spaces.
         - Preserves the original word order and meaning.
 
-        This test confirms the function is suitable for cleaning user input or
-        normalizing inconsistent whitespace in text data.
+        This test confirms the function is suitable for cleaning user input or normalizing inconsistent whitespace in text data.
         """
         test_cases = [
             ("", ""),
@@ -91,7 +84,7 @@ class TestTextSanitizer(unittest.TestCase):
         ]
 
         for input_value, expected_output in test_cases:
-            result = normalize_spaces(input_value)
+            result = sanitizer.normalize_spaces(input_value)
             with self.subTest(In=input_value, Out=result, Exp=expected_output):
                 self.assertEqual(result, expected_output)
 
@@ -108,8 +101,7 @@ class TestTextSanitizer(unittest.TestCase):
          - Form feeds ('\\f')
          - Vertical tabs ('\\v')
 
-        Confirms the function preserves only non-whitespace characters, making it
-        suitable for aggressive text normalization use cases.
+        Confirms the function preserves only non-whitespace characters, making it suitable for aggressive text normalization use cases.
         """
         test_cases = [
             ("", ""),
@@ -130,7 +122,7 @@ class TestTextSanitizer(unittest.TestCase):
         ]
 
         for input_value, expected_output in test_cases:
-            result = remove_all_whitespace(input_value)
+            result = sanitizer.remove_all_whitespace(input_value)
             with self.subTest(In=input_value, Out=result, Exp=expected_output):
                 self.assertEqual(result, expected_output)
 

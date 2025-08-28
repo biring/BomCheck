@@ -1,35 +1,31 @@
 """
 Utility functions for sanitizing and normalizing text inputs.
 
-This module includes helpers to:
- - Remove non-printable characters (e.g., control codes)
- - Normalize space characters (collapse multiple spaces, trim)
- - Remove all space characters or all types of whitespace
-
-These are commonly used in data cleansing pipelines,
-file parsers, or any user-generated text input processing.
+These are commonly used in data cleansing pipelines, file parsers, or any user-generated text input processing.
 
 Example Usage:
     # Preferred usage via public package interface:
-    from src.utils import remove_all_whitespace
+    # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.utils.text_sanitizer as sanitizer
-    clean = sanitizer.remove_all_whitespace(raw_text)
+    import src.utils._sanitizer as sanitizer
+    clean_text = sanitizer.remove_all_whitespace(raw_text)
 
 Dependencies:
- - Python >= 3.9
- - Standard Library: re, string
+    - Python >= 3.9
+    - Standard Library: re, string
 
 Notes:
- - This module is intended for internal use within the `utils` package.
- - Public functions should be imported via `src.utils` where possible to preserve API boundaries.
- - Designed for use in BOM parsing and other text preprocessing utilities.
- - Keeps separation of concerns between structure parsing and text cleanup.
+    - This module is intended for internal use within the `utils` package.
+    - Public functions should be imported via `src.utils` where possible to preserve API boundaries.
+    - Designed for use in BOM parsing and other text preprocessing utilities.
+    - Keeps separation of concerns between structure parsing and text cleanup.
 
 License:
  - Internal Use Only
 """
+
+__all__ = []  # Internal-only; not part of public API
 
 import re
 import pandas as pd
@@ -47,14 +43,10 @@ def normalize_to_string(text) -> str:
     """
     Converts any input value into a valid string representation.
 
-    Returns an empty string for null-like inputs (None, NaN, pd.NA, pd.NaT),
-    preserves strings unchanged, and uses `str()` for all other data types.
-    This normalization step ensures consistent and safe string input for
-    downstream sanitization and parsing routines.
+    Returns an empty string for null-like inputs (None, NaN, pd.NA, pd.NaT), preserves strings unchanged, and uses `str()` for all other data types. This normalization step ensures consistent and safe string input for downstream sanitization and parsing routines.
 
     Args:
-        text (Any): Input value to normalize. Can be a string, None, float, int,
-                    boolean, pandas NA/NaT, or any other type.
+        text (Any): Input value to normalize. Can be a string, None, float, int, boolean, pandas NA/NaT, or any other type.
 
     Returns:
         str: Normalized string representation of the input, or an empty string if input is null-like.
@@ -77,9 +69,7 @@ def normalize_spaces(text: str) -> str:
     """
     Collapses multiple consecutive spaces and trims surrounding whitespace.
 
-    Replaces two or more adjacent ASCII space characters (' ') with a single space,
-    and removes any leading or trailing spaces. Does not affect tabs, newlines, or
-    other non-space whitespace characters.
+    Replaces two or more adjacent ASCII space characters (' ') with a single space, and removes any leading or trailing spaces. Does not affect tabs, newlines, or other non-space whitespace characters.
 
     Useful for normalizing user input or cleaning up text with inconsistent spacing.
 
@@ -96,10 +86,7 @@ def remove_all_whitespace(text: str) -> str:
     """
     Removes all Unicode whitespace characters from the input string.
 
-    This includes standard ASCII spaces (' '), tabs ('\\t'), newlines ('\\n'),
-    carriage returns ('\\r'), vertical tabs ('\\v'), and form feeds ('\\f'),
-    as well as any other Unicode-defined whitespace. Useful for compacting
-    strings or preparing them for strict formatting or comparison.
+    This includes standard ASCII spaces (' '), tabs ('\\t'), newlines ('\\n'), carriage returns ('\\r'), vertical tabs ('\\v'), and form feeds ('\\f'), as well as any other Unicode-defined whitespace. Useful for compacting strings or preparing them for strict formatting or comparison.
 
     Args:
         text (str): The input string to clean.

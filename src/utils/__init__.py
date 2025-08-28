@@ -1,32 +1,37 @@
 """
-Public interface for the utility package.
+Public initializer for the `utils` package.
 
-This package provides reusable utility functions for data preprocessing,
-string sanitization, and formatting tasks.
+This module re-exports the curated public API of `utils` so that consumers can access functionality through a flat, stable interface:
 
-Only explicitly exported functions are intended for external use. Internal
-logic should remain encapsulated within their respective modules and should
-not be imported directly.
+Example Usage:
+    # Preferred usage via package import:
+    import src.utils as utils
+    clean = utils.remove_all_whitespace(raw_string)
 
-Note:
-    To ensure maintainability and encapsulation, always import utility functions
-    from the `src.utils` package-level interface rather than from submodules.
+Capabilities:
+    - Re-export all public functions and classes defined in `_api.py`.
+    - Centralize the list of exported symbols via a single `__all__`.
+    - Ensure consumers do not depend on private/internal modules.
 
-    Preferred:
-        from src.utils import remove_all_whitespace
+Dependencies:
+    - Python >= 3.9
+    - Standard Library only
 
-    Avoid:
-        from src.utils.text_sanitizer import remove_all_whitespace
+Notes:
+    - `_api.py` is the single source of truth for public symbols.
+    - Keeps package imports flat and avoids leaking internal module structure.
+    - Consumers should always import through `src.utils` rather than `_api`.
+
+License:
+ - Internal Use Only
 """
 
-from .text_sanitizer import (
-    normalize_spaces,
-    normalize_to_string,
-    remove_all_whitespace
-)
+# Import the internal API collector (as a module object)
+from . import _api as _api
 
-__all__ = [
-    "normalize_spaces",
-    "normalize_to_string",
-    "remove_all_whitespace"
-]
+# Re-export all curated public symbols into the package namespace
+from ._api import * # noqa: F401,F403
+
+# Ensure __all__ matches what _api declares as public.
+# This avoids duplication and makes _api the single source of truth.
+__all__ = list(getattr(_api, "__all__", []))
