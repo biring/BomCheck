@@ -5,7 +5,7 @@ This suite provides smoke-level coverage to ensure the top-level `utils` API beh
 
 Example Usage (from project root):
     # Run test suite:
-    python -m unittest tests.utils.test_api
+    python -m unittest tests.utils.test__api
 
 Dependencies:
     - Python >= 3.9
@@ -20,6 +20,8 @@ License:
  - Internal Use Only
 """
 
+import os
+import tempfile
 import unittest
 from unittest.mock import patch
 
@@ -27,9 +29,32 @@ from unittest.mock import patch
 import src.utils._api as api
 
 
-class TestAPI(unittest.TestCase):
+class TestConsole(unittest.TestCase):
     """
-    Unit tests for the public API functions in the `utils` module.
+    Unit tests for the public API functions in the `utils._console` module.
+    """
+
+    def test_prompt_string_input(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        expected = "45"
+
+        # Patch the API-level symbol, since we're testing the public API
+        with patch("src.utils._api.prompt_string_input", return_value=expected) as mock_input:
+            # ACT
+            result = api.prompt_string_input("", "", "")
+
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+                mock_input.assert_called_once_with("", "", "")
+
+
+class TestParser(unittest.TestCase):
+    """
+    Unit tests for the public API functions in the `utils._parser` module.
     """
 
     def test_is_float(self):
@@ -202,6 +227,12 @@ class TestAPI(unittest.TestCase):
             with self.subTest(In=input_str, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
 
+
+class TestSanitizer(unittest.TestCase):
+    """
+    Unit tests for the public API functions in the `utils._sanitizer` module.
+    """
+
     def test_normalize_spaces(self):
         """
         Should run API function
@@ -247,22 +278,96 @@ class TestAPI(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-    def test_get_string_input(self):
+
+class TestTextIO(unittest.TestCase):
+    """
+    Unit tests for the public API functions in the `utils._text_io` module.
+    """
+
+    def setUp(self):
+        self.temp_dir = tempfile.mkdtemp(prefix="api_textio")
+
+    def tearDown(self):
+        for root, dirs, files in os.walk(self.temp_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(self.temp_dir)
+
+    def test_save_text_file(self):
         """
         Should run API function
         """
         # ARRANGE
-        expected = "45"
+        path = os.path.join(self.temp_dir, "hello.txt")
+        content = "Hello\tUTF-8 ✓ — line one 🌟"
+        expected_size = len(content.encode("utf-8"))
 
-        # Patch the API-level symbol, since we're testing the public API
-        with patch("src.utils._api.prompt_string_input", return_value=expected) as mock_input:
-            # ACT
-            result = api.prompt_string_input("", "", "")
+        # ACT
+        api.save_text_file(path, content)
 
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-                mock_input.assert_called_once_with("", "", "")
+        # ASSERT
+        self.assertTrue(os.path.isfile(path))
+        actual_size = os.path.getsize(path)
+        with self.subTest(Out=actual_size, Exp=expected_size):
+            self.assertEqual(actual_size, expected_size)
+
+    def test_save_text_file_raise(self):
+        """
+        Should raise when file path is a folder path.
+        """
+        # ARRANGE
+        bad_path = os.path.join(self.temp_dir, "not_a_file")
+        os.mkdir(bad_path)
+        expected = RuntimeError.__name__
+
+        # ACT
+        try:
+            api.save_text_file(bad_path, "content")
+            result = ""
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_load_text_file(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        path = os.path.join(self.temp_dir, "hello.txt")
+        expected = "Hello\nUTF-8 ✓ load file data 🌟"
+        with open(path, "w", encoding="utf-8", newline="") as f:
+            f.write(expected)
+
+        # ACT
+        actual = api.load_text_file(path)
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
+
+    def test_load_text_file_raise(self):
+        """
+        Should raise error when file does not exist.
+        """
+        # ARRANGE
+        missing = os.path.join(self.temp_dir, "does_not_exist.txt")
+        expected = RuntimeError.__name__
+
+        # ACT
+        try:
+            api.load_text_file(missing)
+            result = ""
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

@@ -50,6 +50,11 @@ from ._sanitizer import (
     normalize_to_string,
     remove_all_whitespace,
 )
+# noinspection PyProtectedMember
+from ._text_io import (
+    load_text_file,
+    save_text_file,
+)
 
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
@@ -68,8 +73,12 @@ __all__ = [
     "parse_to_iso_date_string",
     "parse_to_non_empty_string",
 
-    # parser
+    # sanitizer
     "normalize_spaces",
     "normalize_to_string",
     "remove_all_whitespace",
+
+    # text_io
+    "load_text_file",
+    "save_text_file",
 ]
