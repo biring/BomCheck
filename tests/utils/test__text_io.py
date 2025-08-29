@@ -13,10 +13,10 @@ isolation between test runs.
 
 Example Usage:
     # Run with unittest discovery:
-    python -m unittest tests/utils/test_text.py
+    python -m unittest tests/utils/test__text_io.py
 
     # Run directly:
-    python tests/utils/test_text.py
+    python tests/utils/test__text_io.py
 
 Dependencies:
  - Python >= 3.9
@@ -36,7 +36,8 @@ import os
 import tempfile
 import unittest
 
-import src.utils.text as file_util
+# noinspection PyProtectedMember
+import src.utils._text_io as text_io
 
 
 class TestSaveTextFile(unittest.TestCase):
@@ -74,7 +75,7 @@ class TestSaveTextFile(unittest.TestCase):
         test_content = "Hello, this is a test.\nWith multiple lines.\n✓ UTF-8 check."
 
         # ACT
-        file_util.save_text_file(temp_file_path, test_content)
+        text_io.save_text_file(temp_file_path, test_content)
 
         # ASSERT
         with open(temp_file_path, mode="r", encoding="utf-8") as f:
@@ -94,7 +95,7 @@ class TestSaveTextFile(unittest.TestCase):
 
         # ACT
         try:
-            file_util.save_text_file(invalid_path, test_content)
+            text_io.save_text_file(invalid_path, test_content)
             result = ""  # No exception raised
         except RuntimeError as e:
             result = type(e).__name__
@@ -141,7 +142,7 @@ class TestLoadTextFile(unittest.TestCase):
             f.write(expected_content)
 
         # ACT
-        result_content = file_util.load_text_file(temp_file_path)
+        result_content = text_io.load_text_file(temp_file_path)
 
         # ASSERT
         with self.subTest(Out=result_content, Exp=expected_content):
@@ -157,7 +158,7 @@ class TestLoadTextFile(unittest.TestCase):
 
         # ACT
         try:
-            file_util.load_text_file(non_existent_file)
+            text_io.load_text_file(non_existent_file)
             result = ""  # No exception raised
         except RuntimeError as e:
             result = type(e).__name__
