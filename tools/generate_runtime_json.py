@@ -47,7 +47,7 @@ import sys
 
 import src.utils.directory as dir_util
 import src.utils.file as file_util
-import src.utils.text as text_util
+import src.utils as utils
 import src.utils.json as json_util
 
 # CONSTANTS
@@ -83,10 +83,10 @@ def main() -> int:
             file_util.assert_filename_with_extension(dest_path, file_util.JSON_FILE_EXT)
 
             # Load and parse strict key/value content
-            raw_text = text_util.load_text_file(source_path)
+            raw_text = utils.load_text_file(source_path)
             kv_map = json_util.parse_strict_key_value_to_dict(source_path, raw_text)
 
-            # Wrap as "foundation" JSON payload and persistgit
+            # Wrap as "foundation" JSON payload and persist it
             payload = json_util.create_foundation_json(kv_map, source_filename)
             json_util.save_json_file(dest_path, payload)
 
