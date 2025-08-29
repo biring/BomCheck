@@ -17,16 +17,16 @@ Tests cover:
 
 Example Usage:
     # Discovery (from repo root):
-    python -m unittest tests/utils/test_excel.py
+    python -m unittest tests/utils/test__excel_io.py
 
     # Run directly:
-    python tests/utils/test_excel.py
+    python tests/utils/test__excel_io.py
 
 Dependencies:
  - Python >= 3.9
  - Standard Library: os, shutil, stat, tempfile, unittest
  - External: pandas (>= 1.5 recommended), openpyxl (Excel engine)
- - Local Module Under Test: src.utils.excel
+ - Local Module Under Test: src/utils/_excel_io.py
 
 Notes:
  - Tests use temporary directories/files; all artifacts are cleaned in tearDown.
@@ -45,7 +45,9 @@ import tempfile
 import unittest
 
 import pandas as pd
-import src.utils.excel as excel
+
+# noinspection PyProtectedMember
+import src.utils._excel_io as excel_io
 
 
 class TestMapExcelSheetsToStringDataFrames(unittest.TestCase):
@@ -111,16 +113,18 @@ class TestMapExcelSheetsToStringDataFrames(unittest.TestCase):
         # ACT
         # Open as ExcelFile and pass the *open workbook* into the function
         with pd.ExcelFile(file_path, engine="openpyxl") as workbook:
-            result = excel.map_excel_sheets_to_string_dataframes(workbook)
+            result = excel_io.map_excel_sheets_to_string_dataframes(workbook)
 
         # ASSERT
         # Compare keys (sheet names) and flattened values as strings
-        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(), expected.items()):
+        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(),
+                                                                              expected.items()):
             with self.subTest(Out=result_key, Exp=expected_key):
                 self.assertEqual(result_key, expected_key)
             # Flatten and compare all values cell-by-cell as strings
             flat_result_value = result_value.to_numpy().flatten().tolist()
-            flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(str).tolist()
+            flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(
+                str).tolist()
             for result, expected in zip(flat_result_value, flat_expected_value):
                 with self.subTest(Out=result, Exp=expected):
                     self.assertEqual(result, expected)
@@ -141,7 +145,7 @@ class TestMapExcelSheetsToStringDataFrames(unittest.TestCase):
         # ACT & ASSERT
         for bad in bad_inputs:
             try:
-                excel.map_excel_sheets_to_string_dataframes(bad)  # type: ignore[arg-type]
+                excel_io.map_excel_sheets_to_string_dataframes(bad)  # type: ignore[arg-type]
                 result = False  # No exception → failure case
             except AttributeError:
                 result = True  # Exception occurred → success case
@@ -215,17 +219,19 @@ class TestReadExcelFile(unittest.TestCase):
 
         # ACT
         # Call the function under test
-        result = excel.read_excel_file(file_path)
+        result = excel_io.read_excel_file(file_path)
 
         # ASSERT
         # Compare keys (sheet names) and flattened values as strings
-        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(), expected.items()):
+        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(),
+                                                                              expected.items()):
             with self.subTest(Out=result_key, Exp=expected_key):
                 self.assertEqual(result_key, expected_key)
 
                 # Flatten and compare all values cell-by-cell as strings
                 flat_result_value = result_value.to_numpy().flatten().tolist()
-                flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(str).tolist()
+                flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(
+                    str).tolist()
                 for result, expected in zip(flat_result_value, flat_expected_value):
                     with self.subTest(Out=result, Exp=expected):
                         self.assertEqual(result, expected)
@@ -240,7 +246,7 @@ class TestReadExcelFile(unittest.TestCase):
 
         # ACT
         try:
-            excel.read_excel_file(invalid_path)
+            excel_io.read_excel_file(invalid_path)
             result = None  # No exception
         except Exception as e:
             result = type(e).__name__
@@ -279,7 +285,7 @@ class TestSanitizeSheetName(unittest.TestCase):
 
         for input_val, expected in test_cases:
             # ACT
-            result = excel.sanitize_sheet_name_for_excel(input_val)
+            result = excel_io.sanitize_sheet_name_for_excel(input_val)
 
             # ASSERT
             with self.subTest(In=input_val, Out=result, Exp=expected):
@@ -331,7 +337,7 @@ class TestWriteFrameToExcel(unittest.TestCase):
 
         # ACT
         # Execute the function under test
-        excel.write_frame_to_excel(out_path, self.df)
+        excel_io.write_frame_to_excel(out_path, self.df)
 
         # Read the file back to validate outcomes (independent verification)
         with (pd.ExcelFile(out_path, engine="openpyxl") as workbook):
@@ -372,7 +378,7 @@ class TestWriteFrameToExcel(unittest.TestCase):
 
         # ACT
         try:
-            excel.write_frame_to_excel(bad_path, self.df)
+            excel_io.write_frame_to_excel(bad_path, self.df)
             result = None  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__
@@ -442,13 +448,13 @@ class TestWriteSheetsToExcel(unittest.TestCase):
 
         expected_written_sheets = {
             "OK": self.df_a,
-            excel.sanitize_sheet_name_for_excel(bad_name): self.df_b,
-            excel.sanitize_sheet_name_for_excel(long_name): self.df_a,
-            excel.sanitize_sheet_name_for_excel(mix_name): self.df_b,
+            excel_io.sanitize_sheet_name_for_excel(bad_name): self.df_b,
+            excel_io.sanitize_sheet_name_for_excel(long_name): self.df_a,
+            excel_io.sanitize_sheet_name_for_excel(mix_name): self.df_b,
         }
 
         # ACT
-        excel.write_sheets_to_excel(out_path, sheets, overwrite=False)
+        excel_io.write_sheets_to_excel(out_path, sheets, overwrite=False)
 
         # ASSERT: file exists
         exists = os.path.isfile(out_path)
@@ -486,7 +492,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
 
         try:
             # ACT
-            excel.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
+            excel_io.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -504,7 +510,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         expected_default = "Sheet1"  # pandas default when no name provided and first sheet
 
         # ACT
-        excel.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
+        excel_io.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
         with pd.ExcelFile(self.out_path, engine="openpyxl") as xl:
             sheet_names = xl.sheet_names
 
@@ -527,7 +533,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         for val in inputs:
             # ACT
             try:
-                excel.write_sheets_to_excel(val, sheets)  # type: ignore[arg-type]
+                excel_io.write_sheets_to_excel(val, sheets)  # type: ignore[arg-type]
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -546,7 +552,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
 
         # ACT
         try:
-            excel.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
+            excel_io.write_sheets_to_excel(self.out_path, sheets_in, overwrite=True)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -566,7 +572,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
 
         # ACT
         try:
-            excel.write_sheets_to_excel(out_path, sheets)
+            excel_io.write_sheets_to_excel(out_path, sheets)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -582,14 +588,14 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         # ARRANGE
         out_path = os.path.join(self.tmpdir, "exists.xlsx")
         # Create initial workbook
-        excel.write_sheets_to_excel(out_path, {"OK": self.df_a}, overwrite=False)
+        excel_io.write_sheets_to_excel(out_path, {"OK": self.df_a}, overwrite=False)
         self.assertTrue(os.path.isfile(out_path))
 
         expected = RuntimeError.__name__
 
         # ACT
         try:
-            excel.write_sheets_to_excel(out_path, {"OK": self.df_b}, overwrite=False)
+            excel_io.write_sheets_to_excel(out_path, {"OK": self.df_b}, overwrite=False)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -604,11 +610,11 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         """
         # ARRANGE
         out_path = os.path.join(self.tmpdir, "rewrite.xlsx")
-        excel.write_sheets_to_excel(out_path, {"OK": self.df_a}, overwrite=False)
+        excel_io.write_sheets_to_excel(out_path, {"OK": self.df_a}, overwrite=False)
         self.assertTrue(os.path.isfile(out_path))
 
         # ACT
-        excel.write_sheets_to_excel(out_path, {"OK": self.df_b}, overwrite=True)
+        excel_io.write_sheets_to_excel(out_path, {"OK": self.df_b}, overwrite=True)
 
         # ASSERT: verify content replaced
         with pd.ExcelFile(out_path, engine="openpyxl") as workbook:
@@ -625,7 +631,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         ro_path = os.path.join(self.tmpdir, "readonly.xlsx")
 
         # Create initial file, then mark read-only
-        excel.write_sheets_to_excel(ro_path, {"OK": self.df_a}, overwrite=False)
+        excel_io.write_sheets_to_excel(ro_path, {"OK": self.df_a}, overwrite=False)
         os.chmod(ro_path, stat.S_IREAD)  # set read-only attribute
 
         expected = RuntimeError.__name__
@@ -633,7 +639,7 @@ class TestWriteSheetsToExcel(unittest.TestCase):
         # ACT
         try:
             # This attempts to open in 'x' or 'w' mode depending on overwrite (use True to focus the overwrite path)
-            excel.write_sheets_to_excel(ro_path, {"OK": self.df_b}, overwrite=True)
+            excel_io.write_sheets_to_excel(ro_path, {"OK": self.df_b}, overwrite=True)
             result = None
         except Exception as e:
             result = type(e).__name__
