@@ -34,7 +34,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 from dataclasses import dataclass
 from src.models.interfaces import Bom, Board, Header, Row, HeaderFields, RowFields
-import src.utils.parser as ps
+import src.utils as utils
 import src.rules.interfaces as rules
 
 
@@ -174,7 +174,7 @@ def _check_header(file_name: str, sheet_name: str, header: Header) -> list[Error
         _add_error(HeaderFields.BOARD_NAME, exc)
 
     try:
-        ps.parse_to_non_empty_string(header.manufacturer)
+        utils.parse_to_non_empty_string(header.manufacturer)
     except Exception as exc:
         _add_error(HeaderFields.BOARD_SUPPLIER, exc)
 
@@ -263,7 +263,7 @@ def _check_row_cell_value(file_name: str, sheet_name: str, index: str, row: Row)
         _add_error(RowFields.ITEM, exc)
 
     try:
-        ps.parse_to_non_empty_string(row.description)
+        utils.parse_to_non_empty_string(row.description)
     except Exception as exc:
         _add_error(RowFields.DESCRIPTION, exc)
 
@@ -273,12 +273,12 @@ def _check_row_cell_value(file_name: str, sheet_name: str, index: str, row: Row)
         _add_error(RowFields.CLASSIFICATION, exc)
 
     try:
-        ps.parse_to_non_empty_string(row.manufacturer)
+        utils.parse_to_non_empty_string(row.manufacturer)
     except Exception as exc:
         _add_error(RowFields.MANUFACTURER, exc)
 
     try:
-        ps.parse_to_non_empty_string(row.mfg_part_number)
+        utils.parse_to_non_empty_string(row.mfg_part_number)
     except Exception as exc:
         _add_error(RowFields.MFG_PART_NO, exc)
 
