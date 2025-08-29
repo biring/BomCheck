@@ -35,7 +35,7 @@ License:
 __all__ = []  # Internal-only; not part of public API
 
 from src.models.interfaces import Row
-import src.utils.parser as p
+import src.utils as utils
 
 
 def assert_quantity_positive_when_item_positive(row: Row) -> None:
@@ -55,8 +55,8 @@ def assert_quantity_positive_when_item_positive(row: Row) -> None:
     """
     # Validate cell value
     try:
-        item = p.parse_to_integer(row.item)  # And item is an integer
-        quantity = p.parse_to_float(row.qty)  # And qty is type float
+        item = utils.parse_to_integer(row.item)  # And item is an integer
+        quantity = utils.parse_to_float(row.qty)  # And qty is type float
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -83,8 +83,8 @@ def assert_quantity_zero_when_item_blank(row: Row) -> None:
     """
     # Validate cell value
     try:
-        item = p.parse_to_empty_string(row.item)  # And item is empty
-        qty = p.parse_to_float(row.qty)  # And qty is type float
+        item = utils.parse_to_empty_string(row.item)  # And item is empty
+        qty = utils.parse_to_float(row.qty)  # And qty is type float
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -110,8 +110,8 @@ def assert_designator_required_for_positive_item_and_qty(row: Row) -> None:
     """
     # Validate cell value
     try:
-        item = p.parse_to_integer(row.item)  # And item is an integer
-        qty = p.parse_to_integer(row.qty)  # And qty is an integer
+        item = utils.parse_to_integer(row.item)  # And item is an integer
+        qty = utils.parse_to_integer(row.qty)  # And qty is an integer
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -139,7 +139,7 @@ def assert_designator_count_matches_quantity(row: Row) -> None:
     """
     # Validate cell value
     try:
-        qty = p.parse_to_integer(row.qty)
+        qty = utils.parse_to_integer(row.qty)
         designator_count = len([item for item in row.designator.split(",")])
     except ValueError:
         return  # Skip logic validation if cell validation fails
@@ -167,8 +167,8 @@ def assert_unit_price_positive_when_quantity_positive(row: Row):
     """
     # Validate cell value
     try:
-        qty = p.parse_to_float(row.qty)
-        unit_price = p.parse_to_float(row.unit_price)
+        qty = utils.parse_to_float(row.qty)
+        unit_price = utils.parse_to_float(row.unit_price)
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -195,8 +195,8 @@ def assert_subtotal_zero_when_quantity_zero(row: Row):
     """
     # Validate cell value
     try:
-        qty = p.parse_to_float(row.qty)
-        subtotal = p.parse_to_float(row.sub_total)
+        qty = utils.parse_to_float(row.qty)
+        subtotal = utils.parse_to_float(row.sub_total)
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -222,9 +222,9 @@ def assert_subtotal_matches_product(row: Row) -> None:
     """
     # Validate cell value
     try:
-        qty = p.parse_to_float(row.qty)
-        unit_price = p.parse_to_float(row.unit_price)
-        sub_total = p.parse_to_float(row.sub_total)
+        qty = utils.parse_to_float(row.qty)
+        unit_price = utils.parse_to_float(row.unit_price)
+        sub_total = utils.parse_to_float(row.sub_total)
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
