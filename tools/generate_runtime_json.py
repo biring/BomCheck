@@ -46,7 +46,6 @@ import os
 import sys
 
 import src.utils.directory as dir_util
-import src.utils._file_path as file_util
 import src.utils as utils
 import src.utils.json as json_util
 
@@ -57,9 +56,9 @@ DEST_FOLDER = ("src", "runtime",)
 def main() -> int:
     # Discover *.txt sources colocated with this script
     source_dir = os.path.dirname(os.path.abspath(__file__))
-    source_filenames = file_util.get_files_in_directory(source_dir, file_util.TEXT_FILE_TYPE)
+    source_filenames = utils.get_files_in_directory(source_dir, utils.TEXT_FILE_TYPE)
     if not source_filenames:
-        print(f"No '{file_util.TEXT_FILE_TYPE}' source files found in {source_dir}")
+        print(f"No '{utils.TEXT_FILE_TYPE}' source files found in {source_dir}")
         return -1
 
     # Resolve and validate the runtime output directory
@@ -74,13 +73,13 @@ def main() -> int:
         print(f"Processing: {source_filename}")
         try:
             # Build and validate full input path
-            source_path = file_util.build_file_path(source_dir, source_filename)
-            file_util.assert_filename_with_extension(source_path, file_util.TEXT_FILE_TYPE)
+            source_path = utils.build_file_path(source_dir, source_filename)
+            utils.assert_filename_with_extension(source_path, utils.TEXT_FILE_TYPE)
 
             # Build and validate full output path
-            dest_filename = source_filename.rsplit(".", 1)[0] + file_util.JSON_FILE_EXT
-            dest_path = file_util.build_file_path(runtime_dir, dest_filename)
-            file_util.assert_filename_with_extension(dest_path, file_util.JSON_FILE_EXT)
+            dest_filename = source_filename.rsplit(".", 1)[0] + utils.JSON_FILE_EXT
+            dest_path = utils.build_file_path(runtime_dir, dest_filename)
+            utils.assert_filename_with_extension(dest_path, utils.JSON_FILE_EXT)
 
             # Load and parse strict key/value content
             raw_text = utils.load_text_file(source_path)

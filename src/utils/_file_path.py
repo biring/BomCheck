@@ -32,9 +32,11 @@ License:
  - Internal Use Only
 """
 
+__all__ = []  # Internal-only; not part of public API
+
 import os
-from typing import Optional
 from pathlib import Path
+from typing import Optional
 
 # MODULE CONSTANTS
 TEXT_FILE_TYPE = ".txt"
@@ -215,7 +217,7 @@ def is_valid_file_path(name: str) -> bool:
         bool: True if the name is valid on Windows, False otherwise.
     """
     # Windows forbidden characters (source: https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
-    INVALID_CHARS_WINDOWS = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'}
+    windows_forbidden_chars = {'<', '>', ':', '"', '/', '\\', '|', '?', '*'}
 
     if not name or not isinstance(name, str):
         return False
@@ -224,7 +226,7 @@ def is_valid_file_path(name: str) -> bool:
         # This utility is Windows-specific
         return False
 
-    if any(char in INVALID_CHARS_WINDOWS for char in name):
+    if any(char in windows_forbidden_chars for char in name):
         return False
 
     return True

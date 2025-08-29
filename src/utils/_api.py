@@ -29,7 +29,19 @@ License:
 
 # noinspection PyProtectedMember
 from ._console import (
-    prompt_string_input
+    prompt_string_input,
+)
+# noinspection PyProtectedMember
+from ._file_path import (
+    TEXT_FILE_TYPE,
+    EXCEL_FILE_TYPE,
+    JSON_FILE_EXT,
+    assert_filename_with_extension,
+    build_file_path,
+    escape_backslashes,
+    get_files_in_directory,
+    is_existing_file_path,
+    is_valid_file_path,
 )
 # noinspection PyProtectedMember
 from ._parser import (
@@ -60,6 +72,17 @@ from ._text_io import (
 __all__ = [
     # console
     "prompt_string_input",
+
+    # file_path
+    "TEXT_FILE_TYPE",
+    "EXCEL_FILE_TYPE",
+    "JSON_FILE_EXT",
+    "assert_filename_with_extension",
+    "build_file_path",
+    "escape_backslashes",
+    "get_files_in_directory",
+    "is_existing_file_path",
+    "is_valid_file_path",
 
     # parser
     "is_float",

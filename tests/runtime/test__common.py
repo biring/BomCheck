@@ -41,9 +41,10 @@ import tempfile
 import shutil
 import unittest
 import src.utils.json as json_util
+import src.utils as utils
 
 # noinspection PyProtectedMember
-from src.runtime import _common as common
+import src.runtime._common as common
 
 
 class TestCache(unittest.TestCase):
@@ -425,14 +426,14 @@ class TestLoadRuntimeJson(unittest.TestCase):
 
         # Patch the path resolver to always return a file within our temp directory.
         def _resolver(resource_name: str):
-            filename = resource_name + common.file_util.JSON_FILE_EXT
+            filename = resource_name + utils.JSON_FILE_EXT
             return os.path.join(self.tmpdir, filename)
 
         common._resolve_json_file_path = _resolver  # simple, library-free patch
 
         # Convenience: name for our resource (e.g., "_info")
         self.resource = "_info"
-        self.filename = self.resource + common.file_util.JSON_FILE_EXT
+        self.filename = self.resource + utils.JSON_FILE_EXT
         self.filepath = os.path.join(self.tmpdir, self.filename)
 
     def tearDown(self):
@@ -575,7 +576,7 @@ class TestResolveJsonFilePathWithBaseDir(unittest.TestCase):
         """
         # ARRANGE
         resource = "_info"
-        filename = resource + common.file_util.JSON_FILE_EXT
+        filename = resource + utils.JSON_FILE_EXT
         expected_path = os.path.join(self.tmpdir, filename)
 
         with open(expected_path, "w", encoding="utf-8") as f:

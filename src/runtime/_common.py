@@ -41,7 +41,7 @@ License:
 
 # Internal utility imports for runtime resource management
 import src.utils.directory as dir_util
-import src.utils._file_path as file_util
+import src.utils as utils
 import src.utils.json as json_util
 
 # CONSTANTS
@@ -249,7 +249,7 @@ def _resolve_json_file_path(resource_name: str, base_dir: str | None = None) -> 
         RuntimeError: If directory discovery or path construction fails.
     """
     # Build the expected filename, e.g., "_info.json"
-    target_filename = resource_name + file_util.JSON_FILE_EXT
+    target_filename = resource_name + utils.JSON_FILE_EXT
 
     # Locate the application root and the runtime directory
     if base_dir is None:
@@ -261,7 +261,7 @@ def _resolve_json_file_path(resource_name: str, base_dir: str | None = None) -> 
         runtime_dir = base_dir
 
     # Enumerate JSON files available in the runtime directory
-    available_filenames = file_util.get_files_in_directory(runtime_dir, file_util.JSON_FILE_EXT)
+    available_filenames = utils.get_files_in_directory(runtime_dir, utils.JSON_FILE_EXT)
 
     # Validate presence of the requested resource file
     if target_filename not in available_filenames:
@@ -272,7 +272,7 @@ def _resolve_json_file_path(resource_name: str, base_dir: str | None = None) -> 
         )
 
     # Construct and return the absolute file path
-    target_path = file_util.build_file_path(runtime_dir, target_filename)
+    target_path = utils.build_file_path(runtime_dir, target_filename)
 
     return target_path
 
