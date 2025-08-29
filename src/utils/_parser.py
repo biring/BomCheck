@@ -5,13 +5,13 @@ This module provides strict parsing helpers and boolean-style "is_*" wrappers fo
 
 Example Usage:
     # Preferred usage via public package interface:
-    from src.utils import parser
-    if parser.is_integer("42"):
-        value = parser.parse_to_integer("42")
+    import src.utils as utils
+    if utils.is_integer("42"):
+        value = utils.parse_to_integer("42")
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.utils.parser as p
-    date = p.parse_to_date_string("6/8/2025")  # → "2025-08-06"
+    import src.utils._parser as parser
+    date = parser.parse_to_date_string("6/8/2025")  # → "2025-08-06"
 
 Dependencies:
  - Python >= 3.9
@@ -26,6 +26,8 @@ Notes:
 License:
  - Internal Use Only
 """
+
+__all__ = []  # Internal-only; not part of public API
 
 import math
 from datetime import datetime

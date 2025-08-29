@@ -22,7 +22,9 @@ License:
 """
 
 import unittest
-import src.utils.parser as ps
+
+# noinspection PyProtectedMember
+import src.utils._parser as parser
 
 
 class TestIsValidDateString(unittest.TestCase):
@@ -43,7 +45,7 @@ class TestIsValidDateString(unittest.TestCase):
         ]
         for s in valid_inputs:
             # ACT
-            result = ps.is_valid_date_string(s)
+            result = parser.is_valid_date_string(s)
             # ASSERT
             with self.subTest(In=s, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -60,7 +62,7 @@ class TestIsValidDateString(unittest.TestCase):
         ]
         for s in valid_inputs:
             # ACT
-            result = ps.is_valid_date_string(s)
+            result = parser.is_valid_date_string(s)
             # ASSERT
             with self.subTest(In=s, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -77,7 +79,7 @@ class TestIsValidDateString(unittest.TestCase):
         ]
         for s in valid_inputs:
             # ACT
-            result = ps.is_valid_date_string(s)
+            result = parser.is_valid_date_string(s)
             # ASSERT
             with self.subTest(In=s, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -95,7 +97,7 @@ class TestIsValidDateString(unittest.TestCase):
         ]
         for s in valid_inputs:
             # ACT
-            result = ps.is_valid_date_string(s)
+            result = parser.is_valid_date_string(s)
             # ASSERT
             with self.subTest(In=s, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -118,7 +120,7 @@ class TestIsValidDateString(unittest.TestCase):
         ]
         for s in invalid_inputs:
             # ACT
-            result = ps.is_valid_date_string(s)
+            result = parser.is_valid_date_string(s)
             # ASSERT
             with self.subTest(In=s, Out=result, Exp=False):
                 self.assertFalse(result)
@@ -138,7 +140,7 @@ class TestIsStrictEmptyString(unittest.TestCase):
 
         for val in valid_inputs:
             # ACT
-            result = ps.is_strict_empty_string(val)
+            result = parser.is_strict_empty_string(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -152,7 +154,7 @@ class TestIsStrictEmptyString(unittest.TestCase):
 
         for val in invalid_inputs:
             # ACT
-            result = ps.is_strict_empty_string(val)
+            result = parser.is_strict_empty_string(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=False):
                 self.assertFalse(result)
@@ -183,7 +185,7 @@ class TestIsFloat(unittest.TestCase):
         ]
         for val in valid_inputs:
             # ACT
-            result = ps.is_float(val)
+            result = parser.is_float(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -197,7 +199,7 @@ class TestIsFloat(unittest.TestCase):
 
         for val in invalid_inputs:
             # ACT
-            result = ps.is_float(val)
+            result = parser.is_float(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=False):
                 self.assertFalse(result)
@@ -216,7 +218,7 @@ class TestIsInteger(unittest.TestCase):
         valid_inputs = ["-999", "-1", "0", "1", "42", "999999"]
         for val in valid_inputs:
             # ACT
-            result = ps.is_integer(val)
+            result = parser.is_integer(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -230,7 +232,7 @@ class TestIsInteger(unittest.TestCase):
 
         for val in invalid_inputs:
             # ACT
-            result = ps.is_integer(val)
+            result = parser.is_integer(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=False):
                 self.assertFalse(result)
@@ -250,7 +252,7 @@ class TestIsNonEmptyString(unittest.TestCase):
 
         for val in empty_inputs:
             # ACT
-            result = ps.is_non_empty_string(val)
+            result = parser.is_non_empty_string(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=False):
                 self.assertFalse(result)
@@ -264,7 +266,7 @@ class TestIsNonEmptyString(unittest.TestCase):
 
         for val in non_empty_inputs:
             # ACT
-            result = ps.is_non_empty_string(val)
+            result = parser.is_non_empty_string(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=True):
                 self.assertTrue(result)
@@ -289,7 +291,7 @@ class TestParseToIsoDateString(unittest.TestCase):
 
         for value, expected in valid_cases.items():
             # ACT
-            result = ps.parse_to_iso_date_string(value)
+            result = parser.parse_to_iso_date_string(value)
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -307,7 +309,7 @@ class TestParseToIsoDateString(unittest.TestCase):
 
         for value, expected in valid_cases.items():
             # ACT
-            result = ps.parse_to_iso_date_string(value)
+            result = parser.parse_to_iso_date_string(value)
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -325,7 +327,7 @@ class TestParseToIsoDateString(unittest.TestCase):
 
         for value, expected in valid_cases.items():
             # ACT
-            result = ps.parse_to_iso_date_string(value)
+            result = parser.parse_to_iso_date_string(value)
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -350,7 +352,7 @@ class TestParseToIsoDateString(unittest.TestCase):
         for value in invalid_inputs:
             # ACT
             try:
-                ps.parse_to_iso_date_string(value)
+                parser.parse_to_iso_date_string(value)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -373,7 +375,7 @@ class TestParseToEmptyString(unittest.TestCase):
         expected = ""
 
         # ACT
-        result = ps.parse_to_empty_string(valid_input)
+        result = parser.parse_to_empty_string(valid_input)
         # ASSERT
         with self.subTest(In=valid_input, Out=result, Exp=expected):
             self.assertEqual(result, expected)
@@ -393,7 +395,7 @@ class TestParseToEmptyString(unittest.TestCase):
         for value in invalid_inputs:
             # ACT
             try:
-                ps.parse_to_empty_string(value)
+                parser.parse_to_empty_string(value)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -412,7 +414,7 @@ class TestParseToEmptyString(unittest.TestCase):
         for value in invalid_inputs:
             # ACT
             try:
-                ps.parse_to_empty_string(value)  # type: ignore[arg-type]
+                parser.parse_to_empty_string(value)  # type: ignore[arg-type]
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -436,7 +438,7 @@ class TestParseToNonEmptyString(unittest.TestCase):
         for value in valid_inputs:
             expected = str(value)
             # ACT
-            result = ps.parse_to_non_empty_string(value)
+            result = parser.parse_to_non_empty_string(value)
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -451,7 +453,7 @@ class TestParseToNonEmptyString(unittest.TestCase):
 
         try:
             # ACT
-            ps.parse_to_non_empty_string(invalid_input)
+            parser.parse_to_non_empty_string(invalid_input)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -469,7 +471,7 @@ class TestParseToNonEmptyString(unittest.TestCase):
         for value in valid_inputs:
             expected = str(value)
             # ACT
-            result = ps.parse_to_non_empty_string(value)  # type: ignore[arg-type]
+            result = parser.parse_to_non_empty_string(value)  # type: ignore[arg-type]
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -498,7 +500,7 @@ class TestParseToFiniteFloat(unittest.TestCase):
 
         for val, expected in valid_cases.items():
             # ACT
-            result = ps.parse_to_float(val)
+            result = parser.parse_to_float(val)
             # ASSERT
             with self.subTest(In=val, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -528,7 +530,7 @@ class TestParseToFiniteFloat(unittest.TestCase):
         for value in invalid_inputs:
             # ACT
             try:
-                ps.parse_to_float(value)
+                parser.parse_to_float(value)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -558,7 +560,7 @@ class TestParseToInteger(unittest.TestCase):
 
         for value, expected in valid_cases.items():
             # ACT
-            result = ps.parse_to_integer(value)
+            result = parser.parse_to_integer(value)
             # ASSERT
             with self.subTest(In=value, Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -585,7 +587,7 @@ class TestParseToInteger(unittest.TestCase):
         for value in invalid_inputs:
             # ACT
             try:
-                ps.parse_to_integer(value)
+                parser.parse_to_integer(value)
                 result = None
             except Exception as e:
                 result = type(e).__name__
