@@ -25,11 +25,25 @@ License:
 
 """
 
+# Import implementation symbols from internal modules
+
 # noinspection PyProtectedMember
 from ._console import (
     prompt_string_input
 )
-# Import the implementation symbols from internal modules
+# noinspection PyProtectedMember
+from ._parser import (
+    is_float,
+    is_integer,
+    is_non_empty_string,
+    is_strict_empty_string,
+    is_valid_date_string,
+    parse_to_empty_string,
+    parse_to_float,
+    parse_to_integer,
+    parse_to_iso_date_string,
+    parse_to_non_empty_string,
+)
 # noinspection PyProtectedMember
 from ._sanitizer import (
     normalize_spaces,
@@ -37,10 +51,24 @@ from ._sanitizer import (
     remove_all_whitespace,
 )
 
-# Define exactly what is public.
-# __all__ is the single source of truth for the public API.
+# Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
+    # console
     "prompt_string_input",
+
+    # parser
+    "is_float",
+    "is_integer",
+    "is_non_empty_string",
+    "is_strict_empty_string",
+    "is_valid_date_string",
+    "parse_to_empty_string",
+    "parse_to_float",
+    "parse_to_integer",
+    "parse_to_iso_date_string",
+    "parse_to_non_empty_string",
+
+    # parser
     "normalize_spaces",
     "normalize_to_string",
     "remove_all_whitespace",

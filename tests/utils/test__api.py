@@ -32,6 +32,176 @@ class TestAPI(unittest.TestCase):
     Unit tests for the public API functions in the `utils` module.
     """
 
+    def test_is_float(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["3.147", "A"]
+        expected_list = [True, False]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            result = api.is_float(input_str)
+
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_is_integer(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["7", "3.7"]
+        expected_list = [True, False]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            result = api.is_integer(input_str)
+
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_is_non_empty_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["Hello", ""]
+        expected_list = [True, False]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            result = api.is_non_empty_string(input_str)
+
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_is_strict_empty_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["", "3.7"]
+        expected_list = [True, False]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            result = api.is_strict_empty_string(input_str)
+
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_is_valid_date_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["12/10/2025", "2025/10/10"]
+        expected_list = [True, False]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            result = api.is_valid_date_string(input_str)
+
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_parse_to_empty_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["", "a"]
+        expected_list = ["", ValueError.__name__]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            try:
+                result = api.parse_to_empty_string(input_str)
+            except Exception as e:
+                result = type(e).__name__
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_parse_to_float(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["22.2", "a"]
+        expected_list = [22.2, ValueError.__name__]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            try:
+                result = api.parse_to_float(input_str)
+            except Exception as e:
+                result = type(e).__name__
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_parse_to_integer(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["22", "a"]
+        expected_list = [22, ValueError.__name__]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            try:
+                result = api.parse_to_integer(input_str)
+            except Exception as e:
+                result = type(e).__name__
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_parse_to_iso_date_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["12/10/2025", "2025/10/10"]
+        expected_list = ["2025-10-12", ValueError.__name__]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            try:
+                result = api.parse_to_iso_date_string(input_str)
+            except Exception as e:
+                result = type(e).__name__
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_parse_to_non_empty_string(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        input_list = ["Hello", ""]
+        expected_list = ["Hello", ValueError.__name__]
+
+        for input_str, expected in zip(input_list, expected_list):
+            # ACT
+            try:
+                result = api.parse_to_non_empty_string(input_str)
+            except Exception as e:
+                result = type(e).__name__
+            # ASSERT
+            with self.subTest(In=input_str, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
     def test_normalize_spaces(self):
         """
         Should run API function
