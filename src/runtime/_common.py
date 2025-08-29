@@ -41,7 +41,7 @@ License:
 
 # Internal utility imports for runtime resource management
 import src.utils.directory as dir_util
-import src.utils.file as file_util
+import src.utils._file_path as file_util
 import src.utils.json as json_util
 
 # CONSTANTS

@@ -1,35 +1,32 @@
 """
 Utility functions for safe and minimal file path operations.
 
-This module provides reusable, stateless helpers for working with file paths.
-It is designed for use across application layers, especially where low-level
-file operations are needed without business logic coupling.
+This module provides reusable, stateless helpers for working with file paths. It is designed for use across application layers, especially where low-level file operations are needed without business logic coupling.
 
 Main Capabilities:
- - Join and normalize file paths
- - Check if a path exists and is a file
- - Escape backslashes for safe display/logging
- - Validate file for Windows compatibility
- - List files in a directory with optional extension filtering
+    - Join and normalize file paths
+    - Check if a path exists and is a file
+    - Escape backslashes for safe display/logging
+    - Validate file for Windows compatibility
+    - List files in a directory with optional extension filtering
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.utils import file
-    paths = file.get_files_in_directory("data", extensions=[".txt"])
+    # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable for tests or internal scripts):
-    import src.utils.file_utils as fu
-    if fu.is_existing_file("config/settings.yaml"):
+    import src.utils._file_path as fp
+    if fp.is_existing_file("config/settings.yaml"):
         print("Valid config file found.")
 
 Dependencies:
- - Python >= 3.10
- - Standard Library: os, typing
+    - Python >= 3.10
+    - Standard Library: os, typing
 
 Notes:
- - This module assumes caller responsibility for input validation and higher-level error handling.
- - All functions are stateless and do not maintain any internal context.
- - Designed for cross-layer utility use, including in CLI tools, UI layers, and service/controllers.
+    - This module assumes caller responsibility for input validation and higher-level error handling.
+    - All functions are stateless and do not maintain any internal context.
+    - Designed for cross-layer utility use, including in CLI tools, UI layers, and service/controllers.
 
 License:
  - Internal Use Only
@@ -90,8 +87,7 @@ def build_file_path(folder: str, file: str) -> str:
     """
     Joins a folder path and file name into a full file system path.
 
-    Strips leading/trailing whitespace from both inputs and combines them using
-    the appropriate OS-specific separator.
+    Strips leading/trailing whitespace from both inputs and combines them using the appropriate OS-specific separator.
 
     Args:
         folder (str): The directory portion of the path.
@@ -140,14 +136,11 @@ def get_files_in_directory(dir_path: str, extensions: Optional[list[str]] = None
     """
     Lists immediate files in a directory, optionally filtering by extension.
 
-    Scans the given directory and returns all non-directory files found at the top level.
-    If `extensions` are provided, only files matching those extensions are included
-    (case-insensitive).
+    Scans the given directory and returns all non-directory files found at the top level. If `extensions` are provided, only files matching those extensions are included (case-insensitive).
 
     Args:
         dir_path (str): The directory path to scan for files.
-        extensions (Optional[list[str]]): List of file extensions to filter by
-            (e.g., ['.txt', '.csv']). If None or empty, all files are returned.
+        extensions (Optional[list[str]]): List of file extensions to filter by (e.g., ['.txt', '.csv']). If None or empty, all files are returned.
 
     Returns:
         tuple[str, ...]: Names of files directly inside the directory, optionally filtered.
@@ -187,12 +180,11 @@ def get_files_in_directory(dir_path: str, extensions: Optional[list[str]] = None
     return tuple(matched_files)
 
 
-def is_existing_file(file_path: str) -> bool:
+def is_existing_file_path(file_path: str) -> bool:
     """
-    Determines if a given path exists and is a regular file.
+    Determines if a given file path exists and is a regular file.
 
-    This function checks whether the specified filesystem path exists and refers to
-    a regular file (not a directory, symbolic link, or special file type).
+    This function checks whether the specified filesystem path exists and refers to a regular file (not a directory, symbolic link, or special file type).
 
     Args:
         file_path (str): The absolute or relative path to check.
@@ -214,8 +206,7 @@ def is_valid_file_path(name: str) -> bool:
     """
     Checks whether a given file path name contains only safe characters on Windows.
 
-    This function validates that the name contains no invalid characters and does not
-    match any reserved system names. On non-Windows platforms, it returns False.
+    This function validates that the name contains no invalid characters and does not match any reserved system names. On non-Windows platforms, it returns False.
 
     Args:
         name (str): The file path name to validate.

@@ -1,32 +1,25 @@
 """
 Unit tests for file system utility functions.
 
-This test suite validates the behavior of functions in `src.utils.file` related to
-file path construction, string escaping, file presence checks, and directory listing.
+This test suite validates the behavior of functions in `src.utils._file_path` related to file path construction, string escaping, file presence checks, and directory listing.
 
-Test Coverage Includes:
- - Path construction and validation (e.g., `build_file_path`)
- - Backslash escaping for display (e.g., `escape_backslashes`)
- - File presence and type checking (e.g., `is_existing_file`)
- - Listing and filtering directory contents (e.g., `get_files_in_directory`)
- - Validation of file/folder names based on Windows filesystem rules (e.g., `is_valid_file_path`)
 
 Example Usage:
     # Run unittest discovery from project root:
-    python -m unittest tests.utils.test_file_utils
+    python -m unittest tests.utils.test__file_path
 
     # Run individual class:
-    python -m unittest tests.utils.test_file_utils.TestBuildFilePath
+    python -m unittest tests.utils.test__file_path.TestBuildFilePath
 
 Dependencies:
- - Python >= 3.9
- - Standard Library: os, shutil, tempfile, unittest
- - Internal module: src.utils.file
+    - Python >= 3.9
+    - Standard Library: os, shutil, tempfile, unittest
+    - Internal module: src.utils.file
 
 Notes:
- - Temporary directories and files are created per test class and cleaned up in `tearDown` to ensure isolation.
- - Platform-specific logic (Windows file naming) is tested with `os.name` checks.
- - All test methods follow the Arrange-Act-Assert pattern and use subTest for multiple test cases.
+    - Temporary directories and files are created per test class and cleaned up in `tearDown` to ensure isolation.
+    - Platform-specific logic (Windows file naming) is tested with `os.name` checks.
+    - All test methods follow the Arrange-Act-Assert pattern and use subTest for multiple test cases.
 
 License:
  - Internal Use Only
@@ -37,7 +30,8 @@ import os
 import tempfile
 import shutil
 
-import src.utils.file as file_util
+# noinspection PyProtectedMember
+import src.utils._file_path as fp
 
 
 class TestAssertFilenameWithExtension(unittest.TestCase):
@@ -65,7 +59,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
         for file_path, expected_ext in test_cases:
             try:
                 # ACT
-                file_util.assert_filename_with_extension(file_path, expected_ext)
+                fp.assert_filename_with_extension(file_path, expected_ext)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -94,7 +88,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
         for file_path, expected_ext in test_cases:
             try:
                 # ACT
-                file_util.assert_filename_with_extension(file_path, expected_ext)
+                fp.assert_filename_with_extension(file_path, expected_ext)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -116,7 +110,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
         for file_path, expected_ext in test_cases:
             try:
                 # ACT
-                file_util.assert_filename_with_extension(file_path, expected_ext)
+                fp.assert_filename_with_extension(file_path, expected_ext)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -141,7 +135,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
         for file_path, expected_ext in test_cases:
             try:
                 # ACT
-                file_util.assert_filename_with_extension(file_path, expected_ext)
+                fp.assert_filename_with_extension(file_path, expected_ext)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -168,7 +162,7 @@ class TestBuildFilePath(unittest.TestCase):
         expected = os.path.join("C:\\Users\\Test", "document.txt")
 
         # ACT
-        result = file_util.build_file_path(folder, file)
+        result = fp.build_file_path(folder, file)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -185,7 +179,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         # ACT
         try:
-            file_util.build_file_path(folder, file)
+            fp.build_file_path(folder, file)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -205,7 +199,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         # ACT
         try:
-            file_util.build_file_path(folder, file)
+            fp.build_file_path(folder, file)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -228,7 +222,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         for folder, file in test_cases:
             try:
-                file_util.build_file_path(folder, file)
+                fp.build_file_path(folder, file)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -259,7 +253,7 @@ class TestEscapeBackslashes(unittest.TestCase):
 
         for input_path, expected in test_cases:
             # ACT
-            result = file_util.escape_backslashes(input_path)
+            result = fp.escape_backslashes(input_path)
 
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
@@ -274,7 +268,7 @@ class TestEscapeBackslashes(unittest.TestCase):
         expected = ""
 
         # ACT
-        result = file_util.escape_backslashes(input_path)
+        result = fp.escape_backslashes(input_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -289,7 +283,7 @@ class TestEscapeBackslashes(unittest.TestCase):
 
         for input_value in test_cases:
             try:
-                file_util.escape_backslashes(input_value)  # type: ignore[arg-type]
+                fp.escape_backslashes(input_value)  # type: ignore[arg-type]
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -340,7 +334,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(self.files)
 
         # ACT
-        result = sorted(file_util.get_files_in_directory(self.test_dir))
+        result = sorted(fp.get_files_in_directory(self.test_dir))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -355,7 +349,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(["file1.txt", "file3.TXT"])
 
         # ACT
-        result = sorted(file_util.get_files_in_directory(self.test_dir, extensions))
+        result = sorted(fp.get_files_in_directory(self.test_dir, extensions))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -369,7 +363,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(self.files)
 
         # ACT
-        result = sorted(file_util.get_files_in_directory(self.test_dir, []))
+        result = sorted(fp.get_files_in_directory(self.test_dir, []))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -385,7 +379,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
         # ACT
         try:
-            file_util.get_files_in_directory(bad_path)
+            fp.get_files_in_directory(bad_path)
             result = None  # Should not reach here
         except Exception as e:
             result = type(e).__name__
@@ -404,7 +398,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
         # ACT
         try:
-            file_util.get_files_in_directory(file_path)
+            fp.get_files_in_directory(file_path)
             result = None  # Should not reach here
         except Exception as e:
             result = type(e).__name__
@@ -452,7 +446,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = True
 
         # ACT
-        result = file_util.is_existing_file(path)
+        result = fp.is_existing_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -467,7 +461,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = False
 
         # ACT
-        result = file_util.is_existing_file(path)
+        result = fp.is_existing_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -482,7 +476,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = False
 
         # ACT
-        result = file_util.is_existing_file(path)
+        result = fp.is_existing_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -497,7 +491,7 @@ class TestIsExistingFile(unittest.TestCase):
 
         for input_value in test_cases:
             try:
-                file_util.is_existing_file(input_value)  # type: ignore[arg-type]
+                fp.is_existing_file_path(input_value)  # type: ignore[arg-type]
                 result = None  # Should not reach here
             except Exception as e:
                 result = type(e).__name__
@@ -523,7 +517,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = file_util.is_valid_file_path(name)  # type: ignore[arg-type]
+            result = fp.is_valid_file_path(name)  # type: ignore[arg-type]
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -538,7 +532,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = file_util.is_valid_file_path(name)  # type: ignore[arg-type]
+            result = fp.is_valid_file_path(name)  # type: ignore[arg-type]
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -558,7 +552,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = file_util.is_valid_file_path(name)
+            result = fp.is_valid_file_path(name)
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 if os.name == "nt":
@@ -585,7 +579,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = file_util.is_valid_file_path(name)
+            result = fp.is_valid_file_path(name)
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertFalse(result)
