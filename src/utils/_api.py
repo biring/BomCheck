@@ -31,6 +31,16 @@ License:
 from ._console import (
     prompt_string_input,
 )
+
+# noinspection PyProtectedMember
+from ._excel_io import (
+    map_excel_sheets_to_string_dataframes,
+    read_excel_file,
+    sanitize_sheet_name_for_excel,
+    write_frame_to_excel,
+    write_sheets_to_excel,
+)
+
 # noinspection PyProtectedMember
 from ._file_path import (
     TEXT_FILE_TYPE,
@@ -72,6 +82,13 @@ from ._text_io import (
 __all__ = [
     # console
     "prompt_string_input",
+
+    # excel_io
+    "map_excel_sheets_to_string_dataframes",
+    "read_excel_file",
+    "sanitize_sheet_name_for_excel",
+    "write_frame_to_excel",
+    "write_sheets_to_excel",
 
     # file_path
     "TEXT_FILE_TYPE",

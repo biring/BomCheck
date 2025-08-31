@@ -4,17 +4,19 @@ Unit tests for the public `utils` package APIs.
 This suite provides smoke-level coverage to ensure the top-level `utils` API behaves as expected. These tests validate that API-exposed functions delegate correctly to their implementations and return normalized results.
 
 Example Usage (from project root):
-    # Run test suite:
-    python -m unittest tests.utils.test__api
+    # Run this file:
+    python -m unittest -v tests/utils/test__api.py
 
 Dependencies:
     - Python >= 3.9
-    - Standard Library: unittest, unittest.mock
+    - Standard Library: unittest, unittest.mock, tempfile, os
+    - Third-party: pandas, openpyxl
 
 Design Notes & Assumptions:
     - Tests are API-level only, not internal implementation details
     - Input/output validation is minimal; focus is on public contract correctness
     - Interactive functions (e.g., input prompts) are patched to avoid blocking
+    - Temporary directories and files are used to ensure isolation and cleanup
 
 License:
  - Internal Use Only
@@ -24,6 +26,8 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
+
+import pandas as pd
 
 # noinspection PyProtectedMember
 import src.utils._api as api
@@ -50,6 +54,231 @@ class TestConsole(unittest.TestCase):
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
                 mock_input.assert_called_once_with("", "", "")
+
+
+class TestExcelIO(unittest.TestCase):
+    """
+    Unit tests for the public Excel I/O API functions exposed via `utils._api`
+    """
+
+    def setUp(self):
+        """
+        Create an isolated temp directory and write fixture workbooks once.
+        """
+        self.temp_dir = tempfile.mkdtemp(prefix="api_excel_")
+
+        # Realistic sample data (strings, blanks preserved)
+        self.name_one = "S1"
+        self.df_one = pd.DataFrame({
+            "Part": ["R1", "C2", "$"],
+            "Qty": ["10", "5", "0"],
+            "Cost": ["0.01", "0.03", "n"],
+        })
+        self.name_two = "S2"
+        self.df_two = pd.DataFrame({
+            "α": ["1", "2"],
+            "β": ["A", "T"],
+        })
+        self.name_three = "S3"
+        self.df_three = pd.DataFrame({"ColA": ["x", "y", "z"]})
+
+        # Paths
+        self.single_path = os.path.join(self.temp_dir, "single.xlsx")
+        self.multi_path = os.path.join(self.temp_dir, "multi.xlsx")
+
+        # Write fixtures
+        with pd.ExcelWriter(self.single_path, engine="openpyxl") as writer:
+            self.df_one.to_excel(writer, sheet_name=self.name_one, index=False)
+        with pd.ExcelWriter(self.multi_path, engine="openpyxl") as writer:
+            self.df_two.to_excel(writer, sheet_name=self.name_two, index=False)
+            self.df_three.to_excel(writer, sheet_name=self.name_three, index=False)
+            self.df_one.to_excel(writer, sheet_name=self.name_one, index=False)
+
+    def tearDown(self):
+        """
+        Remove all files/directories created in setUp() and during tests.
+        """
+        for root, dirs, files in os.walk(self.temp_dir, topdown=False):
+            for f in files:
+                try:
+                    os.remove(os.path.join(root, f))
+                except FileNotFoundError:
+                    pass
+            for d in dirs:
+                try:
+                    os.rmdir(os.path.join(root, d))
+                except OSError:
+                    pass
+        try:
+            os.rmdir(self.temp_dir)
+        except OSError:
+            pass
+
+    def test_map_excel_sheets_to_string_dataframes(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        # Expected raw data by sheet (will compare after string-conversion)
+        expected = {
+            self.name_two: self.df_two,
+            self.name_three: self.df_three,
+            self.name_one: self.df_one,
+        }
+
+        # ACT
+        # Open as ExcelFile and pass the *open workbook* into the function
+        with pd.ExcelFile(self.multi_path, engine="openpyxl") as workbook:
+            result = api.map_excel_sheets_to_string_dataframes(workbook)
+
+        # ASSERT
+        # Compare keys (sheet names) and flattened values as strings
+        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(),
+                                                                              expected.items()):
+            with self.subTest(Out=result_key, Exp=expected_key):
+                self.assertEqual(result_key, expected_key)
+            # Flatten and compare all values cell-by-cell as strings
+            flat_result_value = result_value.to_numpy().flatten().tolist()
+            flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(
+                str).tolist()
+            for result, expected in zip(flat_result_value, flat_expected_value):
+                with self.subTest(Out=result, Exp=expected):
+                    self.assertEqual(result, expected)
+
+    def test_reads_excel_file(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        expected = {
+            self.name_two: self.df_two,
+            self.name_three: self.df_three,
+            self.name_one: self.df_one,
+        }
+
+        # ACT
+        # Call the function under test
+        result = api.read_excel_file(self.multi_path)
+
+        # ASSERT
+        # Compare keys (sheet names) and flattened values as strings
+        for (result_key, result_value), (expected_key, expected_value) in zip(result.items(),
+                                                                              expected.items()):
+            with self.subTest("Sheet Name", Out=result_key, Exp=expected_key):
+                self.assertEqual(result_key, expected_key)
+
+                # Flatten and compare all values cell-by-cell as strings
+                flat_result_value = result_value.to_numpy().flatten().tolist()
+                flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(
+                    str).tolist()
+                for result, expected in zip(flat_result_value, flat_expected_value):
+                    with self.subTest("Cell Value" , Out=result, Exp=expected):
+                        self.assertEqual(result, expected)
+
+    def test_sanitize_sheet_names_for_excel(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        test_cases = [
+            # (Input, Expected)
+            ("ValidName", "ValidName"),
+            ("Mix:Of/All?*Chars[Here]", "MixOfAllCharsHere"),
+        ]
+
+        for input_val, expected in test_cases:
+            # ACT
+            result = api.sanitize_sheet_name_for_excel(input_val)
+
+            # ASSERT
+            with self.subTest(In=input_val, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_write_frame_to_excel(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        out_path = os.path.join(self.temp_dir, "bom.xlsx")
+        expected_columns = list(self.df_one.columns)  # index should NOT be written as a column
+
+        # ACT
+        # Execute the function under test
+        api.write_frame_to_excel(out_path, self.df_one)
+
+        # Read the file back to validate outcomes (independent verification)
+        with (pd.ExcelFile(out_path, engine="openpyxl") as workbook):
+            read_back = pd.read_excel(workbook)
+
+        # ASSERT
+        # 1) File existence
+        exists = os.path.exists(out_path)
+        with self.subTest("File Exists", Out=exists, Exp=True):
+            self.assertTrue(exists)
+
+        # 2) Column headers should match original (no index column present)
+        with self.subTest("Header", Out=list(read_back.columns), Exp=expected_columns):
+            self.assertEqual(list(read_back.columns), expected_columns)
+
+        # 3) Row count should match
+        with self.subTest("Row count", Out=len(read_back), Exp=len(self.df_one)):
+            self.assertEqual(len(read_back), len(self.df_one))
+
+        # 4) Cell-by-cell content equality
+        # Flatten and compare all values cell-by-cell as strings
+        result_value = read_back.astype(str).values
+        expected_value = self.df_one.astype(str).values
+        flat_result_value = result_value.flatten().tolist()
+        flat_expected_value = pd.DataFrame(expected_value).to_numpy().flatten().astype(str).tolist()
+        for result, expected in zip(flat_result_value, flat_expected_value):
+            with self.subTest("Cell value", Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_writes_sheets_to_excel(self):
+        """
+        Should run API function
+        """
+        # ARRANGE
+        out_path = os.path.join(self.temp_dir, "write_multi.xlsx")
+
+        sheets = {
+            self.name_one: self.df_one,
+            self.name_two: self.df_two,
+            self.name_three: self.df_three,
+        }
+
+        expected = sheets
+
+        # ACT
+        api.write_sheets_to_excel(out_path, sheets, overwrite=False)
+
+        # ASSERT: file exists
+        exists = os.path.isfile(out_path)
+        with self.subTest("File Exist", Out=exists, Exp=True):
+            self.assertTrue(exists)
+
+        # ASSERT: verify sheet names and data via round-trip
+        with pd.ExcelFile(out_path, engine="openpyxl") as xls:
+            actual_sheet_names = tuple(xls.sheet_names)
+            expected_sheet_names = tuple(expected.keys())
+
+            with self.subTest("Sheet Name", Out=actual_sheet_names, Exp=expected_sheet_names):
+                self.assertEqual(actual_sheet_names, expected_sheet_names)
+
+            # Validate each sheet’s content
+            for sheet_name, expected_df in expected.items():
+                with pd.ExcelFile(out_path, engine="openpyxl") as workbook:
+                    read_df = pd.read_excel(
+                        workbook,
+                        sheet_name=sheet_name,
+                        dtype=str,  # Force all cells to be strings
+                        # na_filter=False  # Keep blanks as empty strings instead of NaN
+                    )
+
+                equal = read_df.equals(expected_df)
+
+                with self.subTest("Data frame", Sheet=sheet_name, Out=equal, Exp=True):
+                    self.assertTrue(equal)
 
 
 class TestFilePath(unittest.TestCase):
