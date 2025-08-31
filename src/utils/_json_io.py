@@ -2,38 +2,36 @@
 Utility helpers for serializing/deserializing JSON and reading/writing JSON files.
 
 This module includes helpers to:
- - Conversion between dicts (string keys) ↔ JSON strings (`dict_to_json_string`, `json_string_to_dict`)
- - Reading/writing JSON files (`load_json_file`, `save_json_file`)
- - Foundational JSON structure helpers with metadata and checksum support
- - Strict key–value text parser for `"Key" = "Value"` configuration formats
+    - Conversion between dicts (string keys) ↔ JSON strings (`dict_to_json_string`, `json_string_to_dict`)
+    - Reading/writing JSON files (`load_json_file`, `save_json_file`)
+    - Foundational JSON structure helpers with metadata and checksum support
+    - Strict key–value text parser for `"Key" = "Value"` configuration formats
 
 Typical uses include:
- - Centralized JSON I/O for configuration, small datasets, and test fixtures
- - Creating self-validating JSON objects with metadata and checksums
- - Parsing deterministic key–value text formats for configuration import
+    - Centralized JSON I/O for configuration, small datasets, and test fixtures
+    - Creating self-validating JSON objects with metadata and checksums
+    - Parsing deterministic key–value text formats for configuration import
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.utils.json import load_json_file, save_json_file
-    cfg = load_json_file("config.json")
-    save_json_file("out.json", {"status": "ok"}, indent_spaces=2)
+    # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.utils.json as json_util
-    text = json_util.dict_to_json_string({"name": "Δ"}, indent_spaces=None)
+    import src.utils._json_io as jio
+    text = jio.dict_to_json_string({"name": "bob"}, indent_spaces=None)
 
 Dependencies:
- - Python >= 3.10  (`dict[str, Any]` typing)
- - Standard Library: json, re, datetime, typing
+    - Python >= 3.10  (`dict[str, Any]` typing)
+    - Standard Library: json, re, datetime, typing
 
 Notes:
- - Keys are assumed to be strings; values must be JSON-serializable.
- - Files are read/written as UTF-8; `ensure_ascii=False` preserves Unicode characters.
- - `indent_spaces=None` emits compact JSON; set to an int for pretty-printing.
- - Functions raise `RuntimeError` with wrapped original exceptions for clearer diagnostics.
- - Strict key–value parsing enforces `"Key" = "Value"` format and rejects duplicates.
- - Functions raise `RuntimeError` with wrapped original exceptions for clear diagnostics.
- - Intended for internal use within the `utils` package to centralize JSON I/O.
+    - Keys are assumed to be strings; values must be JSON-serializable.
+    - Files are read/written as UTF-8; `ensure_ascii=False` preserves Unicode characters.
+    - `indent_spaces=None` emits compact JSON; set to an int for pretty-printing.
+    - Functions raise `RuntimeError` with wrapped original exceptions for clearer diagnostics.
+    - Strict key–value parsing enforces `"Key" = "Value"` format and rejects duplicates.
+    - Functions raise `RuntimeError` with wrapped original exceptions for clear diagnostics.
+    - Intended for internal use within the `utils` package to centralize JSON I/O.
 
 License:
  - Internal Use Only
@@ -69,10 +67,7 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
     """
     Parse a quoted key–value configuration text into a dictionary.
 
-    Each non-empty, non-comment line must match the exact form `"Key" = "Value"`. Lines
-    beginning with `#` are ignored, and trailing comments introduced by `#` are stripped
-    before validation. Invalid lines are skipped with a WARNING log entry. Duplicate keys
-    terminate parsing with an exception.
+    Each non-empty, non-comment line must match the exact form `"Key" = "Value"`. Lines beginning with `#` are ignored, and trailing comments introduced by `#` are stripped before validation. Invalid lines are skipped with a WARNING log entry. Duplicate keys terminate parsing with an exception.
 
     Args:
         source_path (str): Logical name or file path used only for diagnostics in logs/errors.
@@ -124,8 +119,7 @@ def now_utc_iso() -> str:
     """
     Get the current UTC time in ISO 8601 format with a 'Z' suffix.
 
-    The output is accurate to the second (microseconds are removed) and uses the 'Z'
-    suffix to indicate UTC, instead of an explicit offset.
+    The output is accurate to the second (microseconds are removed) and uses the 'Z' suffix to indicate UTC, instead of an explicit offset.
 
     Returns:
         str: Current UTC timestamp in the form 'YYYY-MM-DDTHH:MM:SSZ'.
@@ -149,8 +143,7 @@ def compute_dict_checksum_uint32(data: dict[str, Any]) -> int:
       4. Summing all byte values modulo 2^32.
 
     Args:
-        data (dict[str, Any]): Dictionary whose keys and values are included in the checksum.
-            Values will be converted to strings before concatenation.
+        data (dict[str, Any]): Dictionary whose keys and values are included in the checksum. Values will be converted to strings before concatenation.
 
     Returns:
         int: The checksum as an unsigned 32-bit integer.
@@ -194,8 +187,7 @@ def create_foundation_json(data: dict[str, Any], source_file: str) -> dict[str, 
         }
 
     Args:
-        data (dict[str, Any]): Dictionary of data to include under the "data" key.
-            Values will be shallow-copied into the output.
+        data (dict[str, Any]): Dictionary of data to include under the "data" key. Values will be shallow-copied into the output.
         source_file (str): Original filename or identifier for the data source.
 
     Returns:
@@ -215,8 +207,7 @@ def verify_foundation_json_checksum(obj: dict[str, Any]) -> bool:
     """
     Verify that the checksum in a foundational JSON object matches its data.
 
-    This function compares the stored checksum in `obj["meta"]["checksum"]` against a
-    newly computed checksum of `obj["data"]`. Returns True if they match, False otherwise.
+    This function compares the stored checksum in `obj["meta"]["checksum"]` against a newly computed checksum of `obj["data"]`. Returns True if they match, False otherwise.
 
     Args:
         obj (dict[str, Any]): JSON-like dictionary with the structure:
@@ -248,8 +239,7 @@ def extract_foundation_data(foundation: dict[str, Any]) -> dict[str, Any]:
     """
     Return a shallow copy of the 'data' mapping from a foundation object.
 
-    This function assumes the input object contains a 'data' key whose value can be
-    converted to a dict. The returned dict is a shallow copy to avoid mutating the
+    This function assumes the input object contains a 'data' key whose value can be converted to a dict. The returned dict is a shallow copy to avoid mutating the
     original structure.
 
     Args:
@@ -266,8 +256,7 @@ def dict_to_json_string(input_dict: dict[str, Any], *, indent_spaces: int | None
     """
     Serializes a dictionary of string keys into a JSON-formatted string.
 
-    Converts a Python dictionary with string keys and any JSON-compatible values
-    into a UTF-8-safe JSON string. Supports optional pretty-printing via the
+    Converts a Python dictionary with string keys and any JSON-compatible values into a UTF-8-safe JSON string. Supports optional pretty-printing via the
     `indent` parameter. Raises a descriptive error if serialization fails.
 
     Args:
@@ -296,8 +285,7 @@ def json_string_to_dict(json_string: str) -> dict[str, Any]:
     """
     Deserializes a JSON-formatted string into a Python dictionary.
 
-    Parses a UTF-8-safe JSON string and returns a Python dictionary
-    with string keys and any JSON-compatible values. Raises a
+    Parses a UTF-8-safe JSON string and returns a Python dictionary with string keys and any JSON-compatible values. Raises a
     descriptive error if parsing fails or the data is not valid JSON.
 
     Args:
@@ -324,10 +312,7 @@ def load_json_file(file_path: str) -> dict[str, Any]:
     """
     Loads and parses a JSON file into a Python dictionary.
 
-    Opens the file in read-only mode using UTF-8 encoding, then parses
-    its contents into a dictionary with string keys and JSON-compatible
-    values. Raises a descriptive error if the file cannot be opened, read,
-    or contains invalid JSON.
+    Opens the file in read-only mode using UTF-8 encoding, then parses its contents into a dictionary with string keys and JSON-compatible values. Raises a descriptive error if the file cannot be opened, read, or contains invalid JSON.
 
     Args:
         file_path (str): Absolute or relative path to the JSON file.
@@ -355,23 +340,18 @@ def save_json_file(file_path: str, data_dict: dict[str, Any], *, indent_spaces: 
     """
     Writes a dictionary to disk as a JSON file.
 
-    Serializes a dictionary with string keys and JSON-compatible values and writes
-    it to the given path using UTF-8 encoding. By default, the output is pretty
-    printed with indentation. Raises a descriptive error if the file cannot be
-    created/written or if the data cannot be serialized.
+    Serializes a dictionary with string keys and JSON-compatible values and writes it to the given path using UTF-8 encoding. By default, the output is pretty printed with indentation. Raises a descriptive error if the file cannot be created/written or if the data cannot be serialized.
 
     Args:
         file_path (str): Absolute or relative path to the target JSON file.
         data_dict (dict[str, Any]): Dictionary to serialize and save.
-        indent_spaces (int | None, optional): Number of spaces used for indentation.
-            Set to None for compact output. Defaults to 2.
+        indent_spaces (int | None, optional): Number of spaces used for indentation. Set to None for compact output. Defaults to 2.
 
     Returns:
         None: This function writes to disk and returns no value.
 
     Raises:
-        RuntimeError: If the file cannot be created, opened, or written, or if
-            serialization fails (e.g., due to non-serializable values).
+        RuntimeError: If the file cannot be created, opened, or written, or if serialization fails (e.g., due to non-serializable values).
     """
     try:
         # Open destination for writing (overwrites if the file exists)

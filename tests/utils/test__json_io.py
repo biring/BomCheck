@@ -1,25 +1,21 @@
 """
 Unit tests for JSON utility functions in `src.utils.json`.
 
-This module validates serialization, deserialization, file loading, and file saving
-behaviors for the JSON helper functions:
- - dict_to_json_string: Serialize dicts to JSON strings with optional indentation
- - json_string_to_dict: Deserialize JSON strings into Python dictionaries
- - load_json_file: Read and parse JSON from disk into a dictionary
- - save_json_file: Serialize and save a dictionary to disk as JSON
+This module validates serialization, deserialization, file loading, and file saving behaviors for the JSON helper functions:
+    - dict_to_json_string: Serialize dicts to JSON strings with optional indentation
+    - json_string_to_dict: Deserialize JSON strings into Python dictionaries
+    - load_json_file: Read and parse JSON from disk into a dictionary
+    - save_json_file: Serialize and save a dictionary to disk as JSON
 
 Each test suite covers:
- - Correct handling of valid input data (including Unicode characters)
- - Proper application of optional pretty-print indentation
- - Behavior with nested structures and whitespace
- - Error handling for malformed JSON, non-serializable values, and missing files
+    - Correct handling of valid input data (including Unicode characters)
+    - Proper application of optional pretty-print indentation
+    - Behavior with nested structures and whitespace
+    - Error handling for malformed JSON, non-serializable values, and missing files
 
 Example Usage:
     # Preferred usage — run all tests in this module:
-    python -m unittest tests.utils.test_json
-
-    # Run a specific test case directly:
-    python -m unittest tests.utils.test_json.TestSaveJsonFile.test_with_indent
+    python -m unittest tests/utils/test__json_io.py
 
 Dependencies:
  - Python >= 3.9
@@ -27,27 +23,26 @@ Dependencies:
  - Internal: src.utils.json
 
 Notes:
- - Tests follow the Arrange–Act–Assert pattern with `subTest` assertions
-   for clearer output on mismatches.
- - Temporary files and directories are created in setUp/tearDown to ensure
-   isolation between tests and avoid polluting the filesystem.
- - Unicode handling is explicitly verified to ensure `ensure_ascii=False` works as intended.
+    - Tests follow the Arrange–Act–Assert pattern with `subTest` assertions for clearer output on mismatches.
+    - Temporary files and directories are created in setUp/tearDown to ensure isolation between tests and avoid polluting the filesystem.
+    - Unicode handling is explicitly verified to ensure `ensure_ascii=False` works as intended.
 
 License:
  - Internal Use Only
 """
 
+import copy
 import json
 import os
+import re
 import shutil
 import tempfile
 import unittest
-import re
-import copy
-
-import src.utils.json as json_util
-
 from datetime import datetime, timezone
+from unittest.mock import patch
+
+# noinspection PyProtectedMember
+import src.utils._json_io as jio
 
 
 class TestDictToJsonString(unittest.TestCase):
@@ -70,7 +65,7 @@ class TestDictToJsonString(unittest.TestCase):
         expected = json.dumps(input_dict, ensure_ascii=False)
 
         # ACT
-        result = json_util.dict_to_json_string(input_dict)
+        result = jio.dict_to_json_string(input_dict)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -86,7 +81,7 @@ class TestDictToJsonString(unittest.TestCase):
         expected = json.dumps(input_dict, indent=indent_spaces, ensure_ascii=False)
 
         # ACT
-        result = json_util.dict_to_json_string(input_dict, indent_spaces=indent_spaces)
+        result = jio.dict_to_json_string(input_dict, indent_spaces=indent_spaces)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -101,7 +96,7 @@ class TestDictToJsonString(unittest.TestCase):
         expected = json.dumps(input_dict, ensure_ascii=False)
 
         # ACT
-        result = json_util.dict_to_json_string(input_dict)
+        result = jio.dict_to_json_string(input_dict)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -117,7 +112,7 @@ class TestDictToJsonString(unittest.TestCase):
 
         # ACT
         try:
-            json_util.dict_to_json_string(input_dict)
+            jio.dict_to_json_string(input_dict)
             result = ""
         except Exception as e:
             result = type(e).__name__
@@ -147,7 +142,7 @@ class TestJsonStringToDict(unittest.TestCase):
         expected = {"name": "Alice", "age": 30, "active": True}
 
         # ACT
-        result = json_util.json_string_to_dict(json_str)
+        result = jio.json_string_to_dict(json_str)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -173,7 +168,7 @@ class TestJsonStringToDict(unittest.TestCase):
         }
 
         # ACT
-        result = json_util.json_string_to_dict(json_str)
+        result = jio.json_string_to_dict(json_str)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -188,7 +183,7 @@ class TestJsonStringToDict(unittest.TestCase):
         expected = {"greeting": "こんにちは", "emoji": "😀", "currency": "€"}
 
         # ACT
-        result = json_util.json_string_to_dict(json_str)
+        result = jio.json_string_to_dict(json_str)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -212,7 +207,7 @@ class TestJsonStringToDict(unittest.TestCase):
         }
 
         # ACT
-        result = json_util.json_string_to_dict(json_str)
+        result = jio.json_string_to_dict(json_str)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -230,7 +225,7 @@ class TestJsonStringToDict(unittest.TestCase):
 
         # ACT
         try:
-            json_util.json_string_to_dict(invalid_json)
+            jio.json_string_to_dict(invalid_json)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             # Verify the wrapped exception type name only (no reliance on message format)
@@ -273,7 +268,7 @@ class TestLoadJsonFile(unittest.TestCase):
             json.dump(expected, f, ensure_ascii=False)  # type: ignore[arg-type]
 
         # ACT
-        result = json_util.load_json_file(self.file_path)
+        result = jio.load_json_file(self.file_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -289,7 +284,7 @@ class TestLoadJsonFile(unittest.TestCase):
             json.dump(expected, f, ensure_ascii=False)  # type: ignore[arg-type]
 
         # ACT
-        result = json_util.load_json_file(self.file_path)
+        result = jio.load_json_file(self.file_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -306,7 +301,7 @@ class TestLoadJsonFile(unittest.TestCase):
 
         # ACT
         try:
-            json_util.load_json_file(self.file_path)
+            jio.load_json_file(self.file_path)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -325,7 +320,7 @@ class TestLoadJsonFile(unittest.TestCase):
 
         # ACT
         try:
-            json_util.load_json_file(missing_path)
+            jio.load_json_file(missing_path)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -365,7 +360,7 @@ class TestSaveJsonFile(unittest.TestCase):
         expected_text = json.dumps(data, indent=None, ensure_ascii=False)
 
         # ACT
-        json_util.save_json_file(self.file_path, data, indent_spaces=None)
+        jio.save_json_file(self.file_path, data, indent_spaces=None)
 
         # ASSERT
         with open(self.file_path, mode="r", encoding="utf-8") as f:
@@ -388,7 +383,7 @@ class TestSaveJsonFile(unittest.TestCase):
         expected_text = json.dumps(data, indent=indent_spaces, ensure_ascii=False)
 
         # ACT
-        json_util.save_json_file(self.file_path, data, indent_spaces=indent_spaces)
+        jio.save_json_file(self.file_path, data, indent_spaces=indent_spaces)
 
         # ASSERT
         with open(self.file_path, mode="r", encoding="utf-8") as f:
@@ -410,7 +405,7 @@ class TestSaveJsonFile(unittest.TestCase):
         expected_text = json.dumps(data, ensure_ascii=False, indent=2)
 
         # ACT
-        json_util.save_json_file(self.file_path, data, indent_spaces=2)
+        jio.save_json_file(self.file_path, data, indent_spaces=2)
 
         # ASSERT
         with open(self.file_path, mode="r", encoding="utf-8") as f:
@@ -433,7 +428,7 @@ class TestSaveJsonFile(unittest.TestCase):
 
         # ACT
         try:
-            json_util.save_json_file(self.file_path, data)
+            jio.save_json_file(self.file_path, data)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__
@@ -452,7 +447,7 @@ class TestSaveJsonFile(unittest.TestCase):
 
         # ACT
         try:
-            json_util.save_json_file(missing_dir_path, {"a": 1})
+            jio.save_json_file(missing_dir_path, {"a": 1})
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__
@@ -491,7 +486,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         expected = {"Name": "Alice", "City": "Paris", "Age": "30"}
 
         # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        result = jio.parse_strict_key_value_to_dict(src, text)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -511,7 +506,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         expected = {"KeyA": "Value A", "KeyB": "Value B", "KeyC": ""}
 
         # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        result = jio.parse_strict_key_value_to_dict(src, text)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -536,7 +531,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         expected = {"Mode": "Prod", "Level": "High"}
 
         # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        result = jio.parse_strict_key_value_to_dict(src, text)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -557,12 +552,13 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         )
         expected = {"Good": "Yes", "AlsoGood": "True"}
 
-        # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        with patch("builtins.print") as mock_print:  # mock to suppress print output in unit test
+            # ACT
+            result = jio.parse_strict_key_value_to_dict(src, text)
 
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
 
     def test_duplicate_keys_raises(self):
         """
@@ -579,7 +575,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
 
         # ACT
         try:
-            json_util.parse_strict_key_value_to_dict(src, text)
+            jio.parse_strict_key_value_to_dict(src, text)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__
@@ -603,7 +599,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         expected = {"K": "V"}
 
         # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        result = jio.parse_strict_key_value_to_dict(src, text)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -618,12 +614,13 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         text = '"Empty" = ""\n"NonEmpty" = "x"'
         expected = {"Empty": "", "NonEmpty": "x"}
 
-        # ACT
-        result = json_util.parse_strict_key_value_to_dict(src, text)
+        with patch("builtins.print") as mock_print:  # mock to suppress print output in unit test
+            # ACT
+            result = jio.parse_strict_key_value_to_dict(src, text)
 
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
 
 
 class TestNowUtcIso(unittest.TestCase):
@@ -644,7 +641,7 @@ class TestNowUtcIso(unittest.TestCase):
         iso_regex = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
         # ACT
-        result = json_util.now_utc_iso()
+        result = jio.now_utc_iso()
 
         # ASSERT
         # Type check
@@ -683,7 +680,7 @@ class TestNowUtcIso(unittest.TestCase):
         lower = datetime.now(timezone.utc).replace(microsecond=0)
 
         # ACT
-        text_ts = json_util.now_utc_iso()
+        text_ts = jio.now_utc_iso()
 
         # Capture upper bound (truncate to seconds)
         upper = datetime.now(timezone.utc).replace(microsecond=0)
@@ -702,7 +699,7 @@ class TestNowUtcIso(unittest.TestCase):
         Should represent time with second-level precision only (no microseconds).
         """
         # ARRANGE & ACT
-        text_ts = json_util.now_utc_iso()
+        text_ts = jio.now_utc_iso()
         parsed = datetime.strptime(text_ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
         # ASSERT
@@ -731,7 +728,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 294  # 'a1b2' bytes → 97+49+98+50
 
         # ACT
-        result = json_util.compute_dict_checksum_uint32(data)
+        result = jio.compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -746,8 +743,8 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         data_b = {"m": "7", "x": "10", "a": "Z"}  # Same pairs, different order
 
         # ACT
-        result_a = json_util.compute_dict_checksum_uint32(data_a)
-        result_b = json_util.compute_dict_checksum_uint32(data_b)
+        result_a = jio.compute_dict_checksum_uint32(data_a)
+        result_b = jio.compute_dict_checksum_uint32(data_b)
 
         # ASSERT
         with self.subTest(Out=result_a, Exp=result_b):
@@ -762,7 +759,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 0
 
         # ACT
-        result = json_util.compute_dict_checksum_uint32(data)
+        result = jio.compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -778,7 +775,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 864  # 97 + 49 + 206 + 148 + 195 + 169
 
         # ACT
-        result = json_util.compute_dict_checksum_uint32(data)
+        result = jio.compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -794,7 +791,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 754  # bytes("x10yTrue") sum
 
         # ACT
-        result = json_util.compute_dict_checksum_uint32(data)
+        result = jio.compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -810,7 +807,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         data = {f"k{str(i).zfill(4)}": f"v{str(i * i)}" for i in range(0, 500)}
 
         # ACT
-        result = json_util.compute_dict_checksum_uint32(data)
+        result = jio.compute_dict_checksum_uint32(data)
 
         # ASSERT
         in_range = 0 <= result <= 0xFFFFFFFF
@@ -837,12 +834,12 @@ class TestVerifyFoundationJsonChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"a": "1", "b": "2", "Δ": "é"}  # Realistic sample including Unicode
-        checksum = json_util.compute_dict_checksum_uint32(data)
+        checksum = jio.compute_dict_checksum_uint32(data)
         obj = {"meta": {"checksum": checksum}, "data": data}
         expected = True
 
         # ACT
-        result = json_util.verify_foundation_json_checksum(obj)
+        result = jio.verify_foundation_json_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -854,12 +851,12 @@ class TestVerifyFoundationJsonChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"x": 10, "y": True, "z": "ok"}  # Non-string values get stringified in checksum helper
-        checksum = json_util.compute_dict_checksum_uint32(data)
+        checksum = jio.compute_dict_checksum_uint32(data)
         obj = {"meta": {"checksum": str(checksum)}, "data": data}
         expected = True
 
         # ACT
-        result = json_util.verify_foundation_json_checksum(obj)
+        result = jio.verify_foundation_json_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -871,14 +868,14 @@ class TestVerifyFoundationJsonChecksum(unittest.TestCase):
         """
         # ARRANGE
         original_data = {"k1": "v1", "k2": "v2"}
-        checksum = json_util.compute_dict_checksum_uint32(original_data)
+        checksum = jio.compute_dict_checksum_uint32(original_data)
 
         # Create object but tamper the data (simulate drift) without updating checksum
         obj = {"meta": {"checksum": checksum}, "data": {"k1": "v1", "k2": "v2X"}}
         expected = False
 
         # ACT
-        result = json_util.verify_foundation_json_checksum(obj)
+        result = jio.verify_foundation_json_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -890,14 +887,14 @@ class TestVerifyFoundationJsonChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"alpha": "A", "beta": "B"}
-        correct_checksum = json_util.compute_dict_checksum_uint32(data)
+        correct_checksum = jio.compute_dict_checksum_uint32(data)
 
         # Use an incorrect checksum (off-by-one) in meta
         obj = {"meta": {"checksum": correct_checksum + 1}, "data": data}
         expected = False
 
         # ACT
-        result = json_util.verify_foundation_json_checksum(obj)
+        result = jio.verify_foundation_json_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -927,7 +924,7 @@ class TestExtractFoundationData(unittest.TestCase):
         expected = {"a": 1, "b": 2}
 
         # ACT
-        result = json_util.extract_foundation_data(foundation)
+        result = jio.extract_foundation_data(foundation)
 
         # ASSERT
         with self.subTest(Out=isinstance(result, dict), Exp=True):
@@ -951,7 +948,7 @@ class TestExtractFoundationData(unittest.TestCase):
         original_top_level = copy.deepcopy(foundation["data"])  # Snapshot of original top-level
 
         # ACT
-        result = json_util.extract_foundation_data(foundation)
+        result = jio.extract_foundation_data(foundation)
 
         # Mutate top-level of result (add a new key)
         result["y"] = 99
@@ -981,7 +978,7 @@ class TestExtractFoundationData(unittest.TestCase):
         expected = {"a": "1", "b": "2"}
 
         # ACT
-        result = json_util.extract_foundation_data(foundation)
+        result = jio.extract_foundation_data(foundation)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):

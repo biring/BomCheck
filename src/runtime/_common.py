@@ -42,7 +42,7 @@ License:
 # Internal utility imports for runtime resource management
 import src.utils.directory as dir_util
 import src.utils as utils
-import src.utils.json as json_util
+import src.utils._json_io as json_util
 
 # CONSTANTS
 RUNTIME_FOLDER: tuple[str, ...] = ("src", "runtime",)

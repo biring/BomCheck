@@ -47,7 +47,7 @@ import sys
 
 import src.utils.directory as dir_util
 import src.utils as utils
-import src.utils.json as json_util
+import src.utils._json_io as json_util
 
 # CONSTANTS
 DEST_FOLDER = ("src", "runtime",)

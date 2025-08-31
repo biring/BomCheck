@@ -40,7 +40,7 @@ import os
 import tempfile
 import shutil
 import unittest
-import src.utils.json as json_util
+import src.utils._json_io as json_util
 import src.utils as utils
 
 # noinspection PyProtectedMember
