@@ -16,7 +16,7 @@ Example Usage:
 Dependencies:
     - Python >= 3.9
     - Standard Library: os, tempfile, shutil, unittest
-    - Internal: src.utils.json (create/save foundation JSON), src.runtime._common (functions under test)
+    - Internal: src.utils.json (create/save packet JSON), src.runtime._common (functions under test)
 
 Notes:
     - Tests intentionally reach into underscore-prefixed functions in `_common`
@@ -25,7 +25,7 @@ Notes:
         framework is required.
     - `TestLoadRuntimeJson` patches `_resolve_json_file_path` by assignment during
         setUp/tearDown to route lookups into a temp directory; it validates:
-        * success path with a well-formed foundation JSON
+        * success path with a well-formed packet JSON
         * checksum mismatch is surfaced as `RuntimeError`
         * missing required keys wrapped as `RuntimeError`
         * non-string values wrapped as `RuntimeError`
@@ -402,7 +402,7 @@ class TestLoadRuntimeJson(unittest.TestCase):
     Unit tests for `load_runtime_json` in `src.runtime._common`.
 
     Focus:
-      - Success path: loads a valid foundation JSON, verifies checksum, validates keys,
+      - Success path: loads a valid packet JSON, verifies checksum, validates keys,
         asserts all values are strings, and returns the `data` mapping.
       - Failure paths wrapped as `RuntimeError`:
           * Missing file or unreadable JSON
@@ -443,14 +443,14 @@ class TestLoadRuntimeJson(unittest.TestCase):
         common._resolve_json_file_path = self.orig_resolver
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
-    def test_with_foundation_json(self):
+    def test_with_packet_json(self):
         """
-        Should return the validated key→value mapping when the foundation JSON is correct.
+        Should return the validated key→value mapping when the packet JSON is correct.
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        foundation = json_util.create_foundation_json(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, foundation)
+        packet = json_util.create_json_packet(data, source_file=self.filename)
+        json_util.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
         expected = data
@@ -462,7 +462,7 @@ class TestLoadRuntimeJson(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-    def test_without_foundation_json(self):
+    def test_without_packet_json(self):
         """
         Should wrap internal file read errors as RuntimeError when the JSON file is missing.
         """
@@ -487,10 +487,10 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        foundation = json_util.create_foundation_json(data, source_file=self.filename)
+        packet = json_util.create_json_packet(data, source_file=self.filename)
         # Tamper with checksum to force a mismatch
-        foundation["meta"]["checksum"] = foundation["meta"]["checksum"] + 1  # type: ignore[index]
-        json_util.save_json_file(self.filepath, foundation)
+        packet[json_util._KEY_META][json_util._KEY_CHECKSUM] = packet[json_util._KEY_META][json_util._KEY_CHECKSUM] + 1  # type: ignore[index]
+        json_util.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
 
@@ -511,8 +511,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp"}  # WELCOME key is missing
-        foundation = json_util.create_foundation_json(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, foundation)
+        packet = json_util.create_json_packet(data, source_file=self.filename)
+        json_util.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
 
@@ -533,8 +533,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": 123}  # Non-string value
-        foundation = json_util.create_foundation_json(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, foundation)
+        packet_data = json_util.create_json_packet(data, source_file=self.filename)
+        json_util.save_json_file(self.filepath, packet_data)
 
         required_keys = ["APP_NAME", "WELCOME"]
 

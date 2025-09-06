@@ -1,5 +1,5 @@
 """
-Unit tests for JSON utility functions in `src.utils.json`.
+Unit tests for JSON utility functions.
 
 This module validates serialization, deserialization, file loading, and file saving behaviors for the JSON helper functions:
     - dict_to_json_string: Serialize dicts to JSON strings with optional indentation
@@ -641,7 +641,7 @@ class TestNowUtcIso(unittest.TestCase):
         iso_regex = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 
         # ACT
-        result = jio.now_utc_iso()
+        result = jio._now_utc_iso()
 
         # ASSERT
         # Type check
@@ -680,7 +680,7 @@ class TestNowUtcIso(unittest.TestCase):
         lower = datetime.now(timezone.utc).replace(microsecond=0)
 
         # ACT
-        text_ts = jio.now_utc_iso()
+        text_ts = jio._now_utc_iso()
 
         # Capture upper bound (truncate to seconds)
         upper = datetime.now(timezone.utc).replace(microsecond=0)
@@ -690,7 +690,8 @@ class TestNowUtcIso(unittest.TestCase):
 
         # ASSERT
         # Ensure parsed time is between lower and upper (inclusive)
-        with self.subTest(Out=parsed.isoformat(), Exp=f"[{lower.isoformat()} .. {upper.isoformat()}]"):
+        with self.subTest(Out=parsed.isoformat(),
+                          Exp=f"[{lower.isoformat()} .. {upper.isoformat()}]"):
             self.assertLessEqual(lower, parsed)
             self.assertLessEqual(parsed, upper)
 
@@ -699,7 +700,7 @@ class TestNowUtcIso(unittest.TestCase):
         Should represent time with second-level precision only (no microseconds).
         """
         # ARRANGE & ACT
-        text_ts = jio.now_utc_iso()
+        text_ts = jio._now_utc_iso()
         parsed = datetime.strptime(text_ts, "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=timezone.utc)
 
         # ASSERT
@@ -728,7 +729,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 294  # 'a1b2' bytes → 97+49+98+50
 
         # ACT
-        result = jio.compute_dict_checksum_uint32(data)
+        result = jio._compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -743,8 +744,8 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         data_b = {"m": "7", "x": "10", "a": "Z"}  # Same pairs, different order
 
         # ACT
-        result_a = jio.compute_dict_checksum_uint32(data_a)
-        result_b = jio.compute_dict_checksum_uint32(data_b)
+        result_a = jio._compute_dict_checksum_uint32(data_a)
+        result_b = jio._compute_dict_checksum_uint32(data_b)
 
         # ASSERT
         with self.subTest(Out=result_a, Exp=result_b):
@@ -759,7 +760,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 0
 
         # ACT
-        result = jio.compute_dict_checksum_uint32(data)
+        result = jio._compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -775,7 +776,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 864  # 97 + 49 + 206 + 148 + 195 + 169
 
         # ACT
-        result = jio.compute_dict_checksum_uint32(data)
+        result = jio._compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -791,7 +792,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         expected = 754  # bytes("x10yTrue") sum
 
         # ACT
-        result = jio.compute_dict_checksum_uint32(data)
+        result = jio._compute_dict_checksum_uint32(data)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -807,7 +808,7 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
         data = {f"k{str(i).zfill(4)}": f"v{str(i * i)}" for i in range(0, 500)}
 
         # ACT
-        result = jio.compute_dict_checksum_uint32(data)
+        result = jio._compute_dict_checksum_uint32(data)
 
         # ASSERT
         in_range = 0 <= result <= 0xFFFFFFFF
@@ -815,116 +816,100 @@ class TestComputeDictChecksumUint32(unittest.TestCase):
             self.assertTrue(in_range)
 
 
-class TestVerifyFoundationJsonChecksum(unittest.TestCase):
+class TestVerifyJsonPayloadChecksum(unittest.TestCase):
     """
-    Unit tests for `verify_foundation_json_checksum` in `src.utils.json`.
-
-    This suite validates that the function:
-      - Returns True when the stored checksum (int or numeric string) matches the checksum
-        recomputed from the `data` section.
-      - Returns False when either the data changes or the stored checksum is incorrect.
-
-    Scope: Input→output correctness only (no mocking). Assumes a well-formed object with
-    required keys per the function contract.
+    Unit tests for `verify_json_payload_checksum`
     """
 
-    def test_matches_checksum_with_int_meta(self):
+    def test_int_checksum(self):
         """
-        Should return True when meta.checksum (int) matches the computed checksum of data.
+        Should return True when int checksum stored in metadata matches the computed checksum of the payload.
         """
         # ARRANGE
         data = {"a": "1", "b": "2", "Δ": "é"}  # Realistic sample including Unicode
-        checksum = jio.compute_dict_checksum_uint32(data)
-        obj = {"meta": {"checksum": checksum}, "data": data}
+        checksum = jio._compute_dict_checksum_uint32(data)
+        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: checksum}, jio._KEY_PAYLOAD: data}
         expected = True
 
         # ACT
-        result = jio.verify_foundation_json_checksum(obj)
+        result = jio.verify_json_payload_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-    def test_matches_checksum_with_string_meta(self):
+    def test_string_checksum(self):
         """
-        Should return True when meta.checksum is a numeric string that equals the computed checksum.
+        Should return True when str checksum stored in metadata matches the computed checksum of the payload.
         """
         # ARRANGE
-        data = {"x": 10, "y": True, "z": "ok"}  # Non-string values get stringified in checksum helper
-        checksum = jio.compute_dict_checksum_uint32(data)
-        obj = {"meta": {"checksum": str(checksum)}, "data": data}
+        data = {"x": 10, "y": True,
+                "z": "ok"}  # Non-string values get stringified in checksum helper
+        checksum = jio._compute_dict_checksum_uint32(data)
+        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: str(checksum)}, jio._KEY_PAYLOAD: data}
         expected = True
 
         # ACT
-        result = jio.verify_foundation_json_checksum(obj)
+        result = jio.verify_json_payload_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-    def test_returns_false_when_data_changed(self):
+    def test_payload_tamper(self):
         """
-        Should return False if data changes after checksum was computed and stored.
+        Should return False if payload data changes after checksum was computed and stored.
         """
         # ARRANGE
         original_data = {"k1": "v1", "k2": "v2"}
-        checksum = jio.compute_dict_checksum_uint32(original_data)
+        checksum = jio._compute_dict_checksum_uint32(original_data)
 
         # Create object but tamper the data (simulate drift) without updating checksum
-        obj = {"meta": {"checksum": checksum}, "data": {"k1": "v1", "k2": "v2X"}}
+        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: checksum}, jio._KEY_PAYLOAD: {"k1": "v1", "k2": "v2X"}}
         expected = False
 
         # ACT
-        result = jio.verify_foundation_json_checksum(obj)
+        result = jio.verify_json_payload_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-    def test_returns_false_when_checksum_incorrect(self):
+    def test_incorrect_metadata_checksum(self):
         """
         Should return False if the stored checksum does not match the computed checksum.
         """
         # ARRANGE
         data = {"alpha": "A", "beta": "B"}
-        correct_checksum = jio.compute_dict_checksum_uint32(data)
+        correct_checksum = jio._compute_dict_checksum_uint32(data)
 
         # Use an incorrect checksum (off-by-one) in meta
-        obj = {"meta": {"checksum": correct_checksum + 1}, "data": data}
+        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: correct_checksum + 1}, jio._KEY_PAYLOAD: data}
         expected = False
 
         # ACT
-        result = jio.verify_foundation_json_checksum(obj)
+        result = jio.verify_json_payload_checksum(obj)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
 
-class TestExtractFoundationData(unittest.TestCase):
+class TestExtractPayload(unittest.TestCase):
     """
-    Unit tests for `extract_foundation_data` in `src.utils.json`.
-
-    This suite verifies that the function:
-      - Returns a new `dict` (not the same object) containing the same key/value pairs.
-      - Performs a *shallow* copy: top-level mutations to the returned dict do not
-        affect the original, while mutations to shared nested objects are visible.
-      - Accepts a value for `foundation['data']` that is convertible to `dict`.
-
-    Scope: Input→output correctness only; assumes well-formed input per the function
-    contract and does not test exceptions or logging.
+    Unit tests for `extract_payload`.
     """
 
-    def test_returns_new_equal_dict(self):
+    def test_new_equal_dict(self):
         """
         Should return a new dict equal in content, not the same object identity.
         """
         # ARRANGE
-        foundation = {"data": {"a": 1, "b": 2}}
+        packet = {jio._KEY_PAYLOAD: {"a": 1, "b": 2}}
         expected = {"a": 1, "b": 2}
 
         # ACT
-        result = jio.extract_foundation_data(foundation)
+        result = jio.extract_payload(packet)
 
         # ASSERT
         with self.subTest(Out=isinstance(result, dict), Exp=True):
@@ -933,8 +918,8 @@ class TestExtractFoundationData(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
-        with self.subTest(Out=(result is foundation["data"]), Exp=False):
-            self.assertIsNot(result, foundation["data"])
+        with self.subTest(Out=(result is packet[jio._KEY_PAYLOAD]), Exp=False):
+            self.assertIsNot(result, packet[jio._KEY_PAYLOAD])
 
     def test_shallow_copy_semantics(self):
         """
@@ -944,41 +929,41 @@ class TestExtractFoundationData(unittest.TestCase):
         """
         # ARRANGE
         nested = {"count": 1}
-        foundation = {"data": {"x": 10, "meta": nested}}
-        original_top_level = copy.deepcopy(foundation["data"])  # Snapshot of original top-level
+        packet = {jio._KEY_PAYLOAD: {"x": 10, jio._KEY_META: nested}}
+        original_top_level = copy.deepcopy(packet[jio._KEY_PAYLOAD])  # Snapshot of original top-level
 
         # ACT
-        result = jio.extract_foundation_data(foundation)
+        result = jio.extract_payload(packet)
 
         # Mutate top-level of result (add a new key)
         result["y"] = 99
 
         # Mutate a nested shared object from result
-        result["meta"]["count"] = 42
+        result[jio._KEY_META]["count"] = 42
 
         # ASSERT
         # Top-level addition should NOT appear in source (different dict objects)
-        with self.subTest(Out=("y" in foundation["data"]), Exp=False):
-            self.assertNotIn("y", foundation["data"])
+        with self.subTest(Out=("y" in packet[jio._KEY_PAYLOAD]), Exp=False):
+            self.assertNotIn("y", packet[jio._KEY_PAYLOAD])
 
         # Nested mutation should reflect in both (since nested object is shared in shallow copy)
-        with self.subTest(Out=foundation["data"]["meta"]["count"], Exp=42):
-            self.assertEqual(foundation["data"]["meta"]["count"], 42)
+        with self.subTest(Out=packet[jio._KEY_PAYLOAD][jio._KEY_META]["count"], Exp=42):
+            self.assertEqual(packet[jio._KEY_PAYLOAD][jio._KEY_META]["count"], 42)
 
         # Unchanged original keys remain intact aside from intentional nested change
-        with self.subTest(Out=foundation["data"]["x"], Exp=original_top_level["x"]):
-            self.assertEqual(foundation["data"]["x"], original_top_level["x"])
+        with self.subTest(Out=packet[jio._KEY_PAYLOAD]["x"], Exp=original_top_level["x"]):
+            self.assertEqual(packet[jio._KEY_PAYLOAD]["x"], original_top_level["x"])
 
     def test_accepts_mapping_convertible_value(self):
         """
-        Should accept a `foundation['data']` value that can be converted to a dict (e.g., list of pairs).
+        Should accept a `payload['data']` value that can be converted to a dict (e.g., list of pairs).
         """
         # ARRANGE
-        foundation = {"data": [("a", "1"), ("b", "2")]}
+        packet = {jio._KEY_PAYLOAD: [("a", "1"), ("b", "2")]}
         expected = {"a": "1", "b": "2"}
 
         # ACT
-        result = jio.extract_foundation_data(foundation)
+        result = jio.extract_payload(packet)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):

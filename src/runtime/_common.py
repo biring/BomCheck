@@ -332,12 +332,12 @@ def load_runtime_json(resource_name: str, required_keys: list[str]) -> dict:
         # Load the foundational JSON object (with meta + data)
         foundation_obj = json_util.load_json_file(json_path)
 
-        # Verify integrity of the "data" block via checksum in meta
-        if not json_util.verify_foundation_json_checksum(foundation_obj):
+        # Verify integrity of the payload "data" via checksum in meta
+        if not json_util.verify_json_payload_checksum(foundation_obj):
             raise RuntimeError(f"Checksum verification failed for '{resource_name}' JSON data.")
 
         # Extract the "key:value" mapping (shallow copy)
-        key_value_map = json_util.extract_foundation_data(foundation_obj)
+        key_value_map = json_util.extract_payload(foundation_obj)
 
         # Ensure the JSON contains all mandatory keys
         _assert_required_keys_are_present(key_value_map, required_keys)

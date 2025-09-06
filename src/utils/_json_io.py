@@ -4,7 +4,7 @@ Utility helpers for serializing/deserializing JSON and reading/writing JSON file
 This module includes helpers to:
     - Conversion between dicts (string keys) ↔ JSON strings (`dict_to_json_string`, `json_string_to_dict`)
     - Reading/writing JSON files (`load_json_file`, `save_json_file`)
-    - Foundational JSON structure helpers with metadata and checksum support
+    - JSON packet structure helpers with metadata and checksum support
     - Strict key–value text parser for `"Key" = "Value"` configuration formats
 
 Typical uses include:
@@ -40,7 +40,7 @@ License:
 import json
 import re
 from datetime import datetime, timezone
-from typing import Any, TypedDict
+from typing import Any, TypedDict, Final
 
 LINE_KEY_VALUE_RE = re.compile(
     r'^\s*'  # Optional leading whitespace
@@ -51,16 +51,26 @@ LINE_KEY_VALUE_RE = re.compile(
 )
 
 
-# FOUNDATIONAL SCHEMA
+# JSON PACKET META DATA SCHEMA
 class JsonMeta(TypedDict):
-    generated_utc: str
-    source_file: str
-    checksum: int  # uint32
+    generated_at_utc: str
+    source_file_name: str
+    payload_checksum: int  # uint32
 
 
-class FoundationObject(TypedDict):
-    meta: JsonMeta
-    data: dict[str, Any]
+_KEY_UTC: Final[str] = list(JsonMeta.__annotations__.keys())[0]
+_KEY_SOURCE: Final[str] = list(JsonMeta.__annotations__.keys())[1]
+_KEY_CHECKSUM: Final[str] = list(JsonMeta.__annotations__.keys())[2]
+
+
+# JSON PACKET SCHEMA
+class JsonPkt(TypedDict):
+    meta_data: JsonMeta
+    payload_data: dict[str, Any]
+
+
+_KEY_META: Final[str] = list(JsonPkt.__annotations__.keys())[0]
+_KEY_PAYLOAD: Final[str] = list(JsonPkt.__annotations__.keys())[1]
 
 
 def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str]:
@@ -100,7 +110,8 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
         match = LINE_KEY_VALUE_RE.match(content)
         if not match:
             # Non-conforming lines are not accepted; warn and skip
-            print(f"Invalid key-value format at {source_path}:{line_no}; ignoring line: {raw_line!r}")
+            print(
+                f"Invalid key-value format at {source_path}:{line_no}; ignoring line: {raw_line!r}")
             continue
 
         # Extract key/value from regex groups (1 = key, 2 = value).
@@ -115,7 +126,7 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
     return result
 
 
-def now_utc_iso() -> str:
+def _now_utc_iso() -> str:
     """
     Get the current UTC time in ISO 8601 format with a 'Z' suffix.
 
@@ -132,7 +143,7 @@ def now_utc_iso() -> str:
     )
 
 
-def compute_dict_checksum_uint32(data: dict[str, Any]) -> int:
+def _compute_dict_checksum_uint32(data: dict[str, Any]) -> int:
     """
     Compute a deterministic 32-bit unsigned checksum from a dictionary's contents.
 
@@ -172,45 +183,45 @@ def compute_dict_checksum_uint32(data: dict[str, Any]) -> int:
     return checksum
 
 
-def create_foundation_json(data: dict[str, Any], source_file: str) -> dict[str, Any]:
+def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, Any]:
     """
-    Build the foundational JSON object with metadata and provided data.
+    Build the JSON packet with meta and payload data.
 
     The returned structure contains:
         {
             "meta": {
-                "generated_utc": "<ISO 8601 UTC timestamp>",
-                "source_file": "<original filename>",
+                "generated_at_utc": "<ISO 8601 UTC timestamp>",
+                "source_file_name": "<original filename>",
                 "checksum": <uint32 checksum of data>
             },
-            "data": { ... }  # shallow copy of the provided data
+            "payload": { ... }  # shallow copy of the provided data
         }
 
     Args:
-        data (dict[str, Any]): Dictionary of data to include under the "data" key. Values will be shallow-copied into the output.
+        payload (dict[str, Any]): Dictionary of data to include under the "payload" key. Values will be shallow-copied into the output.
         source_file (str): Original filename or identifier for the data source.
 
     Returns:
-        dict[str, Any]: The JSON-ready object containing metadata and the provided data.
+        dict[str, Any]: The JSON-ready object containing the meta and payload data.
     """
     # Assemble metadata
     meta_info = {
-        "generated_utc": now_utc_iso(),
-        "source_file": str(source_file),
-        "checksum": compute_dict_checksum_uint32(data),
+        _KEY_UTC: _now_utc_iso(),
+        _KEY_SOURCE: str(source_file),
+        _KEY_CHECKSUM: _compute_dict_checksum_uint32(payload),
     }
     # Return JSON-ready structure with shallow copy of `data
-    return {"meta": meta_info, "data": dict(data)}
+    return {_KEY_META: meta_info, _KEY_PAYLOAD: dict(payload)}
 
 
-def verify_foundation_json_checksum(obj: dict[str, Any]) -> bool:
+def verify_json_payload_checksum(packet: dict[str, Any]) -> bool:
     """
-    Verify that the checksum in a foundational JSON object matches its data.
+    Verify that the calculated checksum of the payload matches the checksum stored in the metadata.
 
-    This function compares the stored checksum in `obj["meta"]["checksum"]` against a newly computed checksum of `obj["data"]`. Returns True if they match, False otherwise.
+    This function compares the stored checksum against a newly computed checksum for the payload. Returns True if they match, False otherwise.
 
     Args:
-        obj (dict[str, Any]): JSON-like dictionary with the structure:
+        packet (dict[str, Any]): JSON-like dictionary with the structure:
             {
                 "meta": {
                     "checksum": <uint32>
@@ -222,20 +233,20 @@ def verify_foundation_json_checksum(obj: dict[str, Any]) -> bool:
         bool: True if the computed checksum matches the stored checksum; False otherwise.
     """
     # Extract metadata and data
-    meta_section = obj["meta"]
-    data_section = obj["data"]
+    meta_section = packet[_KEY_META]
+    data_section = packet[_KEY_PAYLOAD]
 
     # Parse stored checksum as int
-    expected_checksum = int(meta_section["checksum"])
+    expected_checksum = int(meta_section[_KEY_CHECKSUM])
 
     # Compute checksum for data
-    actual_checksum = compute_dict_checksum_uint32(data_section)
+    actual_checksum = _compute_dict_checksum_uint32(data_section)
 
     # Return comparison result
     return actual_checksum == expected_checksum
 
 
-def extract_foundation_data(foundation: dict[str, Any]) -> dict[str, Any]:
+def extract_payload(packet: dict[str, Any]) -> dict[str, Any]:
     """
     Return a shallow copy of the 'data' mapping from a foundation object.
 
@@ -243,13 +254,13 @@ def extract_foundation_data(foundation: dict[str, Any]) -> dict[str, Any]:
     original structure.
 
     Args:
-        foundation (dict[str, Any]): Foundation object expected to contain a 'data' mapping.
+        packet (dict[str, Any]): Foundation object expected to contain a 'data' mapping.
 
     Returns:
-        dict[str, Any]: A shallow copy of obj['data'].
+        dict[str, Any]: A shallow copy of obj['payload'].
     """
     # Return a shallow copy so callers can't mutate the original 'data'
-    return dict(foundation["data"])
+    return dict(packet[_KEY_PAYLOAD])
 
 
 def dict_to_json_string(input_dict: dict[str, Any], *, indent_spaces: int | None = None) -> str:
@@ -336,7 +347,8 @@ def load_json_file(file_path: str) -> dict[str, Any]:
         ) from err
 
 
-def save_json_file(file_path: str, data_dict: dict[str, Any], *, indent_spaces: int | None = 2) -> None:
+def save_json_file(file_path: str, data_dict: dict[str, Any], *,
+                   indent_spaces: int | None = 2) -> None:
     """
     Writes a dictionary to disk as a JSON file.
 

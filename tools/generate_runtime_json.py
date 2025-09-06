@@ -5,7 +5,7 @@ This module provides:
     - Discovery of `.txt` sources next to the script
     - Strict parsing of key=value content into a dict
     - Construction of per-source `<basename>.json` outputs
-    - Wrapping as "foundation" payloads with metadata/checksum
+    - Wrapping the payload with metadata/checksum
     - Exit codes suitable for use in build or CI scripts
 
 Common use cases include seeding runtime lookup tables, configuration stubs,
@@ -14,7 +14,7 @@ and small data dictionaries that should be packaged as JSON at build time.
 Example Usage:
     # Preferred usage via package/module import:
     from tools.generate_runtime_foundations import generate_runtime_json_from_txt_sources
-    rc = generate_runtime_json_from_txt_sources()
+    generate_runtime_json_from_txt_sources()
 
     # Direct CLI usage (from repo root or the script's directory):
     python -m tools.generate_runtime_foundations
@@ -27,12 +27,10 @@ Dependencies:
     - Internal Modules: src.utils.directory, src.utils.file, src.utils.text, src.utils.json
 
 Notes:
-    - Input format is STRICT `key=value` per line; parsing failures raise exceptions.
-    - Output directory is resolved as `<project_root>/src/runtime`; this tool
-      does not create the directory if missing.
+    - Input format is STRICT `"key"="value"` per line; parsing failures raise exceptions.
+    - Output directory is resolved as `<project_root>/src/runtime`; this tool does not create the directory if missing.
     - File name and extension validation are enforced via `src.utils.file`.
-    - Foundation JSON wrapper is produced by `create_foundation_json`, which
-      embeds metadata (e.g., source filename) and a checksum over the data.
+    - JSON payload wrapper is produced by `create_json_packet`, which embeds metadata (e.g., source filename) and a checksum over the data.
     - Returns:
          *  0 on success (all files processed)
          *  1 if one or more files failed
@@ -85,8 +83,8 @@ def main() -> int:
             raw_text = utils.load_text_file(source_path)
             kv_map = json_util.parse_strict_key_value_to_dict(source_path, raw_text)
 
-            # Wrap as "foundation" JSON payload and persist it
-            payload = json_util.create_foundation_json(kv_map, source_filename)
+            # Create JSON packet and persist it
+            payload = json_util.create_json_packet(kv_map, source_filename)
             json_util.save_json_file(dest_path, payload)
 
             print(f"Created: {dest_filename} ({len(kv_map)} keys)")

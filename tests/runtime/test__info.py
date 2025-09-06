@@ -32,9 +32,8 @@ class TestLoad(unittest.TestCase):
         os.makedirs(self.runtime_dir)
 
         # Build a minimal valid foundation JSON file
-        from src.utils import _json_io as json_util
         data_map = {k: f"value_for_{k}" for k in info.info_key.REQUIRED_KEYS}
-        foundation_obj = json_util.create_foundation_json(data_map, "_info.json")
+        foundation_obj = json_util.create_json_packet(data_map, "_info.json")
         json_path = os.path.join(self.runtime_dir, "_info.json")
         json_util.save_json_file(json_path, foundation_obj)
 
@@ -115,7 +114,7 @@ class TestGet(unittest.TestCase):
 
         # Build a minimal-valid foundation JSON using real REQUIRED_KEYS
         self.data_map = {k: f"value_for_{k}" for k in info.info_key.REQUIRED_KEYS}
-        foundation = json_util.create_foundation_json(self.data_map, "_info.json")
+        foundation = json_util.create_json_packet(self.data_map, "_info.json")
         self.json_path = os.path.join(self.runtime_dir, "_info.json")
         json_util.save_json_file(self.json_path, foundation)
 
