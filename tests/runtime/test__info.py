@@ -9,7 +9,7 @@ import src.runtime._info as info
 # noinspection PyProtectedMember
 import src.runtime._common as common
 
-from src.utils import _json_io as json_util
+import src.utils as utils
 
 
 class TestLoad(unittest.TestCase):
@@ -33,9 +33,9 @@ class TestLoad(unittest.TestCase):
 
         # Build a minimal valid foundation JSON file
         data_map = {k: f"value_for_{k}" for k in info.info_key.REQUIRED_KEYS}
-        foundation_obj = json_util.create_json_packet(data_map, "_info.json")
+        foundation_obj = utils.create_json_packet(data_map, "_info.json")
         json_path = os.path.join(self.runtime_dir, "_info.json")
-        json_util.save_json_file(json_path, foundation_obj)
+        utils.save_json_file(json_path, foundation_obj)
 
         # Patch _common to resolve JSON path from temp dir
         self.original_resolve = common._resolve_json_file_path
@@ -114,9 +114,9 @@ class TestGet(unittest.TestCase):
 
         # Build a minimal-valid foundation JSON using real REQUIRED_KEYS
         self.data_map = {k: f"value_for_{k}" for k in info.info_key.REQUIRED_KEYS}
-        foundation = json_util.create_json_packet(self.data_map, "_info.json")
+        foundation = utils.create_json_packet(self.data_map, "_info.json")
         self.json_path = os.path.join(self.runtime_dir, "_info.json")
-        json_util.save_json_file(self.json_path, foundation)
+        utils.save_json_file(self.json_path, foundation)
 
         # Patch resolver so _info.load() reads from our temp file
         self._orig_resolve = common._resolve_json_file_path

@@ -45,6 +45,49 @@ from unittest.mock import patch
 import src.utils._json_io as jio
 
 
+class TestCreateJsonPacket(unittest.TestCase):
+    """
+    Unit test for the `create_json_packet` function.
+    """
+
+    def test_builds_packet_with_meta_and_payload(self):
+        """
+        Should build a JSON packet with meta (timestamp, source, checksum) and shallow copy of payload.
+        """
+        # ARRANGE
+        payload = {"a": 1, "b": "two"}
+        source_file = "example.csv"
+
+        fake_timestamp = "2025-09-06T12:00:00Z"
+        fake_checksum = 123456789
+
+        expected_payload = dict(payload)  # shallow copy
+        expected_meta = {
+            jio._KEY_UTC: fake_timestamp,
+            jio._KEY_SOURCE: source_file,
+            jio._KEY_CHECKSUM: fake_checksum,
+        }
+
+        # Patch helper functions to control outputs
+        with patch("src.utils._json_io._now_utc_iso", return_value=fake_timestamp), \
+                patch("src.utils._json_io._compute_dict_checksum_uint32",
+                      return_value=fake_checksum):
+            # ACT
+            result = jio.create_json_packet(payload, source_file)
+
+        # ASSERT
+        # Verify meta fields
+        for field, expected_value in expected_meta.items():
+            result_value = result[jio._KEY_META][field]
+            with self.subTest(Field=field, Out=result_value, Exp=expected_value):
+                self.assertEqual(result_value, expected_value)
+
+        # Verify payload is a shallow copy (same keys/values, but not the same object)
+        with self.subTest(Out=result[jio._KEY_PAYLOAD], Exp=expected_payload):
+            self.assertEqual(result[jio._KEY_PAYLOAD], expected_payload)
+            self.assertIsNot(result[jio._KEY_PAYLOAD], payload)
+
+
 class TestDictToJsonString(unittest.TestCase):
     """
     Unit tests for the `dict_to_json_string` function.
@@ -552,7 +595,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         )
         expected = {"Good": "Yes", "AlsoGood": "True"}
 
-        with patch("builtins.print") as mock_print:  # mock to suppress print output in unit test
+        with patch("builtins.print"):  # mock to suppress print output in unit test
             # ACT
             result = jio.parse_strict_key_value_to_dict(src, text)
 
@@ -614,7 +657,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         text = '"Empty" = ""\n"NonEmpty" = "x"'
         expected = {"Empty": "", "NonEmpty": "x"}
 
-        with patch("builtins.print") as mock_print:  # mock to suppress print output in unit test
+        with patch("builtins.print"):  # mock to suppress print output in unit test
             # ACT
             result = jio.parse_strict_key_value_to_dict(src, text)
 

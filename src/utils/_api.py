@@ -53,6 +53,19 @@ from ._file_path import (
     is_existing_file_path,
     is_valid_file_path,
 )
+
+# noinspection PyProtectedMember
+from ._json_io import (
+    create_json_packet,
+    dict_to_json_string,
+    extract_payload,
+    json_string_to_dict,
+    load_json_file,
+    parse_strict_key_value_to_dict,
+    save_json_file,
+    verify_json_payload_checksum,
+)
+
 # noinspection PyProtectedMember
 from ._parser import (
     is_float,
@@ -66,12 +79,14 @@ from ._parser import (
     parse_to_iso_date_string,
     parse_to_non_empty_string,
 )
+
 # noinspection PyProtectedMember
 from ._sanitizer import (
     normalize_spaces,
     normalize_to_string,
     remove_all_whitespace,
 )
+
 # noinspection PyProtectedMember
 from ._text_io import (
     load_text_file,
@@ -100,6 +115,16 @@ __all__ = [
     "get_files_in_directory",
     "is_existing_file_path",
     "is_valid_file_path",
+
+    # json_io
+    "create_json_packet",
+    "dict_to_json_string",
+    "extract_payload",
+    "json_string_to_dict",
+    "load_json_file",
+    "parse_strict_key_value_to_dict",
+    "save_json_file",
+    "verify_json_payload_checksum",
 
     # parser
     "is_float",

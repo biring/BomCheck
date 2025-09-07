@@ -42,7 +42,6 @@ License:
 # Internal utility imports for runtime resource management
 import src.utils.directory as dir_util
 import src.utils as utils
-import src.utils._json_io as json_util
 
 # CONSTANTS
 RUNTIME_FOLDER: tuple[str, ...] = ("src", "runtime",)
@@ -225,7 +224,8 @@ def _assert_required_keys_are_present(key_value_map: dict[str, str], required_ke
 
     # If any required keys are missing, raise a KeyError with details
     if missing_keys:
-        raise KeyError(f"Missing required keys: {missing_keys}. These keys must be present in the data source.")
+        raise KeyError(
+            f"Missing required keys: {missing_keys}. These keys must be present in the data source.")
 
 
 def _resolve_json_file_path(resource_name: str, base_dir: str | None = None) -> str:
@@ -330,14 +330,14 @@ def load_runtime_json(resource_name: str, required_keys: list[str]) -> dict:
         json_path = _resolve_json_file_path(resource_name)
 
         # Load the foundational JSON object (with meta + data)
-        foundation_obj = json_util.load_json_file(json_path)
+        foundation_obj = utils.load_json_file(json_path)
 
         # Verify integrity of the payload "data" via checksum in meta
-        if not json_util.verify_json_payload_checksum(foundation_obj):
+        if not utils.verify_json_payload_checksum(foundation_obj):
             raise RuntimeError(f"Checksum verification failed for '{resource_name}' JSON data.")
 
         # Extract the "key:value" mapping (shallow copy)
-        key_value_map = json_util.extract_payload(foundation_obj)
+        key_value_map = utils.extract_payload(foundation_obj)
 
         # Ensure the JSON contains all mandatory keys
         _assert_required_keys_are_present(key_value_map, required_keys)

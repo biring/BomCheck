@@ -43,9 +43,8 @@ License:
 import os
 import sys
 
-import src.utils.directory as dir_util
 import src.utils as utils
-import src.utils._json_io as json_util
+import src.utils.directory as dir_util
 
 # CONSTANTS
 DEST_FOLDER = ("src", "runtime",)
@@ -81,11 +80,11 @@ def main() -> int:
 
             # Load and parse strict key/value content
             raw_text = utils.load_text_file(source_path)
-            kv_map = json_util.parse_strict_key_value_to_dict(source_path, raw_text)
+            kv_map = utils.parse_strict_key_value_to_dict(source_path, raw_text)
 
             # Create JSON packet and persist it
-            payload = json_util.create_json_packet(kv_map, source_filename)
-            json_util.save_json_file(dest_path, payload)
+            payload = utils.create_json_packet(kv_map, source_filename)
+            utils.save_json_file(dest_path, payload)
 
             print(f"Created: {dest_filename} ({len(kv_map)} keys)")
         except Exception as ex:

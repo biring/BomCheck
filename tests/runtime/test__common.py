@@ -37,14 +37,13 @@ License:
  - Internal Use Only
 """
 import os
-import tempfile
 import shutil
+import tempfile
 import unittest
-import src.utils._json_io as json_util
-import src.utils as utils
 
 # noinspection PyProtectedMember
 import src.runtime._common as common
+import src.utils as utils
 
 
 class TestCache(unittest.TestCase):
@@ -449,8 +448,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        packet = json_util.create_json_packet(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, packet)
+        packet = utils.create_json_packet(data, source_file=self.filename)
+        utils.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
         expected = data
@@ -485,12 +484,15 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         Should raise RuntimeError when the stored checksum does not match computed checksum.
         """
+        from src.utils import _json_io as _jio  # local import to access internal constants
+
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        packet = json_util.create_json_packet(data, source_file=self.filename)
+        packet = utils.create_json_packet(data, source_file=self.filename)
         # Tamper with checksum to force a mismatch
-        packet[json_util._KEY_META][json_util._KEY_CHECKSUM] = packet[json_util._KEY_META][json_util._KEY_CHECKSUM] + 1  # type: ignore[index]
-        json_util.save_json_file(self.filepath, packet)
+        packet[_jio._KEY_META][_jio._KEY_CHECKSUM] \
+            = packet[_jio._KEY_META][_jio._KEY_CHECKSUM] + 1  # type: ignore[index]
+        utils.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
 
@@ -511,8 +513,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp"}  # WELCOME key is missing
-        packet = json_util.create_json_packet(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, packet)
+        packet = utils.create_json_packet(data, source_file=self.filename)
+        utils.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]
 
@@ -533,8 +535,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         """
         # ARRANGE
         data = {"APP_NAME": "MyApp", "WELCOME": 123}  # Non-string value
-        packet_data = json_util.create_json_packet(data, source_file=self.filename)
-        json_util.save_json_file(self.filepath, packet_data)
+        packet_data = utils.create_json_packet(data, source_file=self.filename)
+        utils.save_json_file(self.filepath, packet_data)
 
         required_keys = ["APP_NAME", "WELCOME"]
 
