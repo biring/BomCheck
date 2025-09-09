@@ -23,14 +23,28 @@ License:
 # Re-export selected API from internal modules to expose as public API
 # noinspection PyProtectedMember
 from ._v3_cell_value import (
-    assert_price,
-    assert_qty,
-    assert_item,
-    assert_classification,
-    assert_date_format,
     assert_board_name,
-    assert_model_number,
     assert_build_stage,
+    assert_classification,
+    assert_component_type,
+    assert_date_format,
+    assert_description,
+    assert_designator,
+    assert_device_package,
+    assert_item,
+    assert_manufacturer,
+    assert_material_cost,
+    assert_mfg_part_number,
+    assert_model_number,
+    assert_overhead_cost,
+    assert_qty,
+    assert_sub_total,
+    assert_total_cost,
+    assert_ul_vde_number,
+    assert_unit_price,
+    assert_units,
+    assert_validated_at,
+
 )
 # noinspection PyProtectedMember
 from ._v3_cell_logic import (
@@ -45,14 +59,27 @@ from ._v3_cell_logic import (
 
 __all__ = [
     # Value-level assertions
-    "assert_price",
-    "assert_qty",
-    "assert_item",
-    "assert_classification",
-    "assert_date_format",
     "assert_board_name",
-    "assert_model_number",
     "assert_build_stage",
+    "assert_classification",
+    "assert_component_type",
+    "assert_date_format",
+    "assert_description",
+    "assert_designator",
+    "assert_device_package",
+    "assert_item",
+    "assert_manufacturer",
+    "assert_material_cost",
+    "assert_mfg_part_number",
+    "assert_model_number",
+    "assert_overhead_cost",
+    "assert_qty",
+    "assert_sub_total",
+    "assert_total_cost",
+    "assert_ul_vde_number",
+    "assert_unit_price",
+    "assert_units",
+    "assert_validated_at",
 
     # Logic-level assertions
     "assert_designator_count_matches_quantity",

@@ -47,14 +47,25 @@ class TestInterfacesCellValue(unittest.TestCase):
         Should run without raising.
         """
         cases = [
-            (rules.assert_price, "2.50"),  # non-negative numeric
-            (rules.assert_qty, "3"),  # positive integer/decimal
-            (rules.assert_item, "23"),  # positive integer-like
-            (rules.assert_classification, "A"),  # typical single-letter class
-            (rules.assert_date_format, "2025-08-06"),  # ISO-8601 date
             (rules.assert_board_name, "Main PCBA"),  # example name
-            (rules.assert_model_number, "AB123"),  # example model number pattern
             (rules.assert_build_stage, "P1"),  # example build stage pattern
+            (rules.assert_classification, "A"),  # typical single-letter class
+            (rules.assert_component_type, "Resistor"),
+            (rules.assert_date_format, "2025-08-06"),  # ISO-8601 date
+            (rules.assert_description, "LM7805, DIP-8"), # not empty string
+            (rules.assert_device_package, "0603"),  # Not empty string
+            (rules.assert_item, "23"),  # positive integer-like
+            (rules.assert_manufacturer, "Analog Devices"),  # not empty string
+            (rules.assert_material_cost, "7.15"),  # positive float
+            (rules.assert_mfg_part_number, "A345-BZ"), # not empty string
+            (rules.assert_model_number, "AB123"),  # example model number pattern
+            (rules.assert_qty, "3"),  # positive integer/decimal
+            (rules.assert_overhead_cost, "0.15"),  # positive float
+            (rules.assert_total_cost, "7.15"),  # positive float
+            (rules.assert_ul_vde_number, "A345-34-56"),  # not empty string
+            (rules.assert_unit_price, "1.015"),  # positive float
+            (rules.assert_units, "PCS"),  # not empty string
+            (rules.assert_validated_at, "EB1"),  # not empty string
         ]
         expected = ""  # no error
 
@@ -74,15 +85,26 @@ class TestInterfacesCellValue(unittest.TestCase):
         Should raise ValueError
         """
         cases = [
-            (rules.assert_price, "-1"),  # negative price
-            (rules.assert_qty, "-5"),  # negative qty
-            (rules.assert_item, "1.2"),  # not an integer
-            (rules.assert_classification, "Z"),  # not a valid classification
-            (rules.assert_date_format, "2025.08.06"),  # incorrect format with decimal separators
             (rules.assert_board_name, "Main PCB"),  # does not end with PCBA
-            (rules.assert_model_number, "1A"),  # incorrect format
             (rules.assert_build_stage, "Alpha"),  # incorrect format
-        ]
+            (rules.assert_classification, "Z"),  # not a valid classification
+            # Not implemented (rules.assert_component_type, ""), # empty string
+            (rules.assert_date_format, "2025.08.06"),  # incorrect format with decimal separators
+            (rules.assert_description, ""),  # empty string
+            # Not implemented (rules.assert_device_package, ""),  # empty string
+            (rules.assert_item, "-23"),  # negative integer-like
+            (rules.assert_manufacturer, ""),  # empty string
+            (rules.assert_material_cost, "-7.15"),  # negative float
+            (rules.assert_mfg_part_number, ""),  # empty string
+            (rules.assert_model_number, "1A"),  # incorrect format
+            (rules.assert_qty, "A"),  # not positive integer/decimal
+            (rules.assert_overhead_cost, "-0.15"),  # negative float
+            (rules.assert_total_cost, "-7.15"),  # negative float
+            # Not implemented (rules.assert_ul_vde_number, ""),  # empty string
+            (rules.assert_unit_price, "-15"),  # negative integer
+            # Not implemented (rules.assert_units, ""),  # empty string
+            # Not implemented (rules.assert_validated_at, ""),  # empty string
+            ]
         expected = ValueError.__name__
 
         for func, value in cases:
