@@ -189,17 +189,17 @@ def _check_header(file_name: str, sheet_name: str, header: Header) -> list[Error
         _add_error(HeaderFields.BOM_DATE, exc)
 
     try:
-        rules.assert_price(header.material_cost)
+        rules.assert_material_cost(header.material_cost)
     except Exception as exc:
         _add_error(HeaderFields.MATERIAL_COST, exc)
 
     try:
-        rules.assert_price(header.overhead_cost)
+        rules.assert_overhead_cost(header.overhead_cost)
     except Exception as exc:
         _add_error(HeaderFields.OVERHEAD_COST, exc)
 
     try:
-        rules.assert_price(header.total_cost)
+        rules.assert_total_cost(header.total_cost)
     except Exception as exc:
         _add_error(HeaderFields.TOTAL_COST, exc)
 
@@ -288,12 +288,12 @@ def _check_row_cell_value(file_name: str, sheet_name: str, index: str, row: Row)
         _add_error(RowFields.QTY, exc)
 
     try:
-        rules.assert_price(row.unit_price)
+        rules.assert_unit_price(row.unit_price)
     except Exception as exc:
         _add_error(RowFields.UNIT_PRICE, exc)
 
     try:
-        rules.assert_price(row.sub_total)
+        rules.assert_sub_total(row.sub_total)
     except Exception as exc:
         _add_error(RowFields.SUB_TOTAL, exc)
 
