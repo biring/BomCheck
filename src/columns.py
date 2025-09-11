@@ -1,5 +1,7 @@
 import pandas as pd
 
+from src.frames import designatorHdr
+
 
 def get_single_header_index(df, reference_string, full_match=True):
     """
@@ -141,6 +143,7 @@ def fill_empty_item_cells(df: pd.DataFrame, item: str, component: str) -> pd.Dat
     The function processes the DataFrame row by row:
     - If a cell in the `item` column is empty:
       * If the corresponding `component` cell contains "ALT", the value is copied from the previous row in the `item` column.
+      * If the corresponding `designator` cell matched above row, the value is copied from the previous row in the `item` column.
       * Otherwise, the cell is filled with the next sequential item number (derived from the maximum existing number).
     - Non-empty cells remain unchanged.
 
@@ -173,6 +176,9 @@ def fill_empty_item_cells(df: pd.DataFrame, item: str, component: str) -> pd.Dat
         if df.iloc[n][item] == empty:
             # When it is an alternative
             if "ALT" in df.iloc[n][component]:
+                # Use the number from above
+                new_value = df.iloc[n - 1, df.columns.get_loc(item)]
+            elif df.iloc[n][designatorHdr] == df.iloc[n-1][designatorHdr]:
                 # Use the number from above
                 new_value = df.iloc[n - 1, df.columns.get_loc(item)]
             else:
