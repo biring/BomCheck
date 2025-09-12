@@ -691,68 +691,98 @@ def primary_above_alternative(df: pd.DataFrame,
                               bom_template_version: BomTempVer,
                               enum_bom_temp_version: Type[BomTempVer]) -> pd.DataFrame:
     """
-    Move primary component above alternatives based on quantity.
-    After adding a row to the top, swap the first and second rows for `pkgHdr`, `itemHdr`, and `componentHdr`.
+    Reorder each component group so the primary component (qty != 0) is first, followed by alternatives (qty == 0).
+    For template v2: return the input unchanged.
+    For template v3: while scanning rows in order, whenever a primary appears in a group that already has
+    alternative rows, insert the primary at the top of the group's buffer, then swap the values of
+    [pkgHdr, itemHdr, componentHdr] between the first and second rows of that group to preserve primary
+    metadata if it was carried by the first alternative row.
 
-    The primary component (non-zero quantity) is moved to the top of each part group, followed by its alternatives.
+    Grouping keys: (itemHdr, designatorHdr).
 
     Args:
-        enum_bom_temp_version:
-        bom_template_version:
-        df (DataFrame): The input DataFrame to process.
+        df: Input DataFrame.
+        bom_template_version: Active BOM template version (Enum value).
+        enum_bom_temp_version: Enum class for template versions (e.g., BomTempVer). Redundant if BomTempVer is importable.
 
     Returns:
-        mdf (DataFrame): The modified DataFrame with primary components above alternatives.
+        A new DataFrame with primary components placed above alternatives for template v3; unchanged for v2.
     """
     print()
     print('Moving primary item above alternative items...')
 
-    # Initialize an empty DataFrame to collect rows (df_temp)
-    df_temp = pd.DataFrame(columns=df.columns)
-    mdf = pd.DataFrame(columns=df.columns)
-
     # Not required for template version 2.0
     if bom_template_version == enum_bom_temp_version.v2:
-        mdf = df
+        return df.copy()
 
     # Only needed for template version 3.0
-    elif bom_template_version == enum_bom_temp_version.v3:
+    if bom_template_version == enum_bom_temp_version.v3:
+
+        # Initialize an empty DataFrame to collect rows (df_temp)
+        df_group = pd.DataFrame(columns=df.columns)
+        df_mod = pd.DataFrame(columns=df.columns)
 
         # Read each row one at a time
-        for _, row in df.iterrows():
-            # If df_temp is not empty, check for designator change or empty designatorHdr
-            if (not df_temp.empty and (df_temp[designatorHdr].iloc[0] != row[designatorHdr])) or row[
-                designatorHdr] == "":
-                # Merge current df_temp into mdf
-                mdf = pd.concat([mdf, df_temp], axis=0, ignore_index=True)
-                # Reset df_temp for the next part group
-                df_temp = pd.DataFrame(columns=df.columns)
+        for idx, row in df.iterrows():
 
-            # If row quantity is non-zero, move it to the top of the current group
-            if row[qtyHdr] != 0:
-                # Add row to the top of df_temp
-                df_temp = pd.concat([pd.DataFrame(row).T, df_temp], axis=0, ignore_index=True)
+            # Convert current row label -> position
+            n_row = df.index.get_loc(idx)
 
-                # After adding to the top, check if we have at least two rows to swap
-                if len(df_temp) > 1:
+            # for first physical row → start a new group
+            if n_row == 0:
+                df_group = pd.DataFrame([row], columns=df.columns)  # copy row to group
+                continue  # no need to do anything else
+
+            # Previous row label (by sequence, not label math)
+            prev_idx = df.index[n_row - 1] # get previous row index label
+            
+            # Detect group change by label
+            same_group = (
+                    df.loc[idx, itemHdr] == df.loc[prev_idx, itemHdr] and
+                    df.loc[idx, designatorHdr] == df.loc[prev_idx, designatorHdr]
+            )
+
+            # When component changes
+            if not same_group:
+                # add group to mdf
+                df_mod = pd.concat([df_mod, df_group], axis=0, ignore_index=True)
+                # Start new group with current row
+                df_group = pd.DataFrame([row], columns=df.columns)
+                continue  # no need to do anything else
+
+            # Within the same group
+            # When we come across an alternative part
+            if row[qtyHdr] == 0:
+                # add current row to the bottom of the group
+                df_group = pd.concat([df_group, pd.DataFrame(row).T], axis=0, ignore_index=True)
+            # When we come across the primary
+            else:
+                # add current row to the top of the group
+                df_group = pd.concat([pd.DataFrame(row).T, df_group], axis=0, ignore_index=True)
+
+                # Primary information may be in the alternative row, so
+                # after adding to the top, if we have at least two rows
+                if len(df_group) > 1:
                     # Select columns to swap
                     cols_to_swap = [pkgHdr, itemHdr, componentHdr]
-
                     # Swap values between the first and second rows for the selected columns
-                    df_temp.loc[0, cols_to_swap], df_temp.loc[1, cols_to_swap] = \
-                        df_temp.loc[1, cols_to_swap].values, df_temp.loc[0, cols_to_swap].values
-            else:
-                # Move row to the bottom of the current group if quantity is zero
-                df_temp = pd.concat([df_temp, pd.DataFrame(row).T], axis=0, ignore_index=True)
+                    # Take copies to avoid chained assignment pitfalls
+                    r0 = df_group.loc[0, cols_to_swap].copy()
+                    r1 = df_group.loc[1, cols_to_swap].copy()
+                    df_group.loc[0, cols_to_swap] = r1.values
+                    df_group.loc[1, cols_to_swap] = r0.values
 
         # After the last group, merge the remaining df_temp into mdf
-        if not df_temp.empty:
-            mdf = pd.concat([mdf, df_temp], axis=0, ignore_index=True)
+        if not df_group.empty:
+            df_mod = pd.concat([df_mod, df_group], axis=0, ignore_index=True)
 
-    # User interface message
-    print("Done")
+        # User interface message
+        print("Done")
 
-    return mdf
+        return df_mod
+
+    # Unknown version
+    raise ValueError("BOM template version not supported by primary_above_alternative")
 
 
 def fill_merged_designators(df: pd.DataFrame,
