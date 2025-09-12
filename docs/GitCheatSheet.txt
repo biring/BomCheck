@@ -6,7 +6,8 @@ OVERVIEW
        |
        └→ [TemporaryStorage]
        		   ↑
-		[Stash]
+		    [Stash]
+
 | Action                   | Command                  | Moves data from → to                                    |
 | ------------------------ | ------------------------ | ------------------------------------------------------- |
 | Modify files             | Your editor              | → Working Directory                                     |
@@ -255,6 +256,35 @@ git clean -f <file-path>                    # Deletes the specified untracked fi
 8. Delete specific untracked directories
 git clean -f -d <dir-path>                  # Deletes the specified untracked directory
 ⚠️ Do not run 'git clean -f -d' without specifying the folder. It will force delete all folder not tracked by Git (e.g., cache directories, etc.)
+
+-------------------------------------------------------------------------------------------------------
+STASHING GUIDE
+-------------------------------------------------------------------------------------------------------
+1. Save to stash
+git stash                     	            # Stash tracked file changes
+git stash -u                  	            # Stash including untracked files
+git stash push -u -m "WIP: Bug #45"         # Stash with a message for clarity
+git stash push -m "Bug #45" <path to file>  # Stash specific file or files listed in series by spaces
+
+2. View stash list
+git stash list	                            # List all stashes
+				                            # Example output:
+				                            # stash@{0}: On main: WIP login
+				                            # stash@{1}: On working: Bug #45
+
+3. View stashed change
+git stash show -p stash@{n}   	            # See what changes a stash contains
+
+4. Load from stash
+git stash apply stash@{n}     	            # Apply by stash number (keeps stash in list)
+
+5. Pop changes
+git stash pop stash@{n}                     # Apply and remove stash from list
+
+6. Remove from stash
+git stash drop stash@{n}                    # Remove a specific stash
+git stash clear                             # Remove ALL stashes ⚠️ not recommended
+⚠️ Probably best not to use clear instead use drop by stash number after review of changes
 
 -------------------------------------------------------------------------------------------------------
 EDIT LATEST COMMIT MESSAGE
