@@ -813,57 +813,82 @@ def fill_merged_designators(df: pd.DataFrame,
 
 def merge_alternative(df_in):
     """
-    merge alternative items with primary item row using "/n" delimiter.
+    Merge alternative items into the group's primary row by joining selected fields with the newline delimiter "\n".
 
-    This is done to allow CBOM version 3.0 to work with application designed for CBOM template version 2.0.
-    We merge data so CBOM version 3.0 looks like CBOM version 2.0 and then split it later
+    Purpose:
+      - Allow CBOM v3.0 (primary + alternatives on separate rows) to appear like CBOM v2.0 (single row),
+        by merging alternative-row values into the primary row. A later step can split them back.
 
+    Grouping keys: (itemHdr, designatorHdr).
+    Merged columns: descriptionHdr, manufacturerHdr, partNoHdr.
     """
+
     # message
     print()
     print('Merging alternatives items with primary item...')
+
+    # Early exit
+    if df_in.empty:
+        print("Number of rows in the BOM changed from 0 to 0")
+        return df_in.copy()
+
 
     # Initialize variables to store previous primary item values
     prev_desc = ''
     prev_mfg = ''
     prev_pn = ''
-    prev_designator = ''
 
     # Create an empty data frame with same header
     df_out = pd.DataFrame(columns=df_in.columns)
-    df_merger = df_out
+    df_group = pd.DataFrame(columns=df_in.columns)
 
     # read each row on at a time
-    for n, row in df_in.iterrows():
+    for idx, row in df_in.iterrows():
 
-        if row[designatorHdr] != prev_designator or n == 0 :
+        # Convert current row label -> position
+        n_row = (df_in.index.get_loc(idx))
 
-            # first time around no need to concat as there is no data
-            if len(df_merger) != 0:
-                df_out = pd.concat([df_out, pd.DataFrame(df_merger).T], axis=0, ignore_index=True)
-            df_merger = row
+        # for first physical row → start a new group
+        if n_row == 0:
+            df_group = row.copy()
             prev_desc = row[descriptionHdr]
             prev_mfg = row[manufacturerHdr]
             prev_pn = row[partNoHdr]
-            prev_designator = row[designatorHdr]
+            continue  # no need to do anything else
+
+        # Previous row label (by sequence, not label math)
+        prev_idx = df_in.index[n_row - 1]  # get previous row index label
+
+        # Detect group change by label
+        group_change = not (
+                df_in.loc[idx, itemHdr] == df_in.loc[prev_idx, itemHdr] and
+                df_in.loc[idx, designatorHdr] == df_in.loc[prev_idx, designatorHdr]
+        )
+
+        if group_change:
+            # add group to output
+            df_out = pd.concat([df_out, pd.DataFrame(df_group).T], axis=0, ignore_index=True)
+            df_group = row.copy()
+            prev_desc = row[descriptionHdr]
+            prev_mfg = row[manufacturerHdr]
+            prev_pn = row[partNoHdr]
         else:
             if row[descriptionHdr]:
-                df_merger[descriptionHdr] += "\n" + row[descriptionHdr]
+                df_group[descriptionHdr] += "\n" + row[descriptionHdr]
             else:
-                df_merger[descriptionHdr] += "\n" + prev_desc
-
+                df_group[descriptionHdr] += "\n" + prev_desc
             if row[manufacturerHdr]:
-                df_merger[manufacturerHdr] += "\n" + row[manufacturerHdr]
+                df_group[manufacturerHdr] += "\n" + row[manufacturerHdr]
             else:
-                df_merger[manufacturerHdr] += "\n" + prev_mfg
+                df_group[manufacturerHdr] += "\n" + prev_mfg
 
             if row[partNoHdr]:
-                df_merger[partNoHdr] += "\n" + row[partNoHdr]
+                df_group[partNoHdr] += "\n" + row[partNoHdr]
             else:
-                df_merger[partNoHdr] += "\n" + prev_pn
+                df_group[partNoHdr] += "\n" + prev_pn
 
     # last row merger needs to be done outside the for loop
-    df_out = pd.concat([df_out, pd.DataFrame(df_merger).T], axis=0, ignore_index=True)
+    df_out = pd.concat([df_out, pd.DataFrame(df_group).T], axis=0, ignore_index=True)
 
     # user interface message
     print(f"Number of row in the BOM changed from {df_in.shape[0]} to {df_out.shape[0]}")
