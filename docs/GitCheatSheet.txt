@@ -273,18 +273,21 @@ git stash list	                            # List all stashes
 				                            # stash@{1}: On working: Bug #45
 
 3. View stashed change
-git stash show -p stash@{n}   	            # See what changes a stash contains
+git stash show -p "stash@{n}"               # See what changes a stash contains
 
 4. Load from stash
-git stash apply stash@{n}     	            # Apply by stash number (keeps stash in list)
+git stash apply "stash@{n}"                 # Apply by stash number (keeps stash in list)
 
 5. Pop changes
-git stash pop stash@{n}                     # Apply and remove stash from list
+git stash pop "stash@{n}"                   # Apply and remove stash from list
 
 6. Remove from stash
-git stash drop stash@{n}                    # Remove a specific stash
+git stash drop "stash@{n}"                  # Remove a specific stash
 git stash clear                             # Remove ALL stashes ⚠️ not recommended
 ⚠️ Probably best not to use clear instead use drop by stash number after review of changes
+
+✅ When using PowerShell, always wrap the stash reference in quotes e.g. git stash pop "stash@{2}"
+Quotes are not needed for Git Bash, Linux, or macOS terminals.
 
 -------------------------------------------------------------------------------------------------------
 EDIT LATEST COMMIT MESSAGE
