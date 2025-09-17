@@ -1,3 +1,5 @@
+import re
+
 import strings
 import pandas as pd
 
@@ -200,3 +202,91 @@ def delete_row_with_empty_element(df: pd.DataFrame, column_name: str) -> pd.Data
     # Delete rows with empty values in the specified column
     mdf = df.dropna(subset=[column_name])
     return mdf
+
+import re
+import pandas as pd
+
+# Strict range pattern: no spaces around the dash, same alpha prefix on both sides
+_RANGE_RE = re.compile(r"^([A-Za-z]+)(\d+)-\1(\d+)$")
+
+def _expand_ref_des_cell(cell: str) -> str:
+    """
+    Expands reference designator ranges within a single cell string.
+
+    This function processes a string containing comma-separated reference designators
+    and expands any ranges written in the form "PrefixStart-PrefixEnd".
+    Each expanded value is preserved with its original prefix, while non-range values
+    remain unchanged. The result is returned as a comma-separated string.
+
+    For example:
+    - Input:  "R1, R3-R6, R12"
+    - Output: "R1,R3,R4,R5,R6,R12"
+
+    Notes:
+    - The input must be a valid string; no NaN or non-string checks are performed.
+    - Ranges must not contain spaces around the dash (e.g., "R3-R6" is valid, "R3 - R6" is not).
+    - Both sides of the range must share the same alphabetic prefix.
+    - Descending ranges (e.g., "R6-R3") are supported and expanded in reverse order.
+
+    Args:
+    - cell (str): A string containing reference designators, possibly with ranges.
+
+    Returns:
+    - str: A comma-separated string with all ranges expanded into individual designators.
+    """
+    parts = [p.strip() for p in cell.split(",") if p.strip()]
+    out: list[str] = []
+
+    for part in parts:
+        m = _RANGE_RE.fullmatch(part)
+        if m:
+            prefix, a, b = m.groups()
+            start, end = int(a), int(b)
+            step = 1 if end >= start else -1
+            out.extend(f"{prefix}{i}" for i in range(start, end + step, step))
+        else:
+            out.append(part)
+
+    return ",".join(out)
+
+
+def unpack_ref_des_series(df: pd.DataFrame, ref_des_column: str, *, verbose: bool = False) -> pd.DataFrame:
+    """
+    Expands reference designator ranges in the specified column of a DataFrame.
+
+    This function scans each cell in the given column, looking for reference designator
+    ranges written in the form "PrefixStart-PrefixEnd" (e.g., "R3-R6"). When a range is
+    found, it is expanded into individual designators (e.g., "R3,R4,R5,R6"). Single values
+    are preserved as-is. The column is then updated in-place with the expanded values.
+
+    For example:
+    - Input cell: "R1, R3-R6, R12"
+    - Output cell: "R1,R3,R4,R5,R6,R12"
+
+    Notes:
+    - The function assumes the column contains valid string data.
+    - Ranges must not contain spaces around the dash (e.g., "R3-R6" is valid, "R3 - R6" is not).
+    - Both sides of the range must use the same alphabetic prefix.
+
+    Args:
+    - df (pd.DataFrame): The DataFrame containing the reference designator data.
+    - ref_des_column (str): The column name holding reference designator strings.
+    - verbose (bool): If True, prints per-row changes.
+
+    Returns:
+    - pd.DataFrame: The DataFrame with the specified column updated to replace ranges
+      with their expanded, comma-separated values.
+    """
+    if ref_des_column not in df.columns:
+        raise KeyError(f"Column not found: {ref_des_column!r}")
+
+    original = df[ref_des_column].astype(str)
+    expanded = original.apply(_expand_ref_des_cell)
+
+    if verbose:
+        for old, new in zip(original.tolist(), expanded.tolist()):
+            if old != new:
+                print(f'  Changed "{old}" -> "{new}"')
+
+    df[ref_des_column] = expanded
+    return df

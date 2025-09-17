@@ -49,6 +49,15 @@ def sequence_cbom_for_cost_walk() -> None:
     df = frames.drop_item_with_zero_quantity(df)
     # remove unwanted characters from designators
     df = frames.cleanup_designators(df)
+    # unpack designator series
+    df = frames.unpack_ref_des_series(df)
+    # check reference designator format
+    df = strings.check_ref_des_name(df)
+    # check for duplicate reference designators
+    strings.check_duplicate_ref_des(df)
+    # check qty matches reference designator count
+    frames.check_qty_matched_ref_des_count(df)
+
     # split multiple quantity to separate rows
     df = frames.split_multiple_quantity(df)
 
@@ -132,6 +141,8 @@ def sequence_cbom_for_db_upload() -> None:
 
     # remove unwanted characters from designators
     df = frames.cleanup_designators(df)
+    # unpack designator series
+    df = frames.unpack_ref_des_series(df)
     # check reference designator format
     df = strings.check_ref_des_name(df)
     # check for duplicate reference designators
@@ -234,6 +245,8 @@ def sequence_ebom_for_db_upload():
 
     # remove unwanted characters from designators
     df = frames.cleanup_designators(df)
+    # unpack designator series
+    df = frames.unpack_ref_des_series(df)
     # check reference designator format
     df = strings.check_ref_des_name(df)
     # check for duplicate reference designators

@@ -1216,3 +1216,38 @@ def replace_alternative_label_with_data_from_above_alternative(df: pd.DataFrame)
     print('Done.')
 
     return df
+
+def unpack_ref_des_series(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    High-level interface to expand reference designator ranges in a DataFrame.
+
+    This function serves as a user-facing wrapper around the lower-level
+    `rows.unpack_ref_des_series`. It prints progress messages to the console
+    for clarity and expands reference designator ranges (e.g., "R2-R5")
+    into individual designators (e.g., "R2,R3,R4,R5") within the designated
+    column of the DataFrame.
+
+    The input DataFrame is updated in-place, and the expanded column values
+    are returned for downstream processing.
+
+    Example:
+    - Input cell: "R1, R3-R6, R12"
+    - Output cell: "R1,R3,R4,R5,R6,R12"
+
+    Args:
+    - df (pd.DataFrame): The DataFrame containing the reference designator data.
+
+    Returns:
+    - pd.DataFrame: The DataFrame with ranges in the reference designator column
+      expanded into comma-separated individual values.
+    """
+    # user interface message
+    print()
+    print(' Unpacking reference designator series (example: R2-R5 -> R2,R3,R4,R5).. ')
+
+    df = rows.unpack_ref_des_series(df, designatorHdr, verbose=True)
+
+    print(' Done.')
+
+    return df
+
