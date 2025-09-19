@@ -112,5 +112,49 @@ class TestHeaderGetByLabel(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
+class TestHeader(unittest.TestCase):
+    """
+    Unit tests for `header` class methods.
+    """
+
+    def test_get_labels(self):
+        """
+        Should return tuple with Header labels.
+        """
+        # ARRANGE
+        expected = tuple(fields.HEADER_TO_ATTR_MAP.keys())
+
+        # ACT
+        result = raw.Header.get_labels()
+
+        # ASSERT
+        with self.subTest(Out=type(result).__name__, Exp=tuple.__name__):
+            self.assertIsInstance(result, tuple)
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
+class TestRows(unittest.TestCase):
+    """
+    Unit tests for `rows` class methods.
+    """
+
+    def test_get_labels(self):
+        """
+        Should return tuple with Row labels.
+        """
+        # ARRANGE
+        expected = tuple(fields.ROW_TO_ATTR_MAP.keys())
+
+        # ACT
+        result = raw.Row.get_labels()
+
+        # ASSERT
+        with self.subTest(Out=type(result).__name__, Exp=tuple.__name__):
+            self.assertIsInstance(result, tuple)
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -36,7 +36,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 from dataclasses import dataclass
 
 # noinspection PyProtectedMember
-from . import _v3_fields as fields # Direct internal import acceptable in internal modules
+from . import _v3_fields as fields  # Direct internal import acceptable in internal modules
 
 _ERR_INVALID_HEADER_LABEL: str = "Unknown header label: {a}"
 _ERR_INVALID_ROW_LABEL: str = "Unknown row label: {a}"
@@ -79,6 +79,16 @@ class Row:
     designator: str = ""
     unit_price: str = ""
     sub_total: str = ""
+
+    @classmethod
+    def get_labels(cls) -> tuple[str, ...]:
+        """
+        Returns the Excel labels recognized for Row objects.
+
+        Returns:
+            tuple[str, ...]: Immutable sequence of header labels.
+        """
+        return tuple(fields.ROW_TO_ATTR_MAP.keys())
 
     def __str__(self) -> str:
         """
@@ -134,6 +144,16 @@ class Header:
     material_cost: str = ""
     overhead_cost: str = ""
     total_cost: str = ""
+
+    @classmethod
+    def get_labels(cls) -> tuple[str, ...]:
+        """
+        Returns the Excel labels recognized for Header objects.
+
+        Returns:
+            tuple[str, ...]: Immutable sequence of header labels.
+        """
+        return tuple(fields.HEADER_TO_ATTR_MAP.keys())
 
     def get_by_label(self, label: str) -> str:
         """
