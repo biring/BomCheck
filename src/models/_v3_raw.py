@@ -80,6 +80,16 @@ class Row:
     unit_price: str = ""
     sub_total: str = ""
 
+    def __str__(self) -> str:
+        """
+        Return a human-readable multiline string representation of the row. Shows all fields as key=value, one per line.
+        """
+        lines = []
+        for excel_label, model_field in fields.ROW_TO_ATTR_MAP.items():
+            value = getattr(self, model_field, "")
+            lines.append(f"{excel_label}={value}")
+        return "\n".join(lines)
+
     @classmethod
     def get_labels(cls) -> tuple[str, ...]:
         """
@@ -90,15 +100,15 @@ class Row:
         """
         return tuple(fields.ROW_TO_ATTR_MAP.keys())
 
-    def __str__(self) -> str:
+    @classmethod
+    def get_v3_template_labels(cls) -> tuple[str, ...]:
         """
-        Return a human-readable multiline string representation of the row. Shows all fields as key=value, one per line.
+        Return the row Excel labels used to identify an Excel sheet as a Version 3 BOM template.
+
+        Returns:
+            tuple[str, ...]: Immutable sequence of row identifier labels.
         """
-        lines = []
-        for excel_label, model_field in fields.ROW_TO_ATTR_MAP.items():
-            value = getattr(self, model_field, "")
-            lines.append(f"{excel_label}={value}")
-        return "\n".join(lines)
+        return tuple(fields.REQ_V3_ROW_IDENTIFIERS)
 
     def get_by_label(self, label: str) -> str:
         """
@@ -145,6 +155,16 @@ class Header:
     overhead_cost: str = ""
     total_cost: str = ""
 
+    def __str__(self) -> str:
+        """
+        Return a human-readable multiline string representation of the header. Shows all fields as key=value, one per line.
+        """
+        lines = []
+        for excel_label, model_field in fields.HEADER_TO_ATTR_MAP.items():
+            value = getattr(self, model_field, "")
+            lines.append(f"{excel_label}={value}")
+        return "\n".join(lines)
+
     @classmethod
     def get_labels(cls) -> tuple[str, ...]:
         """
@@ -172,16 +192,6 @@ class Header:
         if attr_name is None:
             raise KeyError(_ERR_INVALID_HEADER_LABEL.format(a=label))
         return getattr(self, attr_name)
-
-    def __str__(self) -> str:
-        """
-        Return a human-readable multiline string representation of the header. Shows all fields as key=value, one per line.
-        """
-        lines = []
-        for excel_label, model_field in fields.HEADER_TO_ATTR_MAP.items():
-            value = getattr(self, model_field, "")
-            lines.append(f"{excel_label}={value}")
-        return "\n".join(lines)
 
 
 @dataclass(frozen=True)

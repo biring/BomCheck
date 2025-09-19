@@ -143,6 +143,22 @@ class TestRows(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
+    def test_get_v3_template_labels(self):
+        """
+        Should return tuple with v3 template identifier Row labels.
+        """
+        # ARRANGE
+        expected = tuple(fields.REQ_V3_ROW_IDENTIFIERS)
+
+        # ACT
+        result = raw.Row.get_v3_template_labels()
+
+        # ASSERT
+        with self.subTest(Out=type(result).__name__, Exp=tuple.__name__):
+            self.assertIsInstance(result, tuple)
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
