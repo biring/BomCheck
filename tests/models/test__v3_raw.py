@@ -56,13 +56,12 @@ class TestHeader(unittest.TestCase):
         Should raise KeyError when an invalid header label is requested.
         """
         # ARRANGE
-        hdr = raw.Header()
         invalid_label = "NotHeaderLabel"
         expected = KeyError.__name__
 
         # ACT
         try:
-            hdr.get_by_label(invalid_label)
+            result = raw.Header.get_attr_name_by_label(invalid_label)
             result = ""  # No exception raised
         except KeyError as e:
             result = type(e).__name__
@@ -76,11 +75,11 @@ class TestHeader(unittest.TestCase):
         Should return the value of the attribute mapped by a valid header label.
         """
         # ARRANGE
-        hdr = raw.Header(model_no="ABC123")
-        expected = hdr.model_no
+        excel_label = fields.HeaderFields.MODEL_NUMBER
+        expected = fields.HEADER_TO_ATTR_MAP[excel_label]
 
         # ACT
-        result = hdr.get_by_label(fields.HeaderFields.MODEL_NUMBER)
+        result = raw.Header.get_attr_name_by_label(excel_label)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -97,14 +96,12 @@ class TestRows(unittest.TestCase):
         Should raise KeyError when an invalid row label is requested.
         """
         # ARRANGE
-        row = raw.Row()
-        invalid_label = "NotRowLabel"
+        excel_label = "NotRowLabel"
         expected = KeyError.__name__
 
         # ACT
         try:
-            row.get_by_label(invalid_label)
-            result = ""  # No exception raised
+            result = raw.Row.get_attr_name_by_label(excel_label)
         except KeyError as e:
             result = type(e).__name__
 
@@ -117,11 +114,11 @@ class TestRows(unittest.TestCase):
         Should return the value of the attribute mapped by a valid row label.
         """
         # ARRANGE
-        row = raw.Row(qty="2")
-        expected = row.qty
+        excel_label = fields.RowFields.QTY
+        expected = fields.ROW_TO_ATTR_MAP[excel_label]
 
         # ACT
-        result = row.get_by_label(fields.RowFields.QTY)
+        result = raw.Row.get_attr_name_by_label(excel_label)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):

@@ -110,23 +110,24 @@ class Row:
         """
         return tuple(fields.REQ_V3_ROW_IDENTIFIERS)
 
-    def get_by_label(self, label: str) -> str:
+    @staticmethod
+    def get_attr_name_by_label(excel_label: str) -> str:
         """
-        Retrieve the attribute value by its Excel label.
+        Retrieve the attribute name using its Excel label.
 
         Args:
-            label (str): Excel label.
+            excel_label (str): Excel label.
 
         Returns:
-            str: The corresponding attribute value.
+            str: The corresponding attribute name.
 
         Raises:
             KeyError: If the label is not recognized for Row.
         """
-        attr_name = fields.ROW_TO_ATTR_MAP.get(label)
+        attr_name = fields.ROW_TO_ATTR_MAP.get(excel_label)
         if attr_name is None:
-            raise KeyError(_ERR_INVALID_ROW_LABEL.format(a=label))
-        return getattr(self, attr_name)
+            raise KeyError(_ERR_INVALID_ROW_LABEL.format(a=excel_label))
+        return attr_name
 
 
 @dataclass(frozen=True)
@@ -175,23 +176,24 @@ class Header:
         """
         return tuple(fields.HEADER_TO_ATTR_MAP.keys())
 
-    def get_by_label(self, label: str) -> str:
+    @staticmethod
+    def get_attr_name_by_label(excel_label: str) -> str:
         """
-        Retrieve the attribute value by its Excel label.
+        Retrieve the attribute name using its Excel label.
 
         Args:
-            label (str): Excel label.
+            excel_label (str): Excel label.
 
         Returns:
-            str: The corresponding attribute value.
+            str: The corresponding attribute name.
 
         Raises:
             KeyError: If the label is not recognized for Header.
         """
-        attr_name = fields.HEADER_TO_ATTR_MAP.get(label)
+        attr_name = fields.HEADER_TO_ATTR_MAP.get(excel_label)
         if attr_name is None:
-            raise KeyError(_ERR_INVALID_HEADER_LABEL.format(a=label))
-        return getattr(self, attr_name)
+            raise KeyError(_ERR_INVALID_HEADER_LABEL.format(a=excel_label))
+        return attr_name
 
 
 @dataclass(frozen=True)
