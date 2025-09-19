@@ -5,7 +5,7 @@ This suite verifies user interface input prompt functions
 
 Example Usage:
     # Run this test module:
-    python -m unittest tests/cli/test_prompt.py
+    python -m unittest tests/cli/test__prompt.py
 
     # Discover and run all tests:
     python -m unittest discover -s tests
@@ -26,12 +26,13 @@ License:
 import unittest
 from unittest.mock import patch
 
-from src.cli import prompt as prompt
+# noinspection PyProtectedMember
+from src.cli import _prompt as prompt
 
 
 class TestStringValue(unittest.TestCase):
     """
-    Unit tests for the `string_value` function in `prompt.py`.
+    Unit tests for the `string_value` function in `_prompt.py`.
     """
 
     def test_valid(self):

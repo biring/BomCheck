@@ -7,7 +7,7 @@ Example Usage:
     choice = cli.menu_selection(["alpha", "bravo", "charlie"])
 
     # Direct module usage in internal scripts or tests:
-    from src.cli import prompt as prompt
+    from src.cli import _prompt as prompt
     text = prompt.string_value("Enter new value: ")
 
 Dependencies:

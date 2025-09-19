@@ -31,7 +31,7 @@ from ._show import (
     warning as show_warning,
 )
 # noinspection PyProtectedMember
-from .prompt import (
+from ._prompt import (
     menu_selection as prompt_menu_selection,
     string_value as prompt_for_string_value,
 )
