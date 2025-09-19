@@ -30,88 +30,6 @@ from src.models import _v3_fields as fields  # Direct internal import acceptable
 from src.models import _v3_raw as raw  # Direct internal import acceptable in test modules
 
 
-class TestRowGetByLabel(unittest.TestCase):
-    """
-    Unit tests for `raw.Row.get_by_label`.
-    """
-
-    def test_valid(self):
-        """
-        Should return the value of the attribute mapped by a valid row label.
-        """
-        # ARRANGE
-        row = raw.Row(qty="2")
-        expected = row.qty
-
-        # ACT
-        result = row.get_by_label(fields.RowFields.QTY)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_invalid(self):
-        """
-        Should raise KeyError when an invalid row label is requested.
-        """
-        # ARRANGE
-        row = raw.Row()
-        invalid_label = "NotRowLabel"
-        expected = KeyError.__name__
-
-        # ACT
-        try:
-            row.get_by_label(invalid_label)
-            result = ""  # No exception raised
-        except KeyError as e:
-            result = type(e).__name__
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-
-class TestHeaderGetByLabel(unittest.TestCase):
-    """
-    Unit tests for `raw.Header.get_by_label`.
-    """
-
-    def test_valid(self):
-        """
-        Should return the value of the attribute mapped by a valid header label.
-        """
-        # ARRANGE
-        hdr = raw.Header(model_no="ABC123")
-        expected = hdr.model_no
-
-        # ACT
-        result = hdr.get_by_label(fields.HeaderFields.MODEL_NUMBER)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_invalid(self):
-        """
-        Should raise KeyError when an invalid header label is requested.
-        """
-        # ARRANGE
-        hdr = raw.Header()
-        invalid_label = "NotHeaderLabel"
-        expected = KeyError.__name__
-
-        # ACT
-        try:
-            hdr.get_by_label(invalid_label)
-            result = ""  # No exception raised
-        except KeyError as e:
-            result = type(e).__name__
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-
 class TestHeader(unittest.TestCase):
     """
     Unit tests for `header` class methods.
@@ -133,11 +51,81 @@ class TestHeader(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
+    def test_get_by_label_invalid(self):
+        """
+        Should raise KeyError when an invalid header label is requested.
+        """
+        # ARRANGE
+        hdr = raw.Header()
+        invalid_label = "NotHeaderLabel"
+        expected = KeyError.__name__
+
+        # ACT
+        try:
+            hdr.get_by_label(invalid_label)
+            result = ""  # No exception raised
+        except KeyError as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_get_by_label_valid(self):
+        """
+        Should return the value of the attribute mapped by a valid header label.
+        """
+        # ARRANGE
+        hdr = raw.Header(model_no="ABC123")
+        expected = hdr.model_no
+
+        # ACT
+        result = hdr.get_by_label(fields.HeaderFields.MODEL_NUMBER)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
 
 class TestRows(unittest.TestCase):
     """
     Unit tests for `rows` class methods.
     """
+
+    def test_get_by_label_invalid(self):
+        """
+        Should raise KeyError when an invalid row label is requested.
+        """
+        # ARRANGE
+        row = raw.Row()
+        invalid_label = "NotRowLabel"
+        expected = KeyError.__name__
+
+        # ACT
+        try:
+            row.get_by_label(invalid_label)
+            result = ""  # No exception raised
+        except KeyError as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_get_by_label_valid(self):
+        """
+        Should return the value of the attribute mapped by a valid row label.
+        """
+        # ARRANGE
+        row = raw.Row(qty="2")
+        expected = row.qty
+
+        # ACT
+        result = row.get_by_label(fields.RowFields.QTY)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
 
     def test_get_labels(self):
         """
