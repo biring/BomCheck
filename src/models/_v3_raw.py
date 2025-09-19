@@ -35,7 +35,11 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 from dataclasses import dataclass
 
-from .interfaces import ROW_TO_ATTR_MAP, HEADER_TO_ATTR_MAP
+# noinspection PyProtectedMember
+from . import _v3_fields as fields # Direct internal import acceptable in internal modules
+
+_ERR_INVALID_HEADER_LABEL: str = "Unknown header label: {a}"
+_ERR_INVALID_ROW_LABEL: str = "Unknown row label: {a}"
 
 
 @dataclass(frozen=True)
@@ -81,10 +85,28 @@ class Row:
         Return a human-readable multiline string representation of the row. Shows all fields as key=value, one per line.
         """
         lines = []
-        for excel_label, model_field in ROW_TO_ATTR_MAP.items():
+        for excel_label, model_field in fields.ROW_TO_ATTR_MAP.items():
             value = getattr(self, model_field, "")
             lines.append(f"{excel_label}={value}")
         return "\n".join(lines)
+
+    def get_by_label(self, label: str) -> str:
+        """
+        Retrieve the attribute value by its Excel label.
+
+        Args:
+            label (str): Excel label.
+
+        Returns:
+            str: The corresponding attribute value.
+
+        Raises:
+            KeyError: If the label is not recognized for Row.
+        """
+        attr_name = fields.ROW_TO_ATTR_MAP.get(label)
+        if attr_name is None:
+            raise KeyError(_ERR_INVALID_ROW_LABEL.format(a=label))
+        return getattr(self, attr_name)
 
 
 @dataclass(frozen=True)
@@ -113,12 +135,30 @@ class Header:
     overhead_cost: str = ""
     total_cost: str = ""
 
+    def get_by_label(self, label: str) -> str:
+        """
+        Retrieve the attribute value by its Excel label.
+
+        Args:
+            label (str): Excel label.
+
+        Returns:
+            str: The corresponding attribute value.
+
+        Raises:
+            KeyError: If the label is not recognized for Header.
+        """
+        attr_name = fields.HEADER_TO_ATTR_MAP.get(label)
+        if attr_name is None:
+            raise KeyError(_ERR_INVALID_HEADER_LABEL.format(a=label))
+        return getattr(self, attr_name)
+
     def __str__(self) -> str:
         """
         Return a human-readable multiline string representation of the header. Shows all fields as key=value, one per line.
         """
         lines = []
-        for excel_label, model_field in HEADER_TO_ATTR_MAP.items():
+        for excel_label, model_field in fields.HEADER_TO_ATTR_MAP.items():
             value = getattr(self, model_field, "")
             lines.append(f"{excel_label}={value}")
         return "\n".join(lines)
