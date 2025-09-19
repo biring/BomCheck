@@ -9,15 +9,14 @@ Main capabilities:
      - Encodes board-level BOM metadata (model number, revision, supplier, cost breakdown)
      - Encodes component-level BOM rows (reference, part number, quantity, price)
      - Supports multiple board BOMs within a single file
-     - Provides factory methods (`empty`) for zero-initialized object creation
 
 Example Usage:
     # Preferred usage via public package interface:
     # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.models._v3_model import model
-    board = model.Board.empty()
+    import src.models import _v3_raw as models
+    board = models.Board(header=header, rows=tuple(rows), sheet_name="Sheet1")
 
 Dependencies:
      - Python >= 3.10
@@ -34,12 +33,12 @@ License:
 
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from .interfaces import ROW_TO_ATTR_MAP, HEADER_TO_ATTR_MAP
 
 
-@dataclass
+@dataclass(frozen=True)
 class Row:
     """
     Represents a single row in the BOM table.
@@ -77,16 +76,6 @@ class Row:
     unit_price: str = ""
     sub_total: str = ""
 
-    @classmethod
-    def empty(cls) -> "Row":
-        """
-        Factory method to create an empty row instance.
-
-        Returns:
-            Row: A Row object with empty fields.
-        """
-        return cls()
-
     def __str__(self) -> str:
         """
         Return a human-readable multiline string representation of the row. Shows all fields as key=value, one per line.
@@ -98,7 +87,7 @@ class Row:
         return "\n".join(lines)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Header:
     """
     Represents the header of a single board BOM.
@@ -124,16 +113,6 @@ class Header:
     overhead_cost: str = ""
     total_cost: str = ""
 
-    @classmethod
-    def empty(cls) -> "Header":
-        """
-        Factory method to create an empty header instance.
-
-        Returns:
-            Header: A Header object with empty fields.
-        """
-        return cls()
-
     def __str__(self) -> str:
         """
         Return a human-readable multiline string representation of the header. Shows all fields as key=value, one per line.
@@ -145,49 +124,29 @@ class Header:
         return "\n".join(lines)
 
 
-@dataclass
+@dataclass(frozen=True)
 class Board:
     """
     Represents a BOM for a single board, including header and all component rows.
 
     Attributes:
         header (Header): Board-level metadata including model, stage, and costs.
+        rows (tuple[Row, ...]): Component rows associated with this board.
         sheet_name (str): Name of the Excel sheet from which this board data is read.
-        rows (list[Row]): List of component rows associated with this board.
     """
-    header: Header = field(default_factory=Header)
+    header: Header  # no default, assigned when created
+    rows: tuple[Row, ...]  # Any length, No default, assigned when created
     sheet_name: str = ""
-    rows: list[Row] = field(default_factory=list)
-
-    @classmethod
-    def empty(cls) -> "Board":
-        """
-        Factory method to create an empty board instance.
-
-        Returns:
-            Board: A Board object with default header and an empty component list.
-        """
-        return cls()
 
 
-@dataclass
+@dataclass(frozen=True)
 class Bom:
     """
     Top-level model representing the structure of a Version 3 BOM file.
 
     Attributes:
+        boards (tuple[Board, ...]): board BOMs extracted from the file.
         file_name (str): Original filename of the BOM file.
-        boards (list[Board]): List of board BOMs extracted from the file.
     """
+    boards: tuple[Board, ...]  # Any length. No default, assigned when created
     file_name: str = ""
-    boards: list[Board] = field(default_factory=list)
-
-    @classmethod
-    def empty(cls) -> "Bom":
-        """
-        Factory method to create an empty Bom instance.
-
-        Returns:
-            Bom: An empty Bom object.
-        """
-        return cls()

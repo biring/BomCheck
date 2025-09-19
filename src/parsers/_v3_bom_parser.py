@@ -13,7 +13,7 @@ Main capabilities:
 
 Example Usage:
     # Usage via public package interface:
-    Not allowed. This is an internal module. interface.py lists public package interfaces
+    Not allowed. This is an internal module. interfaces.py lists public package interfaces
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
     from src.parsers._v3_bom_parser import is_v3_bom, parse_v3_bom
@@ -37,8 +37,8 @@ License:
 """
 
 import pandas as pd
-import src.parsers._common as common
 
+import src.parsers._common as common
 from src.models.interfaces import *
 
 
@@ -83,21 +83,18 @@ def _parse_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> Board:
     Returns:
         Board: A structured Board object containing parsed header and component rows.
     """
-    # Initialize an empty Board object
-    board: Board = Board.empty()
-
-    # Attach sheet name
-    board.sheet_name = sheet_name
-
     # Extract board-level metadata block from the top of the sheet
     header_block = common.extract_header_block(sheet_data, REQ_V3_ROW_IDENTIFIERS)
     # Parse and assign header metadata
-    board.header = _parse_board_header(header_block)
+    header = _parse_board_header(header_block)
 
     # Extract the BOM component table from the lower part of the sheet
     table_block = common.extract_table_block(sheet_data, REQ_V3_ROW_IDENTIFIERS)
     # Parse and assign the BOM rows
-    board.rows = _parse_board_table(table_block)
+    rows = _parse_board_table(table_block)
+
+    # Create Board object
+    board: Board = Board(header=header, rows=rows, sheet_name=sheet_name)
 
     return board
 
@@ -126,9 +123,9 @@ def _parse_board_header(sheet_header: pd.DataFrame) -> Header:
     return Header(**field_map)
 
 
-def _parse_board_table(sheet_table: pd.DataFrame) -> list[Row]:
+def _parse_board_table(sheet_table: pd.DataFrame) -> tuple[Row, ...]:
     """
-    Parses the component table into a list of Row instances.
+    Parses the component table into a tuple of Row instances.
 
     Iterates through each row and converts it to a structured Row object.
 
@@ -136,7 +133,7 @@ def _parse_board_table(sheet_table: pd.DataFrame) -> list[Row]:
         sheet_table (pd.DataFrame): The component table section of the BOM.
 
     Returns:
-        list[Row]: Parsed list of BOM component rows.
+        tuple[Row, ...]: Parsed BOM component rows.
     """
     rows: list[Row] = []
 
@@ -146,12 +143,12 @@ def _parse_board_table(sheet_table: pd.DataFrame) -> list[Row]:
         # Append parsed row to the result list
         rows.append(row)
 
-    return rows
+    return tuple(rows)
 
 
 def _parse_board_table_row(row: pd.Series) -> Row:
     """
-    Parses a single component row into an Row instance.
+    Parses a single component row into a Row instance.
 
     Uses fuzzy label matching to extract values and maps them to the Row dataclass fields.
 
@@ -215,23 +212,25 @@ def parse_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> Bom:
     Raises:
         ValueError: If no valid board sheets are found.
     """
-    # Initialize an empty BOM object
-    bom = Bom.empty()
+
+    boards: list[Board] = []
 
     # Loop through each sheet
     for sheet_name, sheet_data in sheets:
         # Check if sheet is a valid board BOM
         if _is_v3_board_sheet(sheet_name, sheet_data):
             # Parse and append valid boards to the BOM
-            bom.boards.append(_parse_board_sheet(sheet_name, sheet_data))
+            boards.append(_parse_board_sheet(sheet_name, sheet_data))
             # TODO: logger.info(f"✅ Sheet '{name}' was parsed..")
         else:
             # TODO: logger.debug(f"⚠️ Sheet '{name}' was not parsed.")
             # If not ignore the sheet
             pass
 
+    bom = Bom(file_name="", boards=tuple(boards))
+
     # Raise an error if the BOM remains empty after parsing
-    if bom == Bom.empty():
+    if not bom.boards:
         raise ValueError("Parsed version 3 bom is empty.")
 
     return bom
