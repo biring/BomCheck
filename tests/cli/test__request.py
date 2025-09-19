@@ -107,7 +107,7 @@ class TestIntegerInput(unittest.TestCase):
 
         with (
             patch("builtins.input", return_value=user_input) as mock_input,
-            patch("builtins.print") as mock_print,
+            patch("builtins.print"),
         ):
             # ACT
             result = request.integer_input(prompt)
@@ -128,14 +128,9 @@ class TestIntegerInput(unittest.TestCase):
         valid_input = "99"
         user_inputs = [invalid_input, valid_input]
 
-        def parse_side_effect(val):
-            if val == "abc":
-                raise ValueError("not an int")
-            return 99
-
         with (
             patch("builtins.input", side_effect=user_inputs) as mock_input,
-            patch("builtins.print") as mock_prints,
+            patch("builtins.print"),
         ):
             # ACT
             result = request.integer_input(prompt)
