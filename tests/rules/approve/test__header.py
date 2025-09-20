@@ -8,7 +8,7 @@ This suite verifies that each validator:
 
 Example Usage:
     # Project-root invocation:
-    python -m unittest tests/rules/approve/test_header.py
+    python -m unittest tests/rules/approve/test__header.py
 
     # Direct discovery (runs all tests):
     python -m unittest discover -s tests
@@ -29,7 +29,8 @@ License:
 
 import unittest
 
-from src.rules.approve import header as approve
+# noinspection PyProtectedMember
+from src.rules.approve import _header as approve  # Direct internal import — acceptable in tests
 from tests.fixtures import rows as row_fixture
 
 
