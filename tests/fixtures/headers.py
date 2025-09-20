@@ -1,7 +1,7 @@
 """
 Test fixtures for rules package unit tests.
 
-Provides reusable, well-typed GOOD_/BAD_ string constants for Row field validation. Use these to keep tests concise, deterministic, and aligned with validator behavior.
+Provides reusable, well-typed GOOD_/BAD_ string constants for header field validation. Use these to keep tests concise, deterministic, and aligned with validator behavior.
 
 Example Usage:
     from tests.fixtures import rows as fx

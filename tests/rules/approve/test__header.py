@@ -31,7 +31,7 @@ import unittest
 
 # noinspection PyProtectedMember
 from src.rules.approve import _header as approve  # Direct internal import — acceptable in tests
-from tests.fixtures import rows as row_fixture
+from tests.fixtures import headers as hdr_fx
 
 
 class TestModelNumber(unittest.TestCase):
@@ -45,12 +45,12 @@ class TestModelNumber(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.MODEL_NO_GOOD_1,
-            row_fixture.MODEL_NO_GOOD_2,
-            row_fixture.MODEL_NO_GOOD_3,
-            row_fixture.MODEL_NO_GOOD_4,
-            row_fixture.MODEL_NO_GOOD_5,
-            row_fixture.MODEL_NO_GOOD_6,
+            hdr_fx.MODEL_NO_GOOD_1,
+            hdr_fx.MODEL_NO_GOOD_2,
+            hdr_fx.MODEL_NO_GOOD_3,
+            hdr_fx.MODEL_NO_GOOD_4,
+            hdr_fx.MODEL_NO_GOOD_5,
+            hdr_fx.MODEL_NO_GOOD_6,
         ]
         expected = ""  # No error
 
@@ -72,18 +72,18 @@ class TestModelNumber(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.MODEL_NO_BAD_1,
-            row_fixture.MODEL_NO_BAD_2,
-            row_fixture.MODEL_NO_BAD_3,
-            row_fixture.MODEL_NO_BAD_4,
-            row_fixture.MODEL_NO_BAD_5,
-            row_fixture.MODEL_NO_BAD_6,
-            row_fixture.MODEL_NO_BAD_7,
-            row_fixture.MODEL_NO_BAD_8,
-            row_fixture.MODEL_NO_BAD_9,
-            row_fixture.MODEL_NO_BAD_10,
-            row_fixture.MODEL_NO_BAD_11,
-            row_fixture.MODEL_NO_BAD_12,
+            hdr_fx.MODEL_NO_BAD_1,
+            hdr_fx.MODEL_NO_BAD_2,
+            hdr_fx.MODEL_NO_BAD_3,
+            hdr_fx.MODEL_NO_BAD_4,
+            hdr_fx.MODEL_NO_BAD_5,
+            hdr_fx.MODEL_NO_BAD_6,
+            hdr_fx.MODEL_NO_BAD_7,
+            hdr_fx.MODEL_NO_BAD_8,
+            hdr_fx.MODEL_NO_BAD_9,
+            hdr_fx.MODEL_NO_BAD_10,
+            hdr_fx.MODEL_NO_BAD_11,
+            hdr_fx.MODEL_NO_BAD_12,
         ]
 
         expected = ValueError.__name__
@@ -112,11 +112,11 @@ class TestBoardName(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.BOARD_NAME_GOOD_1,
-            row_fixture.BOARD_NAME_GOOD_2,
-            row_fixture.BOARD_NAME_GOOD_3,
-            row_fixture.BOARD_NAME_GOOD_4,
-            row_fixture.BOARD_NAME_GOOD_5,
+            hdr_fx.BOARD_NAME_GOOD_1,
+            hdr_fx.BOARD_NAME_GOOD_2,
+            hdr_fx.BOARD_NAME_GOOD_3,
+            hdr_fx.BOARD_NAME_GOOD_4,
+            hdr_fx.BOARD_NAME_GOOD_5,
         ]
         expected = ""  # No error
 
@@ -138,15 +138,15 @@ class TestBoardName(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BOARD_NAME_BAD_1,
-            row_fixture.BOARD_NAME_BAD_2,
-            row_fixture.BOARD_NAME_BAD_3,
-            row_fixture.BOARD_NAME_BAD_4,
-            row_fixture.BOARD_NAME_BAD_5,
-            row_fixture.BOARD_NAME_BAD_6,
-            row_fixture.BOARD_NAME_BAD_7,
-            row_fixture.BOARD_NAME_BAD_8,
-            row_fixture.BOARD_NAME_BAD_9,
+            hdr_fx.BOARD_NAME_BAD_1,
+            hdr_fx.BOARD_NAME_BAD_2,
+            hdr_fx.BOARD_NAME_BAD_3,
+            hdr_fx.BOARD_NAME_BAD_4,
+            hdr_fx.BOARD_NAME_BAD_5,
+            hdr_fx.BOARD_NAME_BAD_6,
+            hdr_fx.BOARD_NAME_BAD_7,
+            hdr_fx.BOARD_NAME_BAD_8,
+            hdr_fx.BOARD_NAME_BAD_9,
         ]
         expected = ValueError.__name__
 
@@ -174,14 +174,14 @@ class TestBoardSupplier(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.BOARD_SUPPLIER_GOOD_1,
-            row_fixture.BOARD_SUPPLIER_GOOD_2,
-            row_fixture.BOARD_SUPPLIER_GOOD_3,
-            row_fixture.BOARD_SUPPLIER_GOOD_4,
-            row_fixture.BOARD_SUPPLIER_GOOD_5,
-            row_fixture.BOARD_SUPPLIER_GOOD_6,
-            row_fixture.BOARD_SUPPLIER_GOOD_7,
-            row_fixture.BOARD_SUPPLIER_GOOD_8,
+            hdr_fx.BOARD_SUPPLIER_GOOD_1,
+            hdr_fx.BOARD_SUPPLIER_GOOD_2,
+            hdr_fx.BOARD_SUPPLIER_GOOD_3,
+            hdr_fx.BOARD_SUPPLIER_GOOD_4,
+            hdr_fx.BOARD_SUPPLIER_GOOD_5,
+            hdr_fx.BOARD_SUPPLIER_GOOD_6,
+            hdr_fx.BOARD_SUPPLIER_GOOD_7,
+            hdr_fx.BOARD_SUPPLIER_GOOD_8,
         ]
         expected = ""  # No error
 
@@ -203,16 +203,16 @@ class TestBoardSupplier(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BOARD_SUPPLIER_BAD_1,
-            row_fixture.BOARD_SUPPLIER_BAD_2,
-            row_fixture.BOARD_SUPPLIER_BAD_3,
-            row_fixture.BOARD_SUPPLIER_BAD_4,
-            row_fixture.BOARD_SUPPLIER_BAD_5,
-            row_fixture.BOARD_SUPPLIER_BAD_6,
-            row_fixture.BOARD_SUPPLIER_BAD_7,
-            row_fixture.BOARD_SUPPLIER_BAD_8,
-            row_fixture.BOARD_SUPPLIER_BAD_9,
-            row_fixture.BOARD_SUPPLIER_BAD_10,
+            hdr_fx.BOARD_SUPPLIER_BAD_1,
+            hdr_fx.BOARD_SUPPLIER_BAD_2,
+            hdr_fx.BOARD_SUPPLIER_BAD_3,
+            hdr_fx.BOARD_SUPPLIER_BAD_4,
+            hdr_fx.BOARD_SUPPLIER_BAD_5,
+            hdr_fx.BOARD_SUPPLIER_BAD_6,
+            hdr_fx.BOARD_SUPPLIER_BAD_7,
+            hdr_fx.BOARD_SUPPLIER_BAD_8,
+            hdr_fx.BOARD_SUPPLIER_BAD_9,
+            hdr_fx.BOARD_SUPPLIER_BAD_10,
 
         ]
         expected = ValueError.__name__
@@ -241,16 +241,16 @@ class TestBuildStage(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.BUILD_STAGE_GOOD_1,
-            row_fixture.BUILD_STAGE_GOOD_2,
-            row_fixture.BUILD_STAGE_GOOD_3,
-            row_fixture.BUILD_STAGE_GOOD_4,
-            row_fixture.BUILD_STAGE_GOOD_5,
-            row_fixture.BUILD_STAGE_GOOD_6,
-            row_fixture.BUILD_STAGE_GOOD_7,
-            row_fixture.BUILD_STAGE_GOOD_8,
-            row_fixture.BUILD_STAGE_GOOD_9,
-            row_fixture.BUILD_STAGE_GOOD_10,
+            hdr_fx.BUILD_STAGE_GOOD_1,
+            hdr_fx.BUILD_STAGE_GOOD_2,
+            hdr_fx.BUILD_STAGE_GOOD_3,
+            hdr_fx.BUILD_STAGE_GOOD_4,
+            hdr_fx.BUILD_STAGE_GOOD_5,
+            hdr_fx.BUILD_STAGE_GOOD_6,
+            hdr_fx.BUILD_STAGE_GOOD_7,
+            hdr_fx.BUILD_STAGE_GOOD_8,
+            hdr_fx.BUILD_STAGE_GOOD_9,
+            hdr_fx.BUILD_STAGE_GOOD_10,
         ]
         expected = ""  # No error
 
@@ -272,18 +272,18 @@ class TestBuildStage(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BUILD_STAGE_BAD_1,
-            row_fixture.BUILD_STAGE_BAD_2,
-            row_fixture.BUILD_STAGE_BAD_3,
-            row_fixture.BUILD_STAGE_BAD_4,
-            row_fixture.BUILD_STAGE_BAD_5,
-            row_fixture.BUILD_STAGE_BAD_6,
-            row_fixture.BUILD_STAGE_BAD_7,
-            row_fixture.BUILD_STAGE_BAD_8,
-            row_fixture.BUILD_STAGE_BAD_9,
-            row_fixture.BUILD_STAGE_BAD_10,
-            row_fixture.BUILD_STAGE_BAD_11,
-            row_fixture.BUILD_STAGE_BAD_12,
+            hdr_fx.BUILD_STAGE_BAD_1,
+            hdr_fx.BUILD_STAGE_BAD_2,
+            hdr_fx.BUILD_STAGE_BAD_3,
+            hdr_fx.BUILD_STAGE_BAD_4,
+            hdr_fx.BUILD_STAGE_BAD_5,
+            hdr_fx.BUILD_STAGE_BAD_6,
+            hdr_fx.BUILD_STAGE_BAD_7,
+            hdr_fx.BUILD_STAGE_BAD_8,
+            hdr_fx.BUILD_STAGE_BAD_9,
+            hdr_fx.BUILD_STAGE_BAD_10,
+            hdr_fx.BUILD_STAGE_BAD_11,
+            hdr_fx.BUILD_STAGE_BAD_12,
         ]
         expected = ValueError.__name__
 
@@ -311,14 +311,14 @@ class TestBomDate(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.GOOD_BOM_DATE_1,
-            row_fixture.GOOD_BOM_DATE_2,
-            row_fixture.GOOD_BOM_DATE_3,
-            row_fixture.GOOD_BOM_DATE_4,
-            row_fixture.GOOD_BOM_DATE_5,
-            row_fixture.GOOD_BOM_DATE_6,
-            row_fixture.GOOD_BOM_DATE_7,
-            row_fixture.GOOD_BOM_DATE_8,
+            hdr_fx.GOOD_BOM_DATE_1,
+            hdr_fx.GOOD_BOM_DATE_2,
+            hdr_fx.GOOD_BOM_DATE_3,
+            hdr_fx.GOOD_BOM_DATE_4,
+            hdr_fx.GOOD_BOM_DATE_5,
+            hdr_fx.GOOD_BOM_DATE_6,
+            hdr_fx.GOOD_BOM_DATE_7,
+            hdr_fx.GOOD_BOM_DATE_8,
         ]
         expected = ""  # No error
 
@@ -340,15 +340,15 @@ class TestBomDate(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BAD_BOM_DATE_1,
-            row_fixture.BAD_BOM_DATE_2,
-            row_fixture.BAD_BOM_DATE_3,
-            row_fixture.BAD_BOM_DATE_4,
-            row_fixture.BAD_BOM_DATE_5,
-            row_fixture.BAD_BOM_DATE_6,
-            row_fixture.BAD_BOM_DATE_7,
-            row_fixture.BAD_BOM_DATE_8,
-            row_fixture.BAD_BOM_DATE_9,
+            hdr_fx.BAD_BOM_DATE_1,
+            hdr_fx.BAD_BOM_DATE_2,
+            hdr_fx.BAD_BOM_DATE_3,
+            hdr_fx.BAD_BOM_DATE_4,
+            hdr_fx.BAD_BOM_DATE_5,
+            hdr_fx.BAD_BOM_DATE_6,
+            hdr_fx.BAD_BOM_DATE_7,
+            hdr_fx.BAD_BOM_DATE_8,
+            hdr_fx.BAD_BOM_DATE_9,
         ]
         expected = ValueError.__name__
 
@@ -376,14 +376,14 @@ class TestMaterialCost(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.GOOD_COST_1,
-            row_fixture.GOOD_COST_2,
-            row_fixture.GOOD_COST_3,
-            row_fixture.GOOD_COST_4,
-            row_fixture.GOOD_COST_5,
-            row_fixture.GOOD_COST_6,
-            row_fixture.GOOD_COST_7,
-            row_fixture.GOOD_COST_8,
+            hdr_fx.GOOD_COST_1,
+            hdr_fx.GOOD_COST_2,
+            hdr_fx.GOOD_COST_3,
+            hdr_fx.GOOD_COST_4,
+            hdr_fx.GOOD_COST_5,
+            hdr_fx.GOOD_COST_6,
+            hdr_fx.GOOD_COST_7,
+            hdr_fx.GOOD_COST_8,
         ]
         expected = ""  # No error
 
@@ -405,14 +405,14 @@ class TestMaterialCost(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BAD_COST_1,
-            row_fixture.BAD_COST_2,
-            row_fixture.BAD_COST_3,
-            row_fixture.BAD_COST_4,
-            row_fixture.BAD_COST_5,
-            row_fixture.BAD_COST_6,
-            row_fixture.BAD_COST_7,
-            row_fixture.BAD_COST_8,
+            hdr_fx.BAD_COST_1,
+            hdr_fx.BAD_COST_2,
+            hdr_fx.BAD_COST_3,
+            hdr_fx.BAD_COST_4,
+            hdr_fx.BAD_COST_5,
+            hdr_fx.BAD_COST_6,
+            hdr_fx.BAD_COST_7,
+            hdr_fx.BAD_COST_8,
         ]
         expected = ValueError.__name__
 
@@ -440,14 +440,14 @@ class TestOverheadCost(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.GOOD_COST_1,
-            row_fixture.GOOD_COST_2,
-            row_fixture.GOOD_COST_3,
-            row_fixture.GOOD_COST_4,
-            row_fixture.GOOD_COST_5,
-            row_fixture.GOOD_COST_6,
-            row_fixture.GOOD_COST_7,
-            row_fixture.GOOD_COST_8,
+            hdr_fx.GOOD_COST_1,
+            hdr_fx.GOOD_COST_2,
+            hdr_fx.GOOD_COST_3,
+            hdr_fx.GOOD_COST_4,
+            hdr_fx.GOOD_COST_5,
+            hdr_fx.GOOD_COST_6,
+            hdr_fx.GOOD_COST_7,
+            hdr_fx.GOOD_COST_8,
         ]
         expected = ""  # No error
 
@@ -469,14 +469,14 @@ class TestOverheadCost(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BAD_COST_1,
-            row_fixture.BAD_COST_2,
-            row_fixture.BAD_COST_3,
-            row_fixture.BAD_COST_4,
-            row_fixture.BAD_COST_5,
-            row_fixture.BAD_COST_6,
-            row_fixture.BAD_COST_7,
-            row_fixture.BAD_COST_8,
+            hdr_fx.BAD_COST_1,
+            hdr_fx.BAD_COST_2,
+            hdr_fx.BAD_COST_3,
+            hdr_fx.BAD_COST_4,
+            hdr_fx.BAD_COST_5,
+            hdr_fx.BAD_COST_6,
+            hdr_fx.BAD_COST_7,
+            hdr_fx.BAD_COST_8,
         ]
         expected = ValueError.__name__
 
@@ -504,14 +504,14 @@ class TestTotalCost(unittest.TestCase):
         """
         # ARRANGE
         valid_values = [
-            row_fixture.GOOD_COST_1,
-            row_fixture.GOOD_COST_2,
-            row_fixture.GOOD_COST_3,
-            row_fixture.GOOD_COST_4,
-            row_fixture.GOOD_COST_5,
-            row_fixture.GOOD_COST_6,
-            row_fixture.GOOD_COST_7,
-            row_fixture.GOOD_COST_8,
+            hdr_fx.GOOD_COST_1,
+            hdr_fx.GOOD_COST_2,
+            hdr_fx.GOOD_COST_3,
+            hdr_fx.GOOD_COST_4,
+            hdr_fx.GOOD_COST_5,
+            hdr_fx.GOOD_COST_6,
+            hdr_fx.GOOD_COST_7,
+            hdr_fx.GOOD_COST_8,
         ]
         expected = ""  # No error
 
@@ -533,14 +533,14 @@ class TestTotalCost(unittest.TestCase):
         """
         # ARRANGE
         invalid_values = [
-            row_fixture.BAD_COST_1,
-            row_fixture.BAD_COST_2,
-            row_fixture.BAD_COST_3,
-            row_fixture.BAD_COST_4,
-            row_fixture.BAD_COST_5,
-            row_fixture.BAD_COST_6,
-            row_fixture.BAD_COST_7,
-            row_fixture.BAD_COST_8,
+            hdr_fx.BAD_COST_1,
+            hdr_fx.BAD_COST_2,
+            hdr_fx.BAD_COST_3,
+            hdr_fx.BAD_COST_4,
+            hdr_fx.BAD_COST_5,
+            hdr_fx.BAD_COST_6,
+            hdr_fx.BAD_COST_7,
+            hdr_fx.BAD_COST_8,
         ]
         expected = ValueError.__name__
 
