@@ -36,6 +36,7 @@ License:
 from typing import Final
 
 import pandas as pd
+
 from src.utils import (
     normalize_to_string,
     remove_all_whitespace
@@ -116,7 +117,7 @@ def create_dict_from_row(row: pd.Series) -> dict[str, str]:
     return dictionary
 
 
-def extract_header_block(df: pd.DataFrame, identifiers: list[str]) -> pd.DataFrame:
+def extract_header_block(df: pd.DataFrame, identifiers: tuple[str, ...]) -> pd.DataFrame:
     """
     Extracts the metadata block above the BOM table from a DataFrame.
 
@@ -126,7 +127,7 @@ def extract_header_block(df: pd.DataFrame, identifiers: list[str]) -> pd.DataFra
 
     Args:
         df (pd.DataFrame): The full DataFrame from the BOM sheet.
-        identifiers (list[str]): List of expected BOM column identifiers to identify the header row.
+        identifiers (tuple[str, ...]): Tuple of expected BOM column identifiers to identify the header row.
 
     Returns:
         pd.DataFrame: All rows above the detected BOM table header row.
@@ -204,7 +205,7 @@ def extract_cell_value_by_fuzzy_header(row: pd.Series, identifier: str) -> str:
     return DEFAULT_EMPTY_CELL_VALUE
 
 
-def extract_table_block(df: pd.DataFrame, identifiers: list[str]) -> pd.DataFrame:
+def extract_table_block(df: pd.DataFrame, identifiers: tuple[str, ...]) -> pd.DataFrame:
     """
     Extracts the BOM component table from a DataFrame using identifier labels to locate the header row.
 
@@ -214,7 +215,7 @@ def extract_table_block(df: pd.DataFrame, identifiers: list[str]) -> pd.DataFram
 
     Args:
         df (pd.DataFrame): The full sheet data as a DataFrame.
-        identifiers (list[str]): List of expected BOM header labels (e.g., 'Part Number', 'Qty', 'Description').
+        identifiers (tuple[str, ...]): Tuple of expected BOM header labels (e.g., 'Part Number', 'Qty', 'Description').
 
     Returns:
         pd.DataFrame: A cleaned BOM table with proper column headers and associated row data.
@@ -240,7 +241,7 @@ def extract_table_block(df: pd.DataFrame, identifiers: list[str]) -> pd.DataFram
     return bom_table
 
 
-def find_row_with_most_identifier_matches(df: pd.DataFrame, identifiers: list[str]) -> int:
+def find_row_with_most_identifier_matches(df: pd.DataFrame, identifiers: tuple[str, ...]) -> int:
     """
     Finds the row with the highest number of identifier matches based on normalized text comparison.
 
@@ -253,7 +254,7 @@ def find_row_with_most_identifier_matches(df: pd.DataFrame, identifiers: list[st
 
     Args:
         df (pd.DataFrame): The DataFrame to search.
-        identifiers (list[str]): A list of expected labels to match against each row.
+        identifiers (tuple[str, ...]): A tuple of expected labels to match against each row.
 
     Returns:
         int: The index of the row with the highest number of label matches. Returns
@@ -287,7 +288,8 @@ def find_row_with_most_identifier_matches(df: pd.DataFrame, identifiers: list[st
     return best_row_index
 
 
-def find_unmatched_identifiers_in_best_row(df: pd.DataFrame, identifiers: list[str]) -> list[str]:
+def find_unmatched_identifiers_in_best_row(df: pd.DataFrame, identifiers: tuple[str, ...]) -> tuple[
+    str, ...]:
     """
     Returns a list of identifiers not found in the best-matching row of the DataFrame.
 
@@ -298,10 +300,10 @@ def find_unmatched_identifiers_in_best_row(df: pd.DataFrame, identifiers: list[s
 
     Args:
         df (pd.DataFrame): The DataFrame to evaluate.
-        identifiers (list[str]): List of expected labels to verify in the best-matching row.
+        identifiers (tuple[str, ...]): Tuple of expected labels to verify in the best-matching row.
 
     Returns:
-        list[str]: List of identifiers that were not exactly matched in the selected row.
+        tuple[str, ...]: Tuple of identifiers that were not exactly matched in the selected row.
     """
 
     # Get best match row
@@ -328,7 +330,7 @@ def find_unmatched_identifiers_in_best_row(df: pd.DataFrame, identifiers: list[s
             # Add unmatched label to result list
             unmatched_identifiers.append(identifier)
 
-    return unmatched_identifiers
+    return tuple(unmatched_identifiers)
 
 
 def flatten_dataframe(df: pd.DataFrame) -> list[str]:
@@ -357,7 +359,8 @@ def flatten_dataframe(df: pd.DataFrame) -> list[str]:
     return flat_list
 
 
-def has_all_identifiers_in_single_row(sheet_name: str, df: pd.DataFrame, identifiers: list[str]) -> bool:
+def has_all_identifiers_in_single_row(sheet_name: str, df: pd.DataFrame,
+                                      identifiers: tuple[str, ...]) -> bool:
     """
     Determines whether all specified identifiers are present in a single row of the DataFrame.
 
@@ -367,7 +370,7 @@ def has_all_identifiers_in_single_row(sheet_name: str, df: pd.DataFrame, identif
     Args:
         sheet_name (str): The name of the sheet, used for logging or diagnostics.
         df (pd.DataFrame): The DataFrame representing the sheet to evaluate.
-        identifiers (list[str]): List of expected column header names to verify.
+        identifiers (tuple[str, ...]): Tuple of expected column header names to verify.
 
     Returns:
         bool: True if all identifiers are found within a single row; False otherwise.

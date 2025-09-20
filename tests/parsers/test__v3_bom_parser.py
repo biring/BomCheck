@@ -70,7 +70,7 @@ class TestIsV3BoardSheet(unittest.TestCase):
         """
         # ARRANGE
         # Prepare a DataFrame with only some of the required identifiers (incomplete)
-        partial_identifiers = REQ_V3_ROW_IDENTIFIERS[:-1] + ["Other"]
+        partial_identifiers = list(Row.get_v3_template_labels())[:-1] + ["Other"]
         sheet_data = [partial_identifiers] + [[None] * len(partial_identifiers)]
         test_df = pd.DataFrame(sheet_data)
         expected = False
@@ -90,7 +90,7 @@ class TestIsV3BoardSheet(unittest.TestCase):
         """
         # ARRANGE
         # Prepare a DataFrame that includes all required identifiers plus extras
-        all_identifiers = REQ_V3_ROW_IDENTIFIERS + ["Extra Column"]
+        all_identifiers = list(Row.get_v3_template_labels()) + ["Extra Column"]
         sheet_data = [all_identifiers] + [[None] * len(all_identifiers)]
         test_df = pd.DataFrame(sheet_data)
         expected = True
@@ -278,7 +278,7 @@ class TestParseBoardSheet(unittest.TestCase):
                 total_cost="3.84"
             ),
             sheet_name="POWER PCBA",
-            rows=[
+            rows=(
                 Row(
                     item="1",
                     component_type="PCB",
@@ -343,7 +343,7 @@ class TestParseBoardSheet(unittest.TestCase):
                     unit_price="1.2",
                     sub_total="0"
                 )
-            ]
+            )
         )
 
         # ACT
@@ -563,7 +563,7 @@ class TestParseBom(unittest.TestCase):
 
         expected = Bom(
             file_name="",
-            boards=[
+            boards=(
                 Board(
                     header=Header(
                         model_no="BM250",
@@ -576,7 +576,7 @@ class TestParseBom(unittest.TestCase):
                         total_cost="2.15"
                     ),
                     sheet_name="Board1",
-                    rows=[
+                    rows=(
                         Row(
                             item="1",
                             component_type="Substrate",
@@ -599,7 +599,7 @@ class TestParseBom(unittest.TestCase):
                             "SwitchMfr A", "SW-01", "CERT-1001", "PP0/PP1", "1", "SW1", "0.1", "0.1"),
                         Row("", "ALT1", "DIP", "12VDC 15A SPST, 20×15×20mm, -40~105℃", "PCS", "A",
                             "SwitchMfr B", "SW-ALT1", "CERT-1002", "PP0", "0", "", "0.2", "0")
-                    ]
+                    )
                 ),
                 Board(
                     header=Header(
@@ -613,7 +613,7 @@ class TestParseBom(unittest.TestCase):
                         total_cost="4.15"
                     ),
                     sheet_name="Board2",
-                    rows=[
+                    rows=(
                         Row(
                             item="1",
                             component_type="Resistor",
@@ -640,9 +640,9 @@ class TestParseBom(unittest.TestCase):
                             "SC-D100", "UL987655", "EV5", "0", "", "1.45", "0"),
                         Row("", "ALT2", "SOD-123", "1A, 100V, Fast Recovery, SOD-123", "PCS", "A", "FastFlow",
                             "FF-1A100V", "UL987656", "EV6", "0", "", "1.48", "0")
-                    ]
+                    )
                 )
-            ]
+            )
         )
 
         # ACT

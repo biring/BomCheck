@@ -28,10 +28,6 @@ License:
 from ._v3_fields import (
     HeaderFields,
     RowFields,
-    ROW_TO_ATTR_MAP,
-    HEADER_TO_ATTR_MAP,
-    REQ_V3_ROW_IDENTIFIERS,
-    REQ_V3_BOM_IDENTIFIERS
 )
 # noinspection PyProtectedMember
 from ._v3_raw import (
@@ -44,10 +40,6 @@ from ._v3_raw import (
 __all__ = [
     'HeaderFields',
     'RowFields',
-    'ROW_TO_ATTR_MAP',
-    'HEADER_TO_ATTR_MAP',
-    'REQ_V3_ROW_IDENTIFIERS',
-    'REQ_V3_BOM_IDENTIFIERS',
     'Board',
     'Bom',
     'Header',

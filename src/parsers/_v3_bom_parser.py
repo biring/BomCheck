@@ -57,7 +57,7 @@ def _is_v3_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> bool:
         bool: True if all required identifiers are found, False otherwise.
     """
     # Check for all required identifiers in a single row to qualify as a Version 3 board BOM
-    if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, REQ_V3_ROW_IDENTIFIERS):
+    if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, Row.get_v3_template_labels()):
         # TODO: logger.info(f"✅ Sheet '{name}' is version 3 board BOM.")
         # when match found, exit
         return True
@@ -84,12 +84,12 @@ def _parse_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> Board:
         Board: A structured Board object containing parsed header and component rows.
     """
     # Extract board-level metadata block from the top of the sheet
-    header_block = common.extract_header_block(sheet_data, REQ_V3_ROW_IDENTIFIERS)
+    header_block = common.extract_header_block(sheet_data, Row.get_v3_template_labels())
     # Parse and assign header metadata
     header = _parse_board_header(header_block)
 
     # Extract the BOM component table from the lower part of the sheet
-    table_block = common.extract_table_block(sheet_data, REQ_V3_ROW_IDENTIFIERS)
+    table_block = common.extract_table_block(sheet_data, Row.get_v3_template_labels())
     # Parse and assign the BOM rows
     rows = _parse_board_table(table_block)
 
@@ -116,12 +116,17 @@ def _parse_board_header(sheet_header: pd.DataFrame) -> Header:
     # Flatten the metadata block into a list of strings
     header_as_list = common.flatten_dataframe(sheet_header)
 
-    # Map known Excel labels to Header dataclass fields using label-to-field mapping
-    for excel_label, model_field in HEADER_TO_ATTR_MAP.items():
-        field_map[model_field] = common.extract_value_after_identifier(header_as_list, excel_label)
+    for excel_label in Header.get_labels():
+        attr_name = Header.get_attr_name_by_label(excel_label)
+        attr_value = common.extract_value_after_identifier(header_as_list, excel_label)
+        field_map[attr_name] = attr_value
 
-    return Header(**field_map)
-
+    try:
+        return Header(**field_map)
+    except Exception as e:
+        raise ValueError(
+            f"Header mapping issue during header parsing. Provided keys: {field_map.keys()}"
+        ) from e
 
 def _parse_board_table(sheet_table: pd.DataFrame) -> tuple[Row, ...]:
     """
@@ -158,13 +163,19 @@ def _parse_board_table_row(row: pd.Series) -> Row:
     Returns:
         Row: The parsed BOM component with mapped field values.
     """
-    row_fields = {}
+    field_map = {}
 
-    for excel_label, model_field in ROW_TO_ATTR_MAP.items():
-        # Extract each field using fuzzy matching against the row headers
-        row_fields[model_field] = common.extract_cell_value_by_fuzzy_header(row, excel_label)
+    for excel_label in Row.get_labels():
+        attr_name = Row.get_attr_name_by_label(excel_label)
+        attr_value = common.extract_cell_value_by_fuzzy_header(row, excel_label)
+        field_map[attr_name] = attr_value
 
-    return Row(**row_fields)
+    try:
+        return Row(**field_map)
+    except Exception as e:
+        raise ValueError(
+            f"Row mapping issue during row parsing. Provided keys: {field_map.keys()}"
+        ) from e
 
 
 def is_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> bool:
@@ -182,7 +193,7 @@ def is_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> bool:
     # Iterate through all sheets and check for required identifiers
     for sheet_name, sheet_data in sheets:
         # If it contains the labels that identify it as version 3 template
-        if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, REQ_V3_BOM_IDENTIFIERS):
+        if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, Row.get_v3_template_labels()):
             # TODO: logger.info(f"✅ Sheet '{name}' is using version 3 BOM template.")
             # TODO: logger.info(f"✅ BOM is using version 3 template.")
             # Return True on first match
