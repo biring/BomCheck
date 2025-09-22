@@ -1,8 +1,7 @@
 """
 Regular expression rules and error message templates for validating BOM fields.
 
-This module centralizes compiled regex patterns and descriptive rule strings for
-Bill of Materials (BOM) fields.
+This module centralizes compiled regex patterns and descriptive rule strings for Bill of Materials (BOM) fields.
 
 Main capabilities:
     - Provide compiled regex patterns for BOM fields (MODEL_NUMBER, BOARD_NAME, etc.)
@@ -32,9 +31,14 @@ __all__ = []  # Internal-only; not part of public API. Star import gets nothing.
 
 import re
 
-GENERIC_VALUE_ERROR_MSG: str = "Invalid '{a}' = '{b}'. "
+GENERIC_VALUE_ERROR_MSG: str = "Invalid '{a}' = '{b}' does not match expected format. "
+ERR_INVALID_REGEX: str = "Regex error while validating '{a}' = '{b}': {c} "
+ERR_COMPILED_REGEX: str = "Expected compiled regex pattern for '{a}', but got '{b}'. "
 
-MODEL_NUMBER_RULE: str = "Correct '{a}' starts with 2–3 capital letters, followed by 3–4 digits, and may optionally end with up 0-3 capital letters."
+MODEL_NUMBER_RULE: str = (
+    "Correct '{a}' starts with 2–3 capital letters, followed by 3–4 digits, "
+    "and may optionally end with up 0-3 capital letters."
+)
 
 MODEL_NUMBER_PATTERN = re.compile(r'^[A-Z]{2,3}[0-9]{3,4}[A-Z]{0,3}$')
 
@@ -59,3 +63,109 @@ BUILD_STAGE_PATTERN = re.compile(r'^(?:P\d+(?:\.\d+)?|EB\d+(?:\.\d+)?|ECN\d*|MP|
 COST_RULE: str = "Correct '{a}' is a positive number"
 
 COST_PATTERN = re.compile(r'^(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+)$')
+
+ITEM_RULE: str = "Correct '{a}' is either empty or a positive integer (e.g., '', '1', '45'). "
+
+ITEM_PATTERN = re.compile(r'^(?:[1-9][0-9]*)?$')
+
+COMPONENT_TYPE_RULE: str = (
+    "Correct '{a}' is a string of alphabets with optional spaces "
+    "or '/' characters (e.g., 'Fuse', 'BJT', 'Diode/SCR', 'Battery Terminal') "
+    "or the keyword 'ALT' optionally followed by a positive integer "
+    "(e.g., 'ALT', 'ALT1', 'ALT2'). Values like 'ALT0' or 'ALTXYZ' are not allowed."
+)
+
+COMPONENT_TYPE_PATTERN = re.compile(
+    r'^(?:ALT(?:[1-9][0-9]*)?|(?!ALT[A-Za-z])[A-Za-z]+(?:[ /][A-Za-z]+)*)$')
+
+DEVICE_PACKAGE_RULE: str = (
+    "Valid '{a}' is either empty or a string of alphabets and numbers "
+    "with optional '-' characters (e.g., '0603', 'QFN-32', 'SMA')."
+)
+
+DEVICE_PACKAGE_PATTERN = re.compile(r'^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$|^$')
+
+DESCRIPTION_RULE: str = (
+    "Valid '{a}' must not be empty and contain no whitespace "
+    "(e.g., '1k,1%,0.5W', '1uF,10%,50V', 'Rectifier,1A,50V')."
+)
+
+DESCRIPTION_PATTERN = re.compile(r'^\S+$')
+
+UNITS_RULE: str = (
+    "Valid '{a}' is either empty or a string of alphabets with an optional dot "
+    "at the end (e.g., '', 'PCS', 'Each', 'grams', 'lb.')."
+)
+
+UNITS_PATTERN = re.compile(r'^[A-Za-z]+\.?$|^$')
+
+CLASSIFICATION_RULE: str = (
+    "Valid '{a}' is a single character: 'A', 'B', or 'C'."
+)
+
+CLASSIFICATION_PATTERN = re.compile(r'^[ABC]$')
+
+MFG_NAME_RULE: str = (
+    "Valid '{a}' is a non-empty string starting with a letter or digit. "
+    "It may contain letters, digits, single spaces, and the symbols '.', '-', '&', "
+    "',' Examples: 'ST Microelectronics', 'Delta Pvt. Ltd', 'Hewlett-Packard', "
+    "'Procter & Gamble', '3M', 'TI-89'."
+)
+
+MFG_NAME_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9 ,.&-]*[A-Za-z0-9.]$')
+
+
+MFG_PART_NO_RULE: str = (
+    "Valid '{a}' must contain at least one character and "
+    "consist of alphabets and numbers, with optional '-', '_', or '.' characters. "
+    "Whitespace and '*' are not allowed "
+    "(e.g., 'LM358N', 'SN74HC595N-TR', 'AT328P_U', 'BC547B')."
+)
+
+MFG_PART_NO_PATTERN = re.compile(r'^[A-Za-z0-9._-]+$')
+
+UL_VDE_NO_RULE: str = (
+    "Valid '{a}' starts with 1–4 alphabets followed by 1–8 digits, "
+    "optionally separated by a single '-' or space "
+    "(e.g., 'E1234', 'UL 567890', 'VDE-12345678')."
+)
+
+UL_VDE_NO_PATTERN = re.compile(r'^[A-Za-z]{1,4}[- ]?[0-9]{1,8}$')
+
+VALIDATED_AT_RULE: str = (
+    "Valid '{a}' is either empty or a list of tokens separated "
+    "by '/' or ',' where each token is one of the following formats (case-sensitive): "
+    "'Pn', 'Pn.n', 'EBn', 'EBn.n', 'ECN', 'ECNn', 'MB', 'MP', or 'FOT' "
+    "(e.g., '', 'P1/EB0/MP')."
+)
+TOKEN = r'(?:P[0-9]+(?:\.[0-9]+)?|EB[0-9]+(?:\.[0-9]+)?|ECN[0-9]*|MB|MP|FOT)'
+VALIDATED_AT_PATTERN = re.compile(rf'^(?:{TOKEN}(?:[\/,]{TOKEN})*)?$')
+
+QUANTITY_RULE: str = (
+    "Valid '{a}' is a non-negative number (greater than or equal to zero), "
+    "which may be an integer or a decimal with digits after the dot "
+    "(e.g., '0', '2', '0.34')."
+)
+
+QUANTITY_PATTERN = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
+
+DESIGNATOR_RULE: str = (
+    "Valid '{a}' is either empty or a string that starts with 1–5 alphabets "
+    "followed by either 1–5 digits or a single '+' or '-' "
+    "(e.g., '', 'R1', 'ACL+', 'MP')."
+)
+DESIGNATOR_PATTERN = re.compile(r'^(?:|[A-Za-z]{1,5}(?:[0-9]{1,5}|[+-])?)$')
+
+PRICE_RULE: str = (
+    "Valid '{a}' is a non-negative number (>= 0). "
+    "It may be an integer or a decimal number with digits after the dot "
+    "(e.g., '0', '2', '0.34')."
+)
+
+PRICE_PATTERN = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
+
+# TODO - add pattern compile guard
+# try:
+#     PATTERN: re.Pattern = re.compile(r'... ')
+# except re.error as e:
+#     raise RuntimeError(f"Invalid regex for PATTERN: {e}")
