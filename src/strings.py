@@ -136,7 +136,11 @@ def check_ref_des_name(df: pd.DataFrame) -> pd.DataFrame:
         # Iterate through the list and make it upper case
         uppercase_list = [x.upper() for x in cleaned_list]
         # Reference designator raw_string pattern
-        pattern = r'^[A-Za-z].*[A-Za-z0-9]$'
+        # Rule:
+        # - Start with a letter
+        # - Contains letters, digits, plus, minus, underscore
+        # - Ends with letter, digit, plus, or minus
+        pattern = r'^[A-Za-z][A-Za-z0-9+\-_]*[A-Za-z0-9+\-]$'
         designator_list = []
         # check each reference designator
         for element in uppercase_list:
