@@ -28,7 +28,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 import re
 
-from src.rules.approve import _constants as constants
+from src.approve import _constants as constants
 
 _DIGITS_OF_PRECISION = 6  # Number of decimal places to round to before comparison.
 

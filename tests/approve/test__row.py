@@ -24,7 +24,7 @@ License:
 import unittest
 
 # noinspection PyProtectedMember
-from src.rules.approve import _row as approve  # Direct internal import — acceptable in tests
+from src.approve import _row as approve  # Direct internal import — acceptable in tests
 from tests.fixtures import row as rfx
 
 

@@ -27,8 +27,8 @@ License:
 """
 
 from src.models import interfaces as models
-from src.rules.approve import _common as common
-from src.rules.approve import _constants as constants
+from src.approve import _common as common
+from src.approve import _constants as constants
 
 
 def item(value: str) -> None:

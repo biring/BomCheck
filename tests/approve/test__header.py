@@ -30,7 +30,7 @@ License:
 import unittest
 
 # noinspection PyProtectedMember
-from src.rules.approve import _header as approve  # Direct internal import — acceptable in tests
+from src.approve import _header as approve  # Direct internal import — acceptable in tests
 from tests.fixtures import headers as hdr_fx
 
 

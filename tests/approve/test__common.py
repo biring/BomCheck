@@ -24,7 +24,7 @@ import re
 import unittest
 
 # noinspection PyProtectedMember
-from src.rules.approve import _common as common  # Direct internal import — acceptable in tests
+from src.approve import _common as common  # Direct internal import — acceptable in tests
 
 
 class TestApproveOrRaise(unittest.TestCase):
