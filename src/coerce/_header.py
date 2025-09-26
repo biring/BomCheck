@@ -29,8 +29,8 @@ License:
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
 from src.models import interfaces as models
-from src.rules.coerce import _common as common
-from src.rules.coerce import _constants as constant
+from src.coerce import _common as common
+from src.coerce import _constants as constant
 
 COERCE_MSG = "'{a}' changed from '{b}' to '{c}'. {d}"
 

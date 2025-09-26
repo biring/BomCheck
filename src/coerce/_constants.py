@@ -23,7 +23,7 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
-from src.rules.coerce import _common as common
+from src.coerce import _common as common
 
 # General transformations
 TO_UPPER = common.Rule(r"(.*)", lambda m: m.group(0).upper(), "Converted to uppercase.")

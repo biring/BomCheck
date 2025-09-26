@@ -31,7 +31,7 @@ import unittest
 from typing import Match
 
 # noinspection PyProtectedMember
-from src.rules.coerce import _common as common  # Direct internal import — acceptable in tests
+from src.coerce import _common as common  # Direct internal import — acceptable in tests
 
 
 class TestCoerceText(unittest.TestCase):

@@ -28,7 +28,7 @@ License:
 
 import unittest
 
-from src.rules.coerce import _header as header
+from src.coerce import _header as header
 
 
 class TestHeaderCoercers(unittest.TestCase):
