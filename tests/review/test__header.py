@@ -32,7 +32,7 @@ import unittest
 
 from src.models import interfaces as models
 # noinspection PyProtectedMember
-from src.rules.review import _header as review  # Direct internal import — acceptable in tests
+from src.review import _header as review  # Direct internal import — acceptable in tests
 from tests.fixtures import headers as hdr_fx
 
 
