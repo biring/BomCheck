@@ -21,18 +21,18 @@ License:
     - Internal Use Only
 """
 
+from typing import Final
 from src.models.interfaces import Row
 
 # GOOD items (they satisfy the regex)
-ITEM_GOOD: dict[str, str] = {
+ITEM_GOOD: Final[dict[str, str]] = {
     "empty": "",  # empty string
     "smallest": "1",  # smallest positive integer
     "standard": "45",  # standard positive integer
     "large": "9999",  # large positive integer
 }
-
 # BAD items (they fail the regex for specific reasons)
-ITEM_BAD: dict[str, str] = {
+ITEM_BAD: Final[dict[str, str]] = {
     "zero": "0",  # zero not allowed (not positive)
     "leading_zero": "012",  # leading zero not allowed
     "negative": "-5",  # negative not allowed
@@ -42,7 +42,7 @@ ITEM_BAD: dict[str, str] = {
 }
 
 # GOOD component types (they satisfy the regex)
-COMP_TYPE_GOOD: dict[str, str] = {
+COMP_TYPE_GOOD: Final[dict[str, str]] = {
     "simple": "Fuse",  # simple alphabetic word
     "acronym": "BJT",  # all caps letters
     "space": "Battery Terminal",  # two words with space
@@ -52,7 +52,7 @@ COMP_TYPE_GOOD: dict[str, str] = {
     "alt_multi": "ALT23",  # keyword + multiple digits
 }
 # BAD component types (they fail the regex for specific reasons)
-COMP_TYPE_BAD: dict[str, str] = {
+COMP_TYPE_BAD: Final[dict[str, str]] = {
     "empty": "",  # empty string not allowed
     "digits_only": "123",  # digits only
     "alt_letters": "ALTXYZ",  # ALT must be digits only
@@ -64,7 +64,7 @@ COMP_TYPE_BAD: dict[str, str] = {
     "alt_space_digit": "ALT 1",  # space between ALT and digit not allowed
 }
 
-DEVICE_PACKAGE_GOOD: dict[str, str] = {
+DEVICE_PACKAGE_GOOD: Final[dict[str, str]] = {
     "empty": "",  # empty string allowed
     "numeric": "0603",  # digits only
     "letters": "SMA",  # alphabets only
@@ -72,8 +72,7 @@ DEVICE_PACKAGE_GOOD: dict[str, str] = {
     "letters_dash": "QFN-32",  # with dash
     "multi_dash": "BGA-256-X",  # multiple dashes
 }
-
-DEVICE_PACKAGE_BAD: dict[str, str] = {
+DEVICE_PACKAGE_BAD: Final[dict[str, str]] = {
     "space_inside": "QFN 32",  # space not allowed
     "leading_dash": "-QFN32",  # cannot start with dash
     "trailing_dash": "QFN32-",  # cannot end with dash
@@ -82,15 +81,14 @@ DEVICE_PACKAGE_BAD: dict[str, str] = {
     "underscore": "QFN_32",  # underscore not allowed
 }
 
-DESCRIPTION_GOOD: dict[str, str] = {
+DESCRIPTION_GOOD: Final[dict[str, str]] = {
     "resistor": "1k,1%,0.5W",  # alphanumeric + commas + percent
     "capacitor": "1uF,10%,50V",  # unit + tolerance + voltage
     "diode": "Rectifier,1A,50V",  # word + ratings
     "complex": "MOSFET,N-CH,30V,10A",  # multiple segments
     "symbols": "IC,3.3V,100mA",  # includes dot and uppercase letters
 }
-
-DESCRIPTION_BAD: dict[str, str] = {
+DESCRIPTION_BAD: Final[dict[str, str]] = {
     "empty": "",  # empty string not allowed
     "space_inside": "1k, 1%, 0.5W",  # space between values
     "leading_space": " 1uF,10%,50V",  # leading whitespace
@@ -99,15 +97,14 @@ DESCRIPTION_BAD: dict[str, str] = {
     "newline": "Rectifier,\n1A,50V",  # newline is whitespace
 }
 
-UNITS_GOOD: dict[str, str] = {
+UNITS_GOOD: Final[dict[str, str]] = {
     "empty": "",  # empty string allowed
     "uppercase": "PCS",  # all uppercase letters
     "capitalized": "Each",  # standard word
     "lowercase": "grams",  # lowercase letters
     "with_dot": "lb.",  # optional trailing dot
 }
-
-UNITS_BAD: dict[str, str] = {
+UNITS_BAD: Final[dict[str, str]] = {
     "digits": "123",  # digits not allowed
     "letters_digits": "g2",  # mix of letters and digits not allowed
     "internal_dot": "g.ram",  # dot only allowed at the end
@@ -116,13 +113,12 @@ UNITS_BAD: dict[str, str] = {
     "special_char": "kg!",  # special character not allowed
 }
 
-CLASSIFICATION_GOOD: dict[str, str] = {
+CLASSIFICATION_GOOD: Final[dict[str, str]] = {
     "A": "A",  # allowed
     "B": "B",  # allowed
     "C": "C",  # allowed
 }
-
-CLASSIFICATION_BAD: dict[str, str] = {
+CLASSIFICATION_BAD: Final[dict[str, str]] = {
     "empty": "",  # not allowed (must have one char)
     "lower_a": "a",  # lowercase not allowed
     "lower_b": "b",  # lowercase not allowed
@@ -132,7 +128,7 @@ CLASSIFICATION_BAD: dict[str, str] = {
     "symbol": "#",  # special char not allowed
 }
 
-MFG_NAME_GOOD: dict[str, str] = {
+MFG_NAME_GOOD: Final[dict[str, str]] = {
     "letters_space": "ST Microelectronics",  # letters + space
     "letters_dot": "Delta Pvt. Ltd",  # with dot
     "letters_dash": "Hewlett-Packard",  # with dash
@@ -140,8 +136,7 @@ MFG_NAME_GOOD: dict[str, str] = {
     "digits": "3M",  # digits + letters
     "letters_digits": "TI-89",  # mix of digits + dash + letters
 }
-
-MFG_NAME_BAD: dict[str, str] = {
+MFG_NAME_BAD: Final[dict[str, str]] = {
     "empty": "",  # cannot be empty
     "leading_space": " STMicro",  # cannot start with space
     "trailing_space": "Intel ",  # cannot end with space
@@ -149,7 +144,7 @@ MFG_NAME_BAD: dict[str, str] = {
     "underscore": "Micro_chip",  # underscore not allowed
 }
 
-MFG_PART_NO_GOOD: dict[str, str] = {
+MFG_PART_NO_GOOD: Final[dict[str, str]] = {
     "letters_digits": "LM358N",  # simple alphanumeric
     "dash": "SN74HC595N-TR",  # with dash
     "underscore": "AT328P_U",  # with underscore
@@ -157,8 +152,7 @@ MFG_PART_NO_GOOD: dict[str, str] = {
     "combo": "XC7Z010-1CLG400C",  # realistic complex part number
     "letters_only": "BC547B",  # all letters and digits
 }
-
-MFG_PART_NO_BAD: dict[str, str] = {
+MFG_PART_NO_BAD: Final[dict[str, str]] = {
     "empty": "",  # must not be empty
     "space_inside": "AT 328P",  # whitespace not allowed
     "leading_space": " LM358N",  # leading space
@@ -167,15 +161,15 @@ MFG_PART_NO_BAD: dict[str, str] = {
     "at_symbol": "SN74HC595N@TR",  # '@' not allowed
     "hash": "LM358#N",  # '#' not allowed
 }
-UL_VDE_NO_GOOD: dict[str, str] = {
+
+UL_VDE_NO_GOOD: Final[dict[str, str]] = {
     "single_letter": "E1234",  # 1 letter + digits
     "two_letters_space": "UL 567890",  # 2 letters + space + digits
     "three_letters_dash": "VDE-12345678",  # 3 letters + dash + 8 digits
     "four_letters": "ULVD123",  # 4 letters + digits
     "max_digits": "UL12345678",  # 2 letters + 8 digits, no separator
 }
-
-UL_VDE_NO_BAD: dict[str, str] = {
+UL_VDE_NO_BAD: Final[dict[str, str]] = {
     "empty": "",  # not allowed
     "digits_only": "12345",  # must start with letters
     "letters_only": "ULVD",  # missing digits
@@ -188,7 +182,7 @@ UL_VDE_NO_BAD: dict[str, str] = {
 }
 
 # GOOD validated-at strings (they satisfy the regex)
-VALIDATED_AT_GOOD: dict[str, str] = {
+VALIDATED_AT_GOOD: Final[dict[str, str]] = {
     "empty": "",
     "P_simple": "P1",
     "P_zero": "P0",
@@ -205,9 +199,8 @@ VALIDATED_AT_GOOD: dict[str, str] = {
     "mixed_separators": "P10/EB2.1,ECN,MP/FOT",
     "long_mixed": "P3.2,EB1/P0,ECN,MB/FOT",
 }
-
 # BAD validated-at strings (they fail the regex for specific reasons)
-VALIDATED_AT_BAD: dict[str, str] = {
+VALIDATED_AT_BAD: Final[dict[str, str]] = {
     "space_inside": "P1 / EB0",  # whitespace not allowed
     "leading_sep": "/P1",  # cannot start with separator
     "trailing_sep": "P1/",  # cannot end with separator
@@ -229,7 +222,8 @@ VALIDATED_AT_BAD: dict[str, str] = {
     "invalid_prefix": "PX1",  # prefix must be P, EB, ECN, MB, MP, FOT
     "tab_inside": "P1\tEB0",  # any whitespace is invalid
 }
-QUANTITY_GOOD: dict[str, str] = {
+
+QUANTITY_GOOD: Final[dict[str, str]] = {
     "zero": "0",  # smallest valid
     "single_digit": "2",  # simple integer
     "multi_digit": "123",  # larger integer
@@ -237,8 +231,7 @@ QUANTITY_GOOD: dict[str, str] = {
     "decimal_large": "10.5",  # decimal greater than 1
     "decimal_multi": "2500.125",  # long decimal
 }
-
-QUANTITY_BAD: dict[str, str] = {
+QUANTITY_BAD: Final[dict[str, str]] = {
     "empty": "",  # must not be empty
     "negative": "-1",  # negatives not allowed
     "leading_zero": "01",  # no leading zeros (except '0')
@@ -250,7 +243,7 @@ QUANTITY_BAD: dict[str, str] = {
     "trailing_space": "3 ",  # trailing space not allowed
 }
 
-DESIGNATOR_GOOD: dict[str, str] = {
+DESIGNATOR_GOOD: Final[dict[str, str]] = {
     "empty": "",  # allowed empty
     "letter_digit": "R1",  # 1 letter + digit
     "multi_letters_digits": "ACL123",  # up to 5 letters + digits
@@ -259,8 +252,7 @@ DESIGNATOR_GOOD: dict[str, str] = {
     "letters_only": "MP",  # letters only
     "max_letters_digits": "ABCDE12345",  # 5 letters + 5 digits
 }
-
-DESIGNATOR_BAD: dict[str, str] = {
+DESIGNATOR_BAD: Final[dict[str, str]] = {
     "digits_only": "123",  # must start with letters
     "too_many_letters": "ABCDEF1",  # >5 letters
     "too_many_digits": "R123456",  # >5 digits
@@ -272,7 +264,7 @@ DESIGNATOR_BAD: dict[str, str] = {
     "trailing_space": "C3 ",  # whitespace not allowed
 }
 
-PRICE_GOOD: dict[str, str] = {
+PRICE_GOOD: Final[dict[str, str]] = {
     "zero": "0",  # smallest valid
     "integer": "2",  # simple integer
     "multi_digit": "123",  # larger integer
@@ -280,7 +272,7 @@ PRICE_GOOD: dict[str, str] = {
     "decimal_large": "10.5",  # decimal > 1
     "decimal_long": "2500.125",  # multi-digit decimal
 }
-PRICE_BAD: dict[str, str] = {
+PRICE_BAD: Final[dict[str, str]] = {
     "empty": "",  # must not be empty
     "negative": "-1",  # negatives not allowed
     "leading_zero": "01",  # no leading zeros (except '0')
@@ -292,21 +284,21 @@ PRICE_BAD: dict[str, str] = {
     "trailing_space": "3 ",  # trailing space not allowed
 }
 
-GOOD_ROW_A_1 = Row(
+GOOD_ROW_A_1: Final[Row] = Row(
     item="1", component_type="Resistor", device_package="0603",
     description="2k, 1%, 0603", unit="PCS", classification="A",
     manufacturer="Delta", mfg_part_number="RES002R3A0306", ul_vde_number="UL569",
     validated_at="EB0", qty="2", designator="R1, R2", unit_price="0.1", sub_total="0.2"
 )
 
-GOOD_ROW_A_2 = Row(
+GOOD_ROW_A_2: Final[Row] = Row(
     item="2", component_type="Capacitor", device_package="0805",
     description="10uF, 10%, 50V, 0805", unit="PCS", classification="B", manufacturer="Sigma",
     mfg_part_number="CC106050100805", ul_vde_number="UL1C2", validated_at="MP",
     qty="3", designator="C1, C2, C3", unit_price="0.2", sub_total="0.6"
 )
 
-GOOD_ROW_A_3 = Row(
+GOOD_ROW_A_3: Final[Row] = Row(
     item="3", component_type="IC", device_package="QFN-8",
     description="Op-Amp, 10MHz, RRIO, 5V, 1mA", unit="PCS", classification="A", manufacturer="Gamma",
     mfg_part_number="LM335", ul_vde_number="VDE1123", validated_at="MP",
