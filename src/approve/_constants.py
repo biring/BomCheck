@@ -9,8 +9,11 @@ Main capabilities:
     - Serve as a single source of truth for validation across parsers and checkers
 
 Example Usage:
-    # Internal use only (not part of public API):
-    from . import _constants as constants
+    # Preferred usage via package interface:
+    # Not exposed publicly; this is an internal module.
+
+    # Direct usage (internal scripts or unit tests only):
+    from src.approve import _constants as constants
     if not constants.MODEL_NUMBER_PATTERN.fullmatch("AB1234C"):
         print(constants.MODEL_NUMBER_RULE.format(a="Model No", b="AB1234C"))
 

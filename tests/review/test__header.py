@@ -8,7 +8,7 @@ This module validates that each reviewer in `src.rules.review.header`:
 
 Example Usage:
     # Preferred usage via project-root invocation:
-    python -m unittest tests/rules/review/test__header.py
+    python -m unittest tests/review/test__header.py
 
     # Direct discovery (runs all tests, including this module):
     python -m unittest discover -s tests

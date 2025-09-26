@@ -3,7 +3,7 @@ Unit tests for the approval validator helpers.
 
 Example Usage:
     # Project-root invocation:
-    python -m unittest tests/rules/approve/test__common.py
+    python -m unittest tests/approve/test__common.py
 
     # Or run via discovery from the tests root
     python -m unittest discover -s tests

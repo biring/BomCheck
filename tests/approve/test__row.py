@@ -3,7 +3,7 @@ Unit tests for BOM row validators.
 
 Example Usage:
     # Project-root invocation:
-    python -m unittest tests/rules/approve/test__row.py
+    python -m unittest tests/approve/test__row.py
 
     # Direct discovery (runs all tests):
     python -m unittest discover -s tests

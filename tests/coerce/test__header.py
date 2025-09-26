@@ -8,7 +8,7 @@ These tests assert that each coercer:
 
 Example Usage:
     # Run this test module:
-    python -m unittest tests/rules/coerce/test_header.py
+    python -m unittest tests/coerce/test_header.py
 
     # Discover and run all tests:
     python -m unittest discover -s tests

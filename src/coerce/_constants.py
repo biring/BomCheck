@@ -4,7 +4,10 @@ Predefined regex-based coercion rules and field-specific rule sets for BOM heade
 This module centralizes reusable `Rule` objects (defined in `_common`) that normalize common BOM text patterns, including spacing, punctuation, and prefix cleanup. It also groups rules into field-specific lists for model numbers, board names/suppliers, build stages, dates, and cost fields.
 
 Example Usage:
-    # Internal use only (not part of public API):
+    # Preferred usage via package interface:
+    # Not exposed publicly; this is an internal module.
+
+    # Direct usage (internal scripts or units tests only):
     from src.rules.coerce import _constants as constant, _common as common
     result = common.coerce_text("ab 123x ", constant.MODEL_NUMBER)
     print(result.value_out)  # "AB123X"

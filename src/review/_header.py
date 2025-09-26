@@ -6,12 +6,12 @@ without interrupting execution.
 
 Example Usage:
     # Preferred usage via public interface:
-    from src.rules import interfaces as review
+    from src.review import interfaces as review
     msg = review.model_number("ABC123")  # "" if valid, error message if invalid
 
-    # Direct module usage (internal only):
-    from src.rules.review  import header as review
-    msg = review.model_number("ABC123")
+    # Direct usage (internal scripts or tests only):
+    from src.review  import _header as header
+    msg = header.model_number("ABC123")
 
 Dependencies:
     - Python >= 3.10

@@ -6,11 +6,11 @@ meet the required specification.
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.rules import interfaces as rules
-    rules.approve_model_number("ABC1234X")
+    from src.approve import interfaces as approve
+    approve.model_number("ABC1234X")
 
     # Direct usage (internal scripts or unit tests only):
-    from src.rules.approve import header as approve
+    from src.approve import header as approve
     approve.bom_date("2025-08-06")
 
 Dependencies:

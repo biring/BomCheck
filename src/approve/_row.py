@@ -5,8 +5,8 @@ This module defines assertion-style validators that enforce formatting and value
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.rules import interfaces as rules
-    rules.approve_quantity("2.75")
+    from src.approve import interfaces as approve
+    approve.quantity("2.75")
 
     # Direct usage (internal scripts or unit tests only):
     from src.rules.approve import _row as approve

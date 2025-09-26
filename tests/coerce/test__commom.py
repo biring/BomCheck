@@ -9,7 +9,7 @@ This suite verifies:
 
 Example Usage:
     # Run this module:
-    python -m unittest tests/rules/coerce/test__common.py
+    python -m unittest tests/coerce/test__common.py
 
     # Discover and run all tests:
     python -m unittest discover -s tests

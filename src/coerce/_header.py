@@ -5,11 +5,11 @@ This module applies ordered text rules and returns a normalized value plus a hum
 
 Example Usage:
     # Preferred usage via package interface:
-    # from src.rules import interfaces as rules
-    # value, log = rules.coerce.board_name("  Power   PCBA ")
+    # from src.coerce import interfaces as coerce
+    # value, log = coerce.board_name("  Power   PCBA ")
 
     # Direct usage (internal scripts or unit tests only):
-    from src.rules.coerce import _header as header
+    from src.coerce import _header as header
     value, log = header.board_name("  Power   PCBA ")
 
 Dependencies:

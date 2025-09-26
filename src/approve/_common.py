@@ -7,8 +7,8 @@ Example Usage:
     # Preferred usage via package interface:
     # Not exposed publicly; this is an internal module.
 
-    # Direct usage (internal scripts or tests only):
-    from src.rules.approve import _common as common
+    # Direct usage (internal scripts or unit tests only):
+    from src.approve import _common as common
     common.approve_or_raise("X123", re.compile(r"^[A-Z][0-9]+$"), "Board", "Valid '{a}' is an uppercase letter followed by digits.")
 
 Dependencies:

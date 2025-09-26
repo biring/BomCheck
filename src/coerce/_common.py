@@ -8,7 +8,7 @@ Example Usage:
     Not allowed. This is an internal module.
 
     # Direct internal usage (tests or internal scripts):
-    from src.rules.coerce import _common as common
+    from src.coerce import _common as common
     rules = [common.Rule(r"\t+", " ", "Normalize whitespace")]
     res = common.apply_coerce("a\tb\nc", rules)
 
