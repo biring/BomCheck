@@ -21,6 +21,8 @@ License:
     - Internal Use Only
 """
 
+from src.models.interfaces import Row
+
 # GOOD items (they satisfy the regex)
 ITEM_GOOD: dict[str, str] = {
     "empty": "",  # empty string
@@ -289,3 +291,24 @@ PRICE_BAD: dict[str, str] = {
     "space_inside": "1 2",  # spaces not allowed
     "trailing_space": "3 ",  # trailing space not allowed
 }
+
+GOOD_ROW_A_1 = Row(
+    item="1", component_type="Resistor", device_package="0603",
+    description="2k, 1%, 0603", unit="PCS", classification="A",
+    manufacturer="Delta", mfg_part_number="RES002R3A0306", ul_vde_number="UL569",
+    validated_at="EB0", qty="2", designator="R1, R2", unit_price="0.1", sub_total="0.2"
+)
+
+GOOD_ROW_A_2 = Row(
+    item="2", component_type="Capacitor", device_package="0805",
+    description="10uF, 10%, 50V, 0805", unit="PCS", classification="B", manufacturer="Sigma",
+    mfg_part_number="CC106050100805", ul_vde_number="UL1C2", validated_at="MP",
+    qty="3", designator="C1, C2, C3", unit_price="0.2", sub_total="0.6"
+)
+
+GOOD_ROW_A_3 = Row(
+    item="3", component_type="IC", device_package="QFN-8",
+    description="Op-Amp, 10MHz, RRIO, 5V, 1mA", unit="PCS", classification="A", manufacturer="Gamma",
+    mfg_part_number="LM335", ul_vde_number="VDE1123", validated_at="MP",
+    qty="1", designator="U1", unit_price="1.2", sub_total="1.2"
+)
