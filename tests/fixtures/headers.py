@@ -22,6 +22,7 @@ License:
 """
 
 from typing import Final
+from src.models.interfaces import Header
 
 # GOOD model numbers (they satisfy the regex)
 MODEL_NO_GOOD_1: Final[str] = "AB100"  # 2 letters + 3 digits
@@ -145,3 +146,8 @@ BAD_COST_5: Final[str] = ""  # empty string
 BAD_COST_6: Final[str] = " "  # whitespace only
 BAD_COST_7: Final[str] = "1,000"  # comma not allowed
 BAD_COST_8: Final[str] = "12.34.56"  # multiple decimals invalid
+
+GOOD_HEADER_1: Final[Header] = Header(
+    model_no="AB100", board_name="Power PCBA", manufacturer="Delta",
+    build_stage="MB", date="01/12/2025", material_cost="2.0",
+    overhead_cost="0.4", total_cost="2.4")
