@@ -30,30 +30,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 from src.approve import interfaces as approve
 
-
-def _review_and_capture(value: str, rule: callable) -> str:
-    """
-    Apply a rule to the input string and capture any error message.
-
-    Runs the provided validation function. If validation succeeds, returns an empty string. If the validator raises a ValueError, its message is returned.
-
-    Args:
-        value (str): The candidate input string to validate.
-        rule (callable): A function that validates the input and raises ValueError on failure.
-
-    Returns:
-        str: Empty string if rule passes, otherwise the error message.
-    """
-    # Default: no error message
-    msg = ""
-    try:
-        # Run rule (raises ValueError on failure)
-        rule(value)
-    except ValueError as err:
-        # Capture error message instead of raising
-        msg = str(err)
-
-    return msg
+from src.review import _common as common
 
 
 def model_number(value: str) -> str:
@@ -66,7 +43,7 @@ def model_number(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.model_number)
+    return common.review_and_capture(value, approve.model_number)
 
 
 def board_name(value: str) -> str:
@@ -79,7 +56,7 @@ def board_name(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.board_name)
+    return common.review_and_capture(value, approve.board_name)
 
 
 def board_supplier(value: str) -> str:
@@ -92,7 +69,7 @@ def board_supplier(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.board_supplier)
+    return common.review_and_capture(value, approve.board_supplier)
 
 
 def build_stage(value: str) -> str:
@@ -105,7 +82,7 @@ def build_stage(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.build_stage)
+    return common.review_and_capture(value, approve.build_stage)
 
 
 def bom_date(value: str) -> str:
@@ -118,7 +95,7 @@ def bom_date(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.bom_date)
+    return common.review_and_capture(value, approve.bom_date)
 
 
 def material_cost(value: str) -> str:
@@ -131,7 +108,7 @@ def material_cost(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.material_cost)
+    return common.review_and_capture(value, approve.material_cost)
 
 
 def overhead_cost(value: str) -> str:
@@ -144,7 +121,7 @@ def overhead_cost(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.overhead_cost)
+    return common.review_and_capture(value, approve.overhead_cost)
 
 
 def total_cost(value: str) -> str:
@@ -157,4 +134,4 @@ def total_cost(value: str) -> str:
     Returns:
         str: Empty string if valid, otherwise a descriptive error message.
     """
-    return _review_and_capture(value, approve.total_cost)
+    return common.review_and_capture(value, approve.total_cost)
