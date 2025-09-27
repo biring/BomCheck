@@ -28,8 +28,7 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
-# noinspection PyProtectedMember
-from src.approve import _header as approve  # Direct internal import — acceptable within package
+from src.approve import interfaces as approve
 
 
 def _review_and_capture(value: str, rule: callable) -> str:
