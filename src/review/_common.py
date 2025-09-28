@@ -25,7 +25,7 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
-from typing import Callable
+from typing import Callable, Any
 
 
 def review_and_capture(value: str, rule: Callable) -> str:
@@ -46,6 +46,32 @@ def review_and_capture(value: str, rule: Callable) -> str:
     try:
         # Run rule (raises ValueError on failure)
         rule(value)
+    except ValueError as err:
+        # Capture error message instead of raising
+        msg = str(err)
+
+    return msg
+
+
+def review_and_capture_by_args(rule: Callable, *pos_args: Any, **key_args: Any) -> str:
+    """
+    Apply a rule to the input string and capture any error message.
+
+    Runs the provided validation function. If validation succeeds, returns an empty string. If the validator raises a ValueError, its message is returned.
+
+    Args:
+        rule: Callable that raises ValueError on validation failure.
+        *pos_args: Positional arguments forwarded to the callable.
+        **key_args: Keyword arguments forwarded to the callable.
+
+    Returns:
+        str: Empty string if rule passes, otherwise the error message.
+    """
+    # Default: no error message
+    msg = ""
+    try:
+        # Run rule (raises ValueError on failure)
+        rule(*pos_args, **key_args)
     except ValueError as err:
         # Capture error message instead of raising
         msg = str(err)
