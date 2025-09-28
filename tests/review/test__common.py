@@ -96,5 +96,95 @@ class TestReviewAndCapture(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
+class TestReviewAndCaptureByArgs(unittest.TestCase):
+    """
+    Unit tests for the `review_and_capture_by_args` function.
+    """
+
+    # --- Helper dummy rules used only for testing ---
+
+    @staticmethod
+    def _rule_sum_with_limit(a: int, b: int, *, limit: int = 10) -> None:
+        """
+        Passes if a + b <= limit; otherwise raises ValueError.
+        """
+        if a + b > limit:
+            raise ValueError("Sum exceeds limit")
+
+    @staticmethod
+    def _rule_requires_prefix(s: str, prefix: str = "ABC") -> None:
+        """
+        Passes if the string starts with the given prefix; otherwise raises ValueError.
+        """
+        if not s.startswith(prefix):
+            raise ValueError(f"Must start with '{prefix}'")
+
+    # --- Tests ---
+
+    def test_valid_with_pos_args(self):
+        """
+        Should return an empty string when the rule passes using positional args.
+        """
+        # ARRANGE
+        expected = ""  # No error string on success
+
+        # ACT
+        result = common.review_and_capture_by_args(self._rule_sum_with_limit, 3, 4, limit=10)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_valid_with_key_args(self):
+        """
+        Should return an empty string when the rule passes using keyword args.
+        """
+        # ARRANGE
+        expected = ""  # No error string on success
+
+        # ACT
+        result = common.review_and_capture_by_args(
+            self._rule_requires_prefix,
+            s="ABC123",
+            prefix="ABC",
+        )
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_invalid_with_pos_args(self):
+        """
+        Should return the exact ValueError message when the rule fails (positional args).
+        """
+        # ARRANGE
+        expected = "Sum exceeds limit"
+
+        # ACT
+        result = common.review_and_capture_by_args(self._rule_sum_with_limit, 9, 5, limit=10)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_invalid_with_key_args(self):
+        """
+        Should return the exact ValueError message when the rule fails (keyword args).
+        """
+        # ARRANGE
+        expected = "Must start with 'ABC'"
+
+        # ACT
+        result = common.review_and_capture_by_args(
+            self._rule_requires_prefix,
+            s="XYZ",
+            prefix="ABC",
+        )
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main()
