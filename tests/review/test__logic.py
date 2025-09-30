@@ -278,10 +278,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         Should return empty message when header.material_cost == sum(row.sub_total for rows).
         """
         # ARRANGE
-        rows = [
+        rows = (
             model.Row(sub_total="0.60"),
             model.Row(sub_total="0.40"),
-        ]
+        )
         header = model.Header(material_cost="1.00", overhead_cost="0.50", total_cost="1.50")
         expected = ""
 
@@ -297,10 +297,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         Should return a non-empty message mentioning 'material cost' when header value mismatches sum(rows).
         """
         # ARRANGE
-        rows = [
+        rows = (
             model.Row(sub_total="0.60"),
             model.Row(sub_total="0.40"),
-        ]
+        )
         header = model.Header(material_cost="1.10", overhead_cost="0.50", total_cost="1.60")
         expected_contains = model.HeaderFields.MATERIAL_COST
         expected_min_len = len(expected_contains)

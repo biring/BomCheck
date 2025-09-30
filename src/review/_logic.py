@@ -114,18 +114,18 @@ def sub_total_calculation(row: model.Row) -> str:
     return common.review_and_capture_by_args(approve.sub_total_calculation, row)
 
 
-def material_cost_calculation(rows: list[model.Row], header: model.Header) -> str:
+def material_cost_calculation(rows: tuple[model.Row, ...], header: model.Header) -> str:
     """
     Validate header.material_cost equals the aggregate of row sub_totals.
 
     Args:
-        rows (Iterable[Row]): Collection of BOM rows.
+        rows (tuple[Row, ...]): Collection of BOM rows.
         header (Header): BOM header containing the material_cost to validate.
 
     Returns:
         str: "" if valid; otherwise a descriptive error message.
     """
-    return common.review_and_capture_by_args(approve.material_cost_calculation, list(rows), header)
+    return common.review_and_capture_by_args(approve.material_cost_calculation, rows, header)
 
 
 def total_cost_calculation(header: model.Header) -> str:
