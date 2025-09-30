@@ -244,15 +244,22 @@ QUANTITY_BAD: Final[dict[str, str]] = {
 }
 
 DESIGNATOR_GOOD: Final[dict[str, str]] = {
+    # Single-token cases
     "empty": "",  # allowed empty
     "letter_digit": "R1",  # 1 letter + digit
     "multi_letters_digits": "ACL123",  # up to 5 letters + digits
     "with_plus": "ACL+",  # letters + '+'
     "with_minus": "V-",  # letters + '-'
-    "letters_only": "MP",  # letters only
     "max_letters_digits": "ABCDE12345",  # 5 letters + 5 digits
+
+    # Multi-token comma-separated cases
+    "two_tokens_digits": "R1,C2",  # two valid tokens with digits
+    "mixed_tokens": "R1,C1,M+",  # digits + digits + plus
+    "longer_list": "U10,MT6,T-,Q500",  # mix of digits and signs
 }
 DESIGNATOR_BAD: Final[dict[str, str]] = {
+    # Single-token invalid cases
+    "letters_only": "MP",  # must end with digits or a single '+' or '-'
     "digits_only": "123",  # must start with letters
     "too_many_letters": "ABCDEF1",  # >5 letters
     "too_many_digits": "R123456",  # >5 digits
@@ -262,6 +269,11 @@ DESIGNATOR_BAD: Final[dict[str, str]] = {
     "special_char": "R1#",  # special chars not allowed
     "leading_space": " R1",  # whitespace not allowed
     "trailing_space": "C3 ",  # whitespace not allowed
+
+    # Multi-token invalid cases
+    "empty_token": "R1,,C2",  # double comma → empty token
+    "space_after_comma": "R1, C2",  # spaces not allowed unless regex updated
+    "bad_in_list": "R1,X,C2",  # 'X' invalid (letters only, no digit/+/-)
 }
 
 PRICE_GOOD: Final[dict[str, str]] = {

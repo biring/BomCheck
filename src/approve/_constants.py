@@ -117,7 +117,6 @@ MFG_NAME_RULE: str = (
 
 MFG_NAME_PATTERN = re.compile(r'^[A-Za-z0-9][A-Za-z0-9 ,.&-]*[A-Za-z0-9.]$')
 
-
 MFG_PART_NO_RULE: str = (
     "Valid '{a}' must contain at least one character and "
     "consist of alphabets and numbers, with optional '-', '_', or '.' characters. "
@@ -153,11 +152,12 @@ QUANTITY_RULE: str = (
 QUANTITY_PATTERN = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
 
 DESIGNATOR_RULE: str = (
-    "Valid '{a}' is either empty or a string that starts with 1–5 alphabets "
-    "followed by either 1–5 digits or a single '+' or '-' "
-    "(e.g., '', 'R1', 'ACL+', 'MP')."
+    "Valid '{a}' is either empty or a list of tokens separated by ',' "
+    "where each token starts with 1–5 uppercase alphabets followed by either "
+    "1–5 digits or a single '+' or '-' (e.g., '', 'R1', 'R1,C1,M+', 'U10,MT6,T-,Q500')."
 )
-DESIGNATOR_PATTERN = re.compile(r'^(?:|[A-Za-z]{1,5}(?:[0-9]{1,5}|[+-])?)$')
+DESIGNATOR_TOKEN = r'[A-Z]{1,5}(?:[0-9]{1,5}|[+-])'
+DESIGNATOR_PATTERN = re.compile(rf'^(?:{DESIGNATOR_TOKEN}(?:,{DESIGNATOR_TOKEN})*)?$')
 
 PRICE_RULE: str = (
     "Valid '{a}' is a non-negative number (>= 0). "
