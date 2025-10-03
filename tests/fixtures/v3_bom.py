@@ -144,14 +144,14 @@ ROW_B2_1: Final[Row] = Row(
     item="1", component_type="Resistor", device_package="0603",
     description="4.7k,1%,0603", unit="PCS", classification="A",
     manufacturer="Yageo", mfg_part_number="RC0603FR-074K7L", ul_vde_number="UL101",
-    validated_at="MP", qty="6", designator="R5-R10", unit_price="0.02", sub_total="0.12"
+    validated_at="MP", qty="6", designator="R5,R6,R7,R8,R9,R10", unit_price="0.02", sub_total="0.12"
 )
 
 ROW_B2_2: Final[Row] = Row(
     item="2", component_type="Capacitor", device_package="0805",
     description="1uF,10%,25V,0805", unit="PCS", classification="B",
     manufacturer="Murata", mfg_part_number="GRM21BR71C105KA01L", ul_vde_number="UL202",
-    validated_at="MP", qty="4", designator="C3-C6", unit_price="0.05", sub_total="0.20"
+    validated_at="MP", qty="4", designator="C3,C4,C5,C6", unit_price="0.05", sub_total="0.20"
 )
 
 ROW_B2_3: Final[Row] = Row(
