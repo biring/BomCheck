@@ -23,8 +23,8 @@ License:
 
 # Re-export selected API from internal modules to expose as public API
 # noinspection PyProtectedMember
-from ._v3_bom import (
-    check_v3_bom
+from ._bom import (
+    check_bom as check_v3_bom
 )
 
 __all__ = [
