@@ -125,7 +125,7 @@ def designator_required(row: model.Row) -> None:
 
 def designator_count(row: model.Row) -> None:
     """
-    Validate the comma-separated designator count equals the integer quantity.
+    Validate the comma-separated designator count equals quantity when quantity is a greater than zero integer.
 
     If base fields are invalid, the check is skipped.
 
@@ -149,7 +149,7 @@ def designator_count(row: model.Row) -> None:
         return
 
     # Rule: For integer quantity, designator count must equal quantity
-    if integer_qty != designator_count:
+    if integer_qty > 0 and integer_qty != designator_count:
         raise ValueError(
             _VALUE_ERROR.format(
                 a=model.RowFields.DESIGNATOR,

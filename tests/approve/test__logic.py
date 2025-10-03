@@ -171,19 +171,23 @@ class TestDesignatorCount(unittest.TestCase):
         Should raise when the number of comma-separated designators != integer qty.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="3", designator="C1, C2")  # only 2 designators
+        rows = (
+            replace(rfx.GOOD_ROW_A_1, qty="3", designator="C1, C2"),  # only 2 designators
+            replace(rfx.GOOD_ROW_A_1, qty="1", designator=""),  # designator missing
+        )
         expected = ValueError.__name__
 
-        # ACT
-        try:
-            logic.designator_count(row)
-            result = None
-        except ValueError as e:
-            result = type(e).__name__
+        for row in rows:
+            # ACT
+            try:
+                logic.designator_count(row)
+                result = None
+            except ValueError as e:
+                result = type(e).__name__
 
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
 
     def test_valid(self):
         """
@@ -209,19 +213,24 @@ class TestDesignatorCount(unittest.TestCase):
         Should skip validation (no error) when qty cannot be parsed.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="", designator="C1")  # qty is unparsable
+        rows = (
+            replace(rfx.GOOD_ROW_A_1, qty="", designator="C1"),  # qty is unparsable to integer
+            replace(rfx.GOOD_ROW_A_1, qty="0", designator="C1, C2, C3"),  # zero is ignored
+            replace(rfx.GOOD_ROW_A_1, qty="1.56", designator=""),  # qty float is ignored
+        )
         expected = None
 
-        # ACT
-        try:
-            logic.designator_count(row)
-            result = None
-        except ValueError as e:
-            result = type(e).__name__
+        for row in rows:
+            # ACT
+            try:
+                logic.designator_count(row)
+                result = None
+            except ValueError as e:
+                result = type(e).__name__
 
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
 
 
 class TestUnitPriceSpecified(unittest.TestCase):
