@@ -28,7 +28,7 @@ import unittest
 import src.checkers.interfaces as checkers
 
 from dataclasses import replace
-from tests.checkers._fixtures import _HEADER, _ROW_TWO, _BOM
+from tests.fixtures import v3_bom as bfx
 
 
 class TestCheckV3Bom(unittest.TestCase):
@@ -41,7 +41,7 @@ class TestCheckV3Bom(unittest.TestCase):
         Should return an empty string when all boards (headers + rows) are valid.
         """
         # ARRANGE
-        bom = _BOM
+        bom = bfx.BOM_B
 
         # ACT
         text_str = checkers.check_v3_bom(bom)
@@ -56,16 +56,13 @@ class TestCheckV3Bom(unittest.TestCase):
         """
         # ARRANGE
         bom = replace(
-            _BOM, boards=[
+            bfx.BOM_A,
+            boards=(
                 replace(
-                    _BOM.boards[0],
-                    header=replace(_HEADER, model_no="Alpha")  # invalid model_no
+                    bfx.BOARD_A,
+                    header=replace(bfx.BOARD_A.header, overhead_cost="99.99"),
                 ),
-                replace(
-                    _BOM.boards[1],
-                    rows=[_ROW_TWO, replace(_ROW_TWO, description="")]  # invalid description
-                ),
-            ],
+            ),
         )
 
         # ACT
