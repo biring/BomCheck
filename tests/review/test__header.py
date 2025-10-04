@@ -33,7 +33,7 @@ import unittest
 from src.models import interfaces as models
 # noinspection PyProtectedMember
 from src.review import _header as review  # Direct internal import — acceptable in tests
-from tests.fixtures import headers as hdr_fx
+from tests.fixtures import v3_value as vfx
 
 
 class TestModelNumber(unittest.TestCase):
@@ -46,14 +46,7 @@ class TestModelNumber(unittest.TestCase):
         Should return "" for valid model numbers.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.MODEL_NO_GOOD_1,
-            hdr_fx.MODEL_NO_GOOD_2,
-            hdr_fx.MODEL_NO_GOOD_3,
-            hdr_fx.MODEL_NO_GOOD_4,
-            hdr_fx.MODEL_NO_GOOD_5,
-            hdr_fx.MODEL_NO_GOOD_6,
-        ]
+        valid_values = vfx.MODEL_NO_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -69,20 +62,7 @@ class TestModelNumber(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid model numbers.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.MODEL_NO_BAD_1,
-            hdr_fx.MODEL_NO_BAD_2,
-            hdr_fx.MODEL_NO_BAD_3,
-            hdr_fx.MODEL_NO_BAD_4,
-            hdr_fx.MODEL_NO_BAD_5,
-            hdr_fx.MODEL_NO_BAD_6,
-            hdr_fx.MODEL_NO_BAD_7,
-            hdr_fx.MODEL_NO_BAD_8,
-            hdr_fx.MODEL_NO_BAD_9,
-            hdr_fx.MODEL_NO_BAD_10,
-            hdr_fx.MODEL_NO_BAD_11,
-            hdr_fx.MODEL_NO_BAD_12,
-        ]
+        invalid_values = vfx.MODEL_NO_BAD
         expected = models.HeaderFields.MODEL_NUMBER
         expected_size = len(expected)
 
@@ -108,13 +88,7 @@ class TestBoardName(unittest.TestCase):
         Should return "" for valid board names.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.BOARD_NAME_GOOD_1,
-            hdr_fx.BOARD_NAME_GOOD_2,
-            hdr_fx.BOARD_NAME_GOOD_3,
-            hdr_fx.BOARD_NAME_GOOD_4,
-            hdr_fx.BOARD_NAME_GOOD_5,
-        ]
+        valid_values = vfx.BOARD_NAME_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -130,17 +104,7 @@ class TestBoardName(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid board names.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BOARD_NAME_BAD_1,
-            hdr_fx.BOARD_NAME_BAD_2,
-            hdr_fx.BOARD_NAME_BAD_3,
-            hdr_fx.BOARD_NAME_BAD_4,
-            hdr_fx.BOARD_NAME_BAD_5,
-            hdr_fx.BOARD_NAME_BAD_6,
-            hdr_fx.BOARD_NAME_BAD_7,
-            hdr_fx.BOARD_NAME_BAD_8,
-            hdr_fx.BOARD_NAME_BAD_9,
-        ]
+        invalid_values = vfx.BOARD_NAME_BAD
         expected = models.HeaderFields.BOARD_NAME
         expected_size = len(expected)
 
@@ -166,16 +130,7 @@ class TestBoardSupplier(unittest.TestCase):
         Should return "" for valid board supplier names.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.BOARD_SUPPLIER_GOOD_1,
-            hdr_fx.BOARD_SUPPLIER_GOOD_2,
-            hdr_fx.BOARD_SUPPLIER_GOOD_3,
-            hdr_fx.BOARD_SUPPLIER_GOOD_4,
-            hdr_fx.BOARD_SUPPLIER_GOOD_5,
-            hdr_fx.BOARD_SUPPLIER_GOOD_6,
-            hdr_fx.BOARD_SUPPLIER_GOOD_7,
-            hdr_fx.BOARD_SUPPLIER_GOOD_8,
-        ]
+        valid_values = vfx.BOARD_SUPPLIER_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -191,19 +146,7 @@ class TestBoardSupplier(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid board supplier names.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BOARD_SUPPLIER_BAD_1,
-            hdr_fx.BOARD_SUPPLIER_BAD_2,
-            hdr_fx.BOARD_SUPPLIER_BAD_3,
-            hdr_fx.BOARD_SUPPLIER_BAD_4,
-            hdr_fx.BOARD_SUPPLIER_BAD_5,
-            hdr_fx.BOARD_SUPPLIER_BAD_6,
-            hdr_fx.BOARD_SUPPLIER_BAD_7,
-            hdr_fx.BOARD_SUPPLIER_BAD_8,
-            hdr_fx.BOARD_SUPPLIER_BAD_9,
-            hdr_fx.BOARD_SUPPLIER_BAD_10,
-
-        ]
+        invalid_values = vfx.BOARD_SUPPLIER_BAD
         expected = models.HeaderFields.BOARD_SUPPLIER
         expected_size = len(expected)
 
@@ -229,18 +172,7 @@ class TestBuildStage(unittest.TestCase):
         Should return "" for valid build stages.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.BUILD_STAGE_GOOD_1,
-            hdr_fx.BUILD_STAGE_GOOD_2,
-            hdr_fx.BUILD_STAGE_GOOD_3,
-            hdr_fx.BUILD_STAGE_GOOD_4,
-            hdr_fx.BUILD_STAGE_GOOD_5,
-            hdr_fx.BUILD_STAGE_GOOD_6,
-            hdr_fx.BUILD_STAGE_GOOD_7,
-            hdr_fx.BUILD_STAGE_GOOD_8,
-            hdr_fx.BUILD_STAGE_GOOD_9,
-            hdr_fx.BUILD_STAGE_GOOD_10,
-        ]
+        valid_values = vfx.BUILD_STAGE_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -256,20 +188,7 @@ class TestBuildStage(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid build stages.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BUILD_STAGE_BAD_1,
-            hdr_fx.BUILD_STAGE_BAD_2,
-            hdr_fx.BUILD_STAGE_BAD_3,
-            hdr_fx.BUILD_STAGE_BAD_4,
-            hdr_fx.BUILD_STAGE_BAD_5,
-            hdr_fx.BUILD_STAGE_BAD_6,
-            hdr_fx.BUILD_STAGE_BAD_7,
-            hdr_fx.BUILD_STAGE_BAD_8,
-            hdr_fx.BUILD_STAGE_BAD_9,
-            hdr_fx.BUILD_STAGE_BAD_10,
-            hdr_fx.BUILD_STAGE_BAD_11,
-            hdr_fx.BUILD_STAGE_BAD_12,
-        ]
+        invalid_values = vfx.BUILD_STAGE_BAD
         expected = models.HeaderFields.BUILD_STAGE
         expected_size = len(expected)
 
@@ -295,16 +214,7 @@ class TestBomDate(unittest.TestCase):
         Should return "" for valid BOM dates.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.GOOD_BOM_DATE_1,
-            hdr_fx.GOOD_BOM_DATE_2,
-            hdr_fx.GOOD_BOM_DATE_3,
-            hdr_fx.GOOD_BOM_DATE_4,
-            hdr_fx.GOOD_BOM_DATE_5,
-            hdr_fx.GOOD_BOM_DATE_6,
-            hdr_fx.GOOD_BOM_DATE_7,
-            hdr_fx.GOOD_BOM_DATE_8,
-        ]
+        valid_values = vfx.BOM_DATE_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -320,17 +230,7 @@ class TestBomDate(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid BOM dates.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BAD_BOM_DATE_1,
-            hdr_fx.BAD_BOM_DATE_2,
-            hdr_fx.BAD_BOM_DATE_3,
-            hdr_fx.BAD_BOM_DATE_4,
-            hdr_fx.BAD_BOM_DATE_5,
-            hdr_fx.BAD_BOM_DATE_6,
-            hdr_fx.BAD_BOM_DATE_7,
-            hdr_fx.BAD_BOM_DATE_8,
-            hdr_fx.BAD_BOM_DATE_9,
-        ]
+        invalid_values = vfx.BOM_DATE_BAD
         expected = models.HeaderFields.BOM_DATE
         expected_size = len(expected)
 
@@ -356,16 +256,7 @@ class TestMaterialCost(unittest.TestCase):
         Should return "" for valid material costs.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.GOOD_COST_1,
-            hdr_fx.GOOD_COST_2,
-            hdr_fx.GOOD_COST_3,
-            hdr_fx.GOOD_COST_4,
-            hdr_fx.GOOD_COST_5,
-            hdr_fx.GOOD_COST_6,
-            hdr_fx.GOOD_COST_7,
-            hdr_fx.GOOD_COST_8,
-        ]
+        valid_values = vfx.COST_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -381,16 +272,7 @@ class TestMaterialCost(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid material costs.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BAD_COST_1,
-            hdr_fx.BAD_COST_2,
-            hdr_fx.BAD_COST_3,
-            hdr_fx.BAD_COST_4,
-            hdr_fx.BAD_COST_5,
-            hdr_fx.BAD_COST_6,
-            hdr_fx.BAD_COST_7,
-            hdr_fx.BAD_COST_8,
-        ]
+        invalid_values = vfx.COST_BAD
         expected = models.HeaderFields.MATERIAL_COST
         expected_size = len(expected)
 
@@ -416,16 +298,7 @@ class TestOverheadCost(unittest.TestCase):
         Should return "" for valid overhead costs.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.GOOD_COST_1,
-            hdr_fx.GOOD_COST_2,
-            hdr_fx.GOOD_COST_3,
-            hdr_fx.GOOD_COST_4,
-            hdr_fx.GOOD_COST_5,
-            hdr_fx.GOOD_COST_6,
-            hdr_fx.GOOD_COST_7,
-            hdr_fx.GOOD_COST_8,
-        ]
+        valid_values = vfx.COST_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -441,16 +314,7 @@ class TestOverheadCost(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid overhead costs.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BAD_COST_1,
-            hdr_fx.BAD_COST_2,
-            hdr_fx.BAD_COST_3,
-            hdr_fx.BAD_COST_4,
-            hdr_fx.BAD_COST_5,
-            hdr_fx.BAD_COST_6,
-            hdr_fx.BAD_COST_7,
-            hdr_fx.BAD_COST_8,
-        ]
+        invalid_values = vfx.COST_BAD
         expected = models.HeaderFields.OVERHEAD_COST
         expected_size = len(expected)
 
@@ -476,16 +340,7 @@ class TestTotalCost(unittest.TestCase):
         Should return "" for valid total costs.
         """
         # ARRANGE
-        valid_values = [
-            hdr_fx.GOOD_COST_1,
-            hdr_fx.GOOD_COST_2,
-            hdr_fx.GOOD_COST_3,
-            hdr_fx.GOOD_COST_4,
-            hdr_fx.GOOD_COST_5,
-            hdr_fx.GOOD_COST_6,
-            hdr_fx.GOOD_COST_7,
-            hdr_fx.GOOD_COST_8,
-        ]
+        valid_values = vfx.COST_GOOD
         expected = ""  # No message
 
         for value in valid_values:
@@ -501,16 +356,7 @@ class TestTotalCost(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid total costs.
         """
         # ARRANGE
-        invalid_values = [
-            hdr_fx.BAD_COST_1,
-            hdr_fx.BAD_COST_2,
-            hdr_fx.BAD_COST_3,
-            hdr_fx.BAD_COST_4,
-            hdr_fx.BAD_COST_5,
-            hdr_fx.BAD_COST_6,
-            hdr_fx.BAD_COST_7,
-            hdr_fx.BAD_COST_8,
-        ]
+        invalid_values = vfx.COST_BAD
         expected = models.HeaderFields.TOTAL_COST
         expected_size = len(expected)
 
