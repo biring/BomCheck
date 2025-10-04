@@ -153,10 +153,10 @@ QUANTITY_PATTERN = re.compile(r'^(?:0|[1-9][0-9]*)(?:\.[0-9]+)?$')
 
 DESIGNATOR_RULE: str = (
     "Valid '{a}' is either empty or a list of tokens separated by ',' "
-    "where each token starts with 1–5 uppercase alphabets followed by either "
-    "1–5 digits or a single '+' or '-' (e.g., '', 'R1', 'R1,C1,M+', 'U10,MT6,T-,Q500')."
+    "where each token starts with 1–5 uppercase alphabets optionally followed by either "
+    "1–5 digits or a single '+' or '-' (e.g., '', 'ACN', 'R1', 'R1,C1,M+')."
 )
-DESIGNATOR_TOKEN = r'[A-Z]{1,5}(?:[0-9]{1,5}|[+-])'
+DESIGNATOR_TOKEN = r'[A-Z]{1,5}(?:[0-9]{1,5}|[+-])?'
 DESIGNATOR_PATTERN = re.compile(rf'^(?:{DESIGNATOR_TOKEN}(?:,{DESIGNATOR_TOKEN})*)?$')
 
 PRICE_RULE: str = (

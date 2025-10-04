@@ -384,12 +384,12 @@ DESIGNATOR_GOOD: Final[list[str]] = [
     "ACL123",  # up to 5 letters + digits
     "ACL+",  # letters + '+'
     "V-",  # letters + '-'
-    # TODO Update designator regex to allow only letters
-    # "MP",  # letters only
+    "ACN",  # letters only
     "ABCDE12345",  # 5 letters + 5 digits
     "R1,C2",  # two valid tokens with digits
     "R1,C1,M+",  # digits + digits + plus
     "U10,MT6,T-,Q500",  # mix of digits and signs
+    "R1,ACN,C2",  # list with letters only
 ]
 DESIGNATOR_BAD: Final[list[str]] = [
     "123",  # must start with letters
@@ -403,7 +403,6 @@ DESIGNATOR_BAD: Final[list[str]] = [
     "C3 ",  # trailing space not allowed
     "R1,,C2",  # double comma → empty token
     "R1, C2",  # spaces not allowed unless regex updated
-    "R1,X,C2",  # 'X' invalid (letters only, no digit/+/-)
 ]
 
 PRICE_GOOD: Final[list[str]] = [
