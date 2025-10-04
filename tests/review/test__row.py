@@ -31,7 +31,7 @@ import unittest
 from src.models import interfaces as models
 # noinspection PyProtectedMember
 from src.review import _row as review  # Direct internal import — acceptable in tests
-from tests.fixtures import row as row_fx
+from tests.fixtures import v3_value as vfx
 
 
 class TestItem(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestItem(unittest.TestCase):
         Should return empty string for valid item values.
         """
         # ARRANGE
-        valid_values = list(row_fx.ITEM_GOOD.values())
+        valid_values = list(vfx.ITEM_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -60,7 +60,7 @@ class TestItem(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid item values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.ITEM_BAD.values())
+        invalid_values = list(vfx.ITEM_BAD)
         expected = models.RowFields.ITEM
         expected_size = len(expected)
 
@@ -86,7 +86,7 @@ class TestComponentType(unittest.TestCase):
         Should return empty string for valid component type values.
         """
         # ARRANGE
-        valid_values = list(row_fx.COMP_TYPE_GOOD.values())
+        valid_values = list(vfx.COMP_TYPE_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -102,7 +102,7 @@ class TestComponentType(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid component type values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.COMP_TYPE_BAD.values())
+        invalid_values = list(vfx.COMP_TYPE_BAD)
         expected = models.RowFields.COMPONENT
         expected_size = len(expected)
 
@@ -128,7 +128,7 @@ class TestDevicePackage(unittest.TestCase):
         Should return empty string for valid device package values.
         """
         # ARRANGE
-        valid_values = list(row_fx.DEVICE_PACKAGE_GOOD.values())
+        valid_values = list(vfx.DEVICE_PACKAGE_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -144,7 +144,7 @@ class TestDevicePackage(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid device package values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.DEVICE_PACKAGE_BAD.values())
+        invalid_values = list(vfx.DEVICE_PACKAGE_BAD)
         expected = models.RowFields.PACKAGE
         expected_size = len(expected)
 
@@ -170,7 +170,7 @@ class TestDescription(unittest.TestCase):
         Should return empty string for valid description values.
         """
         # ARRANGE
-        valid_values = list(row_fx.DESCRIPTION_GOOD.values())
+        valid_values = list(vfx.DESCRIPTION_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -186,7 +186,7 @@ class TestDescription(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid description values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.DESCRIPTION_BAD.values())
+        invalid_values = list(vfx.DESCRIPTION_BAD)
         expected = models.RowFields.DESCRIPTION
         expected_size = len(expected)
 
@@ -212,7 +212,7 @@ class TestUnits(unittest.TestCase):
         Should return empty string for valid units values.
         """
         # ARRANGE
-        valid_values = list(row_fx.UNITS_GOOD.values())
+        valid_values = list(vfx.UNITS_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -228,7 +228,7 @@ class TestUnits(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid units values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.UNITS_BAD.values())
+        invalid_values = list(vfx.UNITS_BAD)
         expected = models.RowFields.UNITS
         expected_size = len(expected)
 
@@ -254,7 +254,7 @@ class TestClassification(unittest.TestCase):
         Should return empty string for valid classification values.
         """
         # ARRANGE
-        valid_values = list(row_fx.CLASSIFICATION_GOOD.values())
+        valid_values = list(vfx.CLASSIFICATION_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -270,7 +270,7 @@ class TestClassification(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid classification values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.CLASSIFICATION_BAD.values())
+        invalid_values = list(vfx.CLASSIFICATION_BAD)
         expected = models.RowFields.CLASSIFICATION
         expected_size = len(expected)
 
@@ -296,7 +296,7 @@ class TestManufacturerName(unittest.TestCase):
         Should return empty string for valid manufacturer names.
         """
         # ARRANGE
-        valid_values = list(row_fx.MFG_NAME_GOOD.values())
+        valid_values = list(vfx.MFG_NAME_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -312,7 +312,7 @@ class TestManufacturerName(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid manufacturer names.
         """
         # ARRANGE
-        invalid_values = list(row_fx.MFG_NAME_BAD.values())
+        invalid_values = list(vfx.MFG_NAME_BAD)
         expected = models.RowFields.MANUFACTURER
         expected_size = len(expected)
 
@@ -338,7 +338,7 @@ class TestMfgPartNumber(unittest.TestCase):
         Should return empty string for valid manufacturer part numbers.
         """
         # ARRANGE
-        valid_values = list(row_fx.MFG_PART_NO_GOOD.values())
+        valid_values = list(vfx.MFG_PART_NO_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -354,7 +354,7 @@ class TestMfgPartNumber(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid manufacturer part numbers.
         """
         # ARRANGE
-        invalid_values = list(row_fx.MFG_PART_NO_BAD.values())
+        invalid_values = list(vfx.MFG_PART_NO_BAD)
         expected = models.RowFields.MFG_PART_NO
         expected_size = len(expected)
 
@@ -380,7 +380,7 @@ class TestUlVdeNumber(unittest.TestCase):
         Should return empty string for valid UL/VDE numbers.
         """
         # ARRANGE
-        valid_values = list(row_fx.UL_VDE_NO_GOOD.values())
+        valid_values = list(vfx.UL_VDE_NO_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -396,7 +396,7 @@ class TestUlVdeNumber(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid UL/VDE numbers.
         """
         # ARRANGE
-        invalid_values = list(row_fx.UL_VDE_NO_BAD.values())
+        invalid_values = list(vfx.UL_VDE_NO_BAD)
         expected = models.RowFields.UL_VDE_NUMBER
         expected_size = len(expected)
 
@@ -422,7 +422,7 @@ class TestValidatedAt(unittest.TestCase):
         Should return empty string for valid validated-at tokens.
         """
         # ARRANGE
-        valid_values = list(row_fx.VALIDATED_AT_GOOD.values())
+        valid_values = list(vfx.VALIDATED_AT_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -438,7 +438,7 @@ class TestValidatedAt(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid validated-at tokens.
         """
         # ARRANGE
-        invalid_values = list(row_fx.VALIDATED_AT_BAD.values())
+        invalid_values = list(vfx.VALIDATED_AT_BAD)
         expected = models.RowFields.VALIDATED_AT
         expected_size = len(expected)
 
@@ -464,7 +464,7 @@ class TestQuantity(unittest.TestCase):
         Should return empty string for valid quantity values.
         """
         # ARRANGE
-        valid_values = list(row_fx.QUANTITY_GOOD.values())
+        valid_values = list(vfx.QUANTITY_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -480,7 +480,7 @@ class TestQuantity(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid quantity values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.QUANTITY_BAD.values())
+        invalid_values = list(vfx.QUANTITY_BAD)
         expected = models.RowFields.QTY
         expected_size = len(expected)
 
@@ -504,7 +504,7 @@ class TestDesignator(unittest.TestCase):
     def test_valid(self):
         """Should return empty string for valid designator values."""
         # ARRANGE
-        valid_values = list(row_fx.DESIGNATOR_GOOD.values())
+        valid_values = list(vfx.DESIGNATOR_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -520,7 +520,7 @@ class TestDesignator(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid designator values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.DESIGNATOR_BAD.values())
+        invalid_values = list(vfx.DESIGNATOR_BAD)
         expected = models.RowFields.DESIGNATOR
         expected_size = len(expected)
 
@@ -546,7 +546,7 @@ class TestUnitPrice(unittest.TestCase):
         Should return empty string for valid unit price values.
         """
         # ARRANGE
-        valid_values = list(row_fx.PRICE_GOOD.values())
+        valid_values = list(vfx.PRICE_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -562,7 +562,7 @@ class TestUnitPrice(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid unit price values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.PRICE_BAD.values())
+        invalid_values = list(vfx.PRICE_BAD)
         expected = models.RowFields.UNIT_PRICE
         expected_size = len(expected)
 
@@ -588,7 +588,7 @@ class TestSubTotal(unittest.TestCase):
         Should return empty string for valid sub-total values.
         """
         # ARRANGE
-        valid_values = list(row_fx.PRICE_GOOD.values())
+        valid_values = list(vfx.PRICE_GOOD)
         expected = ""
 
         for value in valid_values:
@@ -604,7 +604,7 @@ class TestSubTotal(unittest.TestCase):
         Should return a non-empty message containing the field name for invalid sub-total values.
         """
         # ARRANGE
-        invalid_values = list(row_fx.PRICE_BAD.values())
+        invalid_values = list(vfx.PRICE_BAD)
         expected = models.RowFields.SUB_TOTAL
         expected_size = len(expected)
 
