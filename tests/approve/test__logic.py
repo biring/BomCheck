@@ -31,8 +31,7 @@ from dataclasses import replace
 
 # noinspection PyProtectedMember
 from src.approve import _logic as logic  # Direct internal import — acceptable in tests
-from tests.fixtures import row as rfx
-from tests.fixtures import headers as hfx
+from tests.fixtures import v3_bom as bfx
 
 
 class TestQuantityZero(unittest.TestCase):
@@ -45,7 +44,7 @@ class TestQuantityZero(unittest.TestCase):
         Should raise when item is blank and quantity > 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, item="", qty="2")
+        row = replace(bfx.ROW_A_1, item="", qty="2")
         expected = ValueError.__name__
 
         # ACT
@@ -64,7 +63,7 @@ class TestQuantityZero(unittest.TestCase):
         Should pass silently when item is blank and quantity == 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, item="", qty="0")
+        row = replace(bfx.ROW_A_1, item="", qty="0")
         expected = None
 
         # ACT
@@ -83,7 +82,7 @@ class TestQuantityZero(unittest.TestCase):
         Should skip validation (no error) when qty cannot be parsed.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, item="", qty="")  # qty is unparsable
+        row = replace(bfx.ROW_A_1, item="", qty="")  # qty is unparsable
         expected = None
 
         # ACT
@@ -108,7 +107,7 @@ class TestDesignatorRequired(unittest.TestCase):
         Should raise when qty >= 1 (integer) and designator is blank.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="3", designator="")
+        row = replace(bfx.ROW_A_1, qty="3", designator="")
         expected = ValueError.__name__
 
         # ACT
@@ -127,7 +126,7 @@ class TestDesignatorRequired(unittest.TestCase):
         Should pass when qty == 0 regardless of designator content.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="0", designator="")
+        row = replace(bfx.ROW_A_1, qty="0", designator="")
         expected = None
 
         # ACT
@@ -146,7 +145,7 @@ class TestDesignatorRequired(unittest.TestCase):
         Should skip when qty is not an integer-parsable value.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="1.5", designator="")  # int() would raise
+        row = replace(bfx.ROW_A_1, qty="1.5", designator="")  # int() would raise
         expected = None
 
         # ACT
@@ -172,8 +171,8 @@ class TestDesignatorCount(unittest.TestCase):
         """
         # ARRANGE
         rows = (
-            replace(rfx.GOOD_ROW_A_1, qty="3", designator="C1, C2"),  # only 2 designators
-            replace(rfx.GOOD_ROW_A_1, qty="1", designator=""),  # designator missing
+            replace(bfx.ROW_A_1, qty="3", designator="C1, C2"),  # only 2 designators
+            replace(bfx.ROW_A_1, qty="1", designator=""),  # designator missing
         )
         expected = ValueError.__name__
 
@@ -194,7 +193,7 @@ class TestDesignatorCount(unittest.TestCase):
         Should pass when designator count equals integer qty.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="3", designator="C1, C2, C3")
+        row = replace(bfx.ROW_A_1, qty="3", designator="C1, C2, C3")
         expected = None
 
         # ACT
@@ -214,9 +213,9 @@ class TestDesignatorCount(unittest.TestCase):
         """
         # ARRANGE
         rows = (
-            replace(rfx.GOOD_ROW_A_1, qty="", designator="C1"),  # qty is unparsable to integer
-            replace(rfx.GOOD_ROW_A_1, qty="0", designator="C1, C2, C3"),  # zero is ignored
-            replace(rfx.GOOD_ROW_A_1, qty="1.56", designator=""),  # qty float is ignored
+            replace(bfx.ROW_A_1, qty="", designator="C1"),  # qty is unparsable to integer
+            replace(bfx.ROW_A_1, qty="0", designator="C1, C2, C3"),  # zero is ignored
+            replace(bfx.ROW_A_1, qty="1.56", designator=""),  # qty float is ignored
         )
         expected = None
 
@@ -244,8 +243,8 @@ class TestUnitPriceSpecified(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            replace(rfx.GOOD_ROW_A_1, qty="1", unit_price="0"),
-            replace(rfx.GOOD_ROW_A_1, qty="2.5", unit_price="-10.0"),
+            replace(bfx.ROW_A_1, qty="1", unit_price="0"),
+            replace(bfx.ROW_A_1, qty="2.5", unit_price="-10.0"),
         ]
         expected = ValueError.__name__
 
@@ -266,7 +265,7 @@ class TestUnitPriceSpecified(unittest.TestCase):
         Should pass when qty == 0 even if unit_price <= 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="0", unit_price="0")
+        row = replace(bfx.ROW_A_1, qty="0", unit_price="0")
         expected = None
 
         # ACT
@@ -285,7 +284,7 @@ class TestUnitPriceSpecified(unittest.TestCase):
         Should pass when qty > 0 and unit_price > 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="3", unit_price="0.25")
+        row = replace(bfx.ROW_A_1, qty="3", unit_price="0.25")
         expected = None
 
         # ACT
@@ -305,8 +304,8 @@ class TestUnitPriceSpecified(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            replace(rfx.GOOD_ROW_A_1, qty="", unit_price="0.1"),
-            replace(rfx.GOOD_ROW_A_1, qty="1", unit_price=""),
+            replace(bfx.ROW_A_1, qty="", unit_price="0.1"),
+            replace(bfx.ROW_A_1, qty="1", unit_price=""),
         ]
         expected = None
 
@@ -333,7 +332,7 @@ class TestSubtotalZero(unittest.TestCase):
         Should raise when qty == 0 but sub_total != 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="0", sub_total="0.50")
+        row = replace(bfx.ROW_A_1, qty="0", sub_total="0.50")
         expected = ValueError.__name__
 
         # ACT
@@ -352,7 +351,7 @@ class TestSubtotalZero(unittest.TestCase):
         Should pass when qty == 0 and sub_total == 0.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="0", sub_total="0")
+        row = replace(bfx.ROW_A_1, qty="0", sub_total="0")
         expected = None
 
         # ACT
@@ -372,8 +371,8 @@ class TestSubtotalZero(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            replace(rfx.GOOD_ROW_A_1, qty="", sub_total="0.00"),  # qty unparsable
-            replace(rfx.GOOD_ROW_A_1, qty="0", sub_total=""),  # sub_total unparsable
+            replace(bfx.ROW_A_1, qty="", sub_total="0.00"),  # qty unparsable
+            replace(bfx.ROW_A_1, qty="0", sub_total=""),  # sub_total unparsable
         ]
         expected = None
 
@@ -399,7 +398,7 @@ class TestSubTotalCalculation(unittest.TestCase):
         Should raise when sub_total != qty * unit_price (per floats_equal).
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="2", unit_price="0.25", sub_total="0.30")  # should be 0.50
+        row = replace(bfx.ROW_A_1, qty="2", unit_price="0.25", sub_total="0.30")  # should be 0.50
         expected = ValueError.__name__
 
         # ACT
@@ -418,7 +417,7 @@ class TestSubTotalCalculation(unittest.TestCase):
         Should pass when sub_total equals qty * unit_price.
         """
         # ARRANGE
-        row = replace(rfx.GOOD_ROW_A_1, qty="2", unit_price="0.5", sub_total="1.0")
+        row = replace(bfx.ROW_A_1, qty="2", unit_price="0.5", sub_total="1.0")
         expected = None
 
         # ACT
@@ -438,9 +437,9 @@ class TestSubTotalCalculation(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            replace(rfx.GOOD_ROW_A_1, qty="2", unit_price="", sub_total="0.50"),  # unit_price unparsable
-            replace(rfx.GOOD_ROW_A_1, qty="", unit_price="0.25", sub_total="0.25"),  # qty unparsable
-            replace(rfx.GOOD_ROW_A_1, qty="1", unit_price="0.25", sub_total="")  # sub_total unparsable
+            replace(bfx.ROW_A_1, qty="2", unit_price="", sub_total="0.50"),  # unit_price unparsable
+            replace(bfx.ROW_A_1, qty="", unit_price="0.25", sub_total="0.25"),  # qty unparsable
+            replace(bfx.ROW_A_1, qty="1", unit_price="0.25", sub_total="")  # sub_total unparsable
         ]
         expected = None
 
@@ -467,10 +466,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         rows = [
-            replace(rfx.GOOD_ROW_A_1),  # sub_total="0.2"
-            replace(rfx.GOOD_ROW_A_2),  # sub_total="0.6"
+            replace(bfx.ROW_A_1),  # sub_total="0.2"
+            replace(bfx.ROW_A_2),  # sub_total="0.6"
         ]  # sum = 0.8
-        header = replace(hfx.GOOD_HEADER_1, material_cost="0.90")  # mismatch
+        header = replace(bfx.HEADER_A, material_cost="0.90")  # mismatch
         expected = ValueError.__name__
 
         # ACT
@@ -490,10 +489,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         rows = [
-            replace(rfx.GOOD_ROW_A_1),  # 0.2
-            replace(rfx.GOOD_ROW_A_2),  # 0.6
+            replace(bfx.ROW_A_1),  # 0.2
+            replace(bfx.ROW_A_2),  # 0.6
         ]  # sum = 0.8
-        header = replace(hfx.GOOD_HEADER_1, material_cost="0.80")
+        header = replace(bfx.HEADER_A, material_cost="0.80")
         expected = None
 
         # ACT
@@ -513,11 +512,11 @@ class TestMaterialCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         rows = [
-            replace(rfx.GOOD_ROW_A_1, sub_total="0.20"),
-            replace(rfx.GOOD_ROW_A_2, sub_total="0.60"),
-            replace(rfx.GOOD_ROW_A_3, sub_total="1.10"),
+            replace(bfx.ROW_A_1, sub_total="0.20"),
+            replace(bfx.ROW_A_2, sub_total="0.60"),
+            replace(bfx.ROW_A_3, sub_total="1.10"),
         ]
-        header = replace(hfx.GOOD_HEADER_1, material_cost="1.90")
+        header = replace(bfx.HEADER_A, material_cost="1.90")
         expected = None
 
         # ACT
@@ -537,10 +536,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         rows = [
-            replace(rfx.GOOD_ROW_A_1, sub_total=""),
-            replace(rfx.GOOD_ROW_A_2, sub_total=""),
+            replace(bfx.ROW_A_1, sub_total=""),
+            replace(bfx.ROW_A_2, sub_total=""),
         ]  # all unparsable -> parsed stays False
-        header = replace(hfx.GOOD_HEADER_1, material_cost="0.00")
+        header = replace(bfx.HEADER_A, material_cost="0.00")
         expected = None
 
         # ACT
@@ -560,10 +559,10 @@ class TestMaterialCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         rows = [
-            replace(rfx.GOOD_ROW_A_1),  # sub_total parses to 0.2
-            replace(rfx.GOOD_ROW_A_2),  # sub_total parses to 0.6
+            replace(bfx.ROW_A_1),  # sub_total parses to 0.2
+            replace(bfx.ROW_A_2),  # sub_total parses to 0.6
         ]
-        header = replace(hfx.GOOD_HEADER_1, material_cost="")  # unparsable
+        header = replace(bfx.HEADER_A, material_cost="")  # unparsable
         expected = None
 
         # ACT
@@ -588,7 +587,7 @@ class TestTotalCostCalculation(unittest.TestCase):
         Should raise when total_cost != material_cost + overhead_cost.
         """
         # ARRANGE
-        header = replace(hfx.GOOD_HEADER_1, material_cost="1.00", overhead_cost="0.25", total_cost="1.10")
+        header = replace(bfx.HEADER_A, material_cost="1.00", overhead_cost="0.25", total_cost="1.10")
         expected = ValueError.__name__
 
         # ACT
@@ -607,7 +606,7 @@ class TestTotalCostCalculation(unittest.TestCase):
         Should pass when total_cost == material_cost + overhead_cost.
         """
         # ARRANGE
-        header = hfx.GOOD_HEADER_1
+        header = bfx.HEADER_A
         expected = None
 
         # ACT
@@ -627,9 +626,9 @@ class TestTotalCostCalculation(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            replace(hfx.GOOD_HEADER_1, material_cost=""),  # material_cost unparsable
-            replace(hfx.GOOD_HEADER_1, overhead_cost=""),  # overhead_cost unparsable
-            replace(hfx.GOOD_HEADER_1, total_cost=""),  # total_cost unparsable
+            replace(bfx.HEADER_A, material_cost=""),  # material_cost unparsable
+            replace(bfx.HEADER_A, overhead_cost=""),  # overhead_cost unparsable
+            replace(bfx.HEADER_A, total_cost=""),  # total_cost unparsable
         ]
         expected = None
 
