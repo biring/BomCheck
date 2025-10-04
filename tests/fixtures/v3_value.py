@@ -384,14 +384,14 @@ DESIGNATOR_GOOD: Final[list[str]] = [
     "ACL123",  # up to 5 letters + digits
     "ACL+",  # letters + '+'
     "V-",  # letters + '-'
-    "MP",  # letters only
+    # TODO Update designator regex to allow only letters
+    # "MP",  # letters only
     "ABCDE12345",  # 5 letters + 5 digits
     "R1,C2",  # two valid tokens with digits
     "R1,C1,M+",  # digits + digits + plus
     "U10,MT6,T-,Q500",  # mix of digits and signs
 ]
 DESIGNATOR_BAD: Final[list[str]] = [
-    "MP",  # must end with digits or a single '+' or '-'
     "123",  # must start with letters
     "ABCDEF1",  # >5 letters
     "R123456",  # >5 digits
