@@ -25,7 +25,7 @@ import unittest
 
 # noinspection PyProtectedMember
 from src.approve import _row as approve  # Direct internal import — acceptable in tests
-from tests.fixtures import row as rfx
+from tests.fixtures import v3_value as bfx
 
 
 class TestItem(unittest.TestCase):
@@ -38,10 +38,10 @@ class TestItem(unittest.TestCase):
         Should NOT raise an exception when input string matches the required item pattern.
         """
         # ARRANGE
-        valid_values = rfx.ITEM_GOOD
+        valid_values = bfx.ITEM_GOOD
         expected = ""  # No error
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.item(value)
@@ -58,10 +58,10 @@ class TestItem(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required item pattern.
         """
         # ARRANGE
-        invalid_values = rfx.ITEM_BAD
+        invalid_values = bfx.ITEM_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.item(value)
@@ -84,10 +84,10 @@ class TestComponentType(unittest.TestCase):
         Should NOT raise an exception when input string matches the required component_type pattern.
         """
         # ARRANGE
-        valid_values = rfx.COMP_TYPE_GOOD
+        valid_values = bfx.COMP_TYPE_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.component_type(value)
@@ -104,10 +104,10 @@ class TestComponentType(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required component_type pattern.
         """
         # ARRANGE
-        invalid_values = rfx.COMP_TYPE_BAD
+        invalid_values = bfx.COMP_TYPE_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.component_type(value)
@@ -130,10 +130,10 @@ class TestDevicePackage(unittest.TestCase):
         Should NOT raise an exception when input string matches the required device_package pattern.
         """
         # ARRANGE
-        valid_values = rfx.DEVICE_PACKAGE_GOOD
+        valid_values = bfx.DEVICE_PACKAGE_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.device_package(value)
@@ -150,10 +150,10 @@ class TestDevicePackage(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required device_package pattern.
         """
         # ARRANGE
-        invalid_values = rfx.DEVICE_PACKAGE_BAD
+        invalid_values = bfx.DEVICE_PACKAGE_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.device_package(value)
@@ -176,10 +176,10 @@ class TestDescription(unittest.TestCase):
         Should NOT raise an exception when input string matches the required description pattern.
         """
         # ARRANGE
-        valid_values = rfx.DESCRIPTION_GOOD
+        valid_values = bfx.DESCRIPTION_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.description(value)
@@ -196,10 +196,10 @@ class TestDescription(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required description pattern.
         """
         # ARRANGE
-        invalid_values = rfx.DESCRIPTION_BAD
+        invalid_values = bfx.DESCRIPTION_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.description(value)
@@ -222,10 +222,10 @@ class TestUnits(unittest.TestCase):
         Should NOT raise an exception when input string matches the required units pattern.
         """
         # ARRANGE
-        valid_values = rfx.UNITS_GOOD
+        valid_values = bfx.UNITS_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.units(value)
@@ -241,10 +241,10 @@ class TestUnits(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required units pattern.
         """
         # ARRANGE
-        invalid_values = rfx.UNITS_BAD
+        invalid_values = bfx.UNITS_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.units(value)
@@ -266,10 +266,10 @@ class TestClassification(unittest.TestCase):
         Should NOT raise an exception when input string matches the required classification pattern.
         """
         # ARRANGE
-        valid_values = rfx.CLASSIFICATION_GOOD
+        valid_values = bfx.CLASSIFICATION_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.classification(value)
@@ -285,10 +285,10 @@ class TestClassification(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required classification pattern.
         """
         # ARRANGE
-        invalid_values = rfx.CLASSIFICATION_BAD
+        invalid_values = bfx.CLASSIFICATION_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.classification(value)
@@ -310,10 +310,10 @@ class TestMfgName(unittest.TestCase):
         Should NOT raise an exception when input string matches the required mfg_name pattern.
         """
         # ARRANGE
-        valid_values = rfx.MFG_NAME_GOOD
+        valid_values = bfx.MFG_NAME_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.mfg_name(value)
@@ -329,10 +329,10 @@ class TestMfgName(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required mfg_name pattern.
         """
         # ARRANGE
-        invalid_values = rfx.MFG_NAME_BAD
+        invalid_values = bfx.MFG_NAME_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.mfg_name(value)
@@ -354,10 +354,10 @@ class TestMfgPartNo(unittest.TestCase):
         Should NOT raise an exception when input string matches the required mfg_part_no pattern.
         """
         # ARRANGE
-        valid_values = rfx.MFG_PART_NO_GOOD
+        valid_values = bfx.MFG_PART_NO_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.mfg_part_no(value)
@@ -373,10 +373,10 @@ class TestMfgPartNo(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required mfg_part_no pattern.
         """
         # ARRANGE
-        invalid_values = rfx.MFG_PART_NO_BAD
+        invalid_values = bfx.MFG_PART_NO_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.mfg_part_no(value)
@@ -398,10 +398,10 @@ class TestUlVdeNumber(unittest.TestCase):
         Should NOT raise an exception when input string matches the required ul_vde_number pattern.
         """
         # ARRANGE
-        valid_values = rfx.UL_VDE_NO_GOOD
+        valid_values = bfx.UL_VDE_NO_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.ul_vde_number(value)
@@ -417,10 +417,10 @@ class TestUlVdeNumber(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required ul_vde_number pattern.
         """
         # ARRANGE
-        invalid_values = rfx.UL_VDE_NO_BAD
+        invalid_values = bfx.UL_VDE_NO_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.ul_vde_number(value)
@@ -442,10 +442,10 @@ class TestValidatedAt(unittest.TestCase):
         Should NOT raise an exception when input string matches the required validated_at pattern.
         """
         # ARRANGE
-        valid_values = rfx.VALIDATED_AT_GOOD
+        valid_values = bfx.VALIDATED_AT_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.validated_at(value)
@@ -461,10 +461,10 @@ class TestValidatedAt(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required validated_at pattern.
         """
         # ARRANGE
-        invalid_values = rfx.VALIDATED_AT_BAD
+        invalid_values = bfx.VALIDATED_AT_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.validated_at(value)
@@ -486,10 +486,10 @@ class TestQuantity(unittest.TestCase):
         Should NOT raise an exception when input string matches the required quantity pattern.
         """
         # ARRANGE
-        valid_values = rfx.QUANTITY_GOOD
+        valid_values = bfx.QUANTITY_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.quantity(value)
@@ -506,10 +506,10 @@ class TestQuantity(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required quantity pattern.
         """
         # ARRANGE
-        invalid_values = rfx.QUANTITY_BAD
+        invalid_values = bfx.QUANTITY_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.quantity(value)
@@ -532,10 +532,10 @@ class TestDesignator(unittest.TestCase):
         Should NOT raise an exception when input string matches the required designator pattern.
         """
         # ARRANGE
-        valid_values = rfx.DESIGNATOR_GOOD
+        valid_values = bfx.DESIGNATOR_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.designator(value)
@@ -552,10 +552,10 @@ class TestDesignator(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required designator pattern.
         """
         # ARRANGE
-        invalid_values = rfx.DESIGNATOR_BAD
+        invalid_values = bfx.DESIGNATOR_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.designator(value)
@@ -578,10 +578,10 @@ class TestUnitPrice(unittest.TestCase):
         Should NOT raise an exception when input string matches the required unit_price pattern.
         """
         # ARRANGE
-        valid_values = rfx.PRICE_GOOD
+        valid_values = bfx.PRICE_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.unit_price(value)
@@ -598,10 +598,10 @@ class TestUnitPrice(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required unit_price pattern.
         """
         # ARRANGE
-        invalid_values = rfx.PRICE_BAD
+        invalid_values = bfx.PRICE_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.unit_price(value)
@@ -624,10 +624,10 @@ class TestSubTotal(unittest.TestCase):
         Should NOT raise an exception when input string matches the required sub_total pattern.
         """
         # ARRANGE
-        valid_values = rfx.PRICE_GOOD
+        valid_values = bfx.PRICE_GOOD
         expected = ""
 
-        for value in valid_values.values():
+        for value in valid_values:
             try:
                 # ACT
                 approve.sub_total(value)
@@ -644,10 +644,10 @@ class TestSubTotal(unittest.TestCase):
         Should raise ValueError when input string does NOT match the required sub_total pattern.
         """
         # ARRANGE
-        invalid_values = rfx.PRICE_BAD
+        invalid_values = bfx.PRICE_BAD
         expected = ValueError.__name__
 
-        for value in invalid_values.values():
+        for value in invalid_values:
             try:
                 # ACT
                 approve.sub_total(value)
