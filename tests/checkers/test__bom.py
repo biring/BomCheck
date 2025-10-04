@@ -66,27 +66,26 @@ class TestCheckRowValue(unittest.TestCase):
         Should return one error per invalid field when a row contains multiple invalid cell values.
         """
         # ARRANGE
-        row = replace(
-            bfx.ROW_A_1,
-            item=vfx.ITEM_BAD[0],
-            component_type=vfx.COMP_TYPE_BAD[0],
-            device_package=vfx.DEVICE_PACKAGE_BAD[0],
-            description=vfx.DESCRIPTION_BAD[0],
-            unit=vfx.UNITS_BAD[0],
-            classification=vfx.CLASSIFICATION_BAD[0],
-            manufacturer=vfx.MFG_NAME_BAD[0],
-            mfg_part_number=vfx.MFG_PART_NO_BAD[0],
-            ul_vde_number=vfx.UL_VDE_NO_BAD[0],
-            validated_at=vfx.VALIDATED_AT_BAD[0],
-            qty=vfx.QUANTITY_BAD[0],
-            designator=vfx.DESIGNATOR_BAD[0],
-            unit_price=vfx.PRICE_BAD[0],
-            sub_total=vfx.PRICE_BAD[0],
+        rows = (
+            replace(bfx.ROW_A_1, item=vfx.ITEM_BAD[0]),
+            replace(bfx.ROW_A_1, component_type=vfx.COMP_TYPE_BAD[0]),
+            replace(bfx.ROW_A_1, device_package=vfx.DEVICE_PACKAGE_BAD[0]),
+            replace(bfx.ROW_A_1, description=vfx.DESCRIPTION_BAD[0]),
+            replace(bfx.ROW_A_1, unit=vfx.UNITS_BAD[0]),
+            replace(bfx.ROW_A_1, classification=vfx.CLASSIFICATION_BAD[0]),
+            replace(bfx.ROW_A_1, manufacturer=vfx.MFG_NAME_BAD[0]),
+            replace(bfx.ROW_A_1, mfg_part_number=vfx.MFG_PART_NO_BAD[0]),
+            replace(bfx.ROW_A_1, ul_vde_number=vfx.UL_VDE_NO_BAD[0]),
+            replace(bfx.ROW_A_1, validated_at=vfx.VALIDATED_AT_BAD[0]),
+            replace(bfx.ROW_A_1, qty=vfx.QUANTITY_BAD[0]),
+            replace(bfx.ROW_A_1, designator=vfx.DESIGNATOR_BAD[0]),
+            replace(bfx.ROW_A_1, unit_price=vfx.PRICE_BAD[0]),
+            replace(bfx.ROW_A_1, sub_total=vfx.PRICE_BAD[0]),
         )
         expected_file_name = self.errors.file_name
         expected_sheet_name = self.errors.sheet_name
         expected_section_name = self.errors.section_name
-        expected_errors = [
+        expected_errors = (
             mdl.RowFields.ITEM,
             mdl.RowFields.COMPONENT,
             mdl.RowFields.PACKAGE,
@@ -101,12 +100,15 @@ class TestCheckRowValue(unittest.TestCase):
             mdl.RowFields.DESIGNATOR,
             mdl.RowFields.UNIT_PRICE,
             mdl.RowFields.SUB_TOTAL,
-        ]
+        )
 
-        # ACT
-        bck._check_row_value(self.errors, row)
+        for row, expected in zip(rows,expected_errors):
+            self.setUp()  # reset error logs
 
-        for result, expected in zip(self.errors, expected_errors):
+            # ACT
+            bck._check_row_value(self.errors, row)
+            result = self.errors
+
             # ASSERT
             with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
                 self.assertEqual(result.file_name, expected_file_name)
@@ -114,14 +116,14 @@ class TestCheckRowValue(unittest.TestCase):
             with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
                 self.assertEqual(result.sheet_name, expected_sheet_name)
 
-            with self.subTest("Section Name", Out=result.section, Exp=expected_section_name):
-                self.assertEqual(result.section, expected_section_name)
+            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
+                self.assertEqual(result.section_name, expected_section_name)
 
-            with self.subTest("Error Length", Out=len(result.message), Exp="!=0"):
-                self.assertNotEqual(len(result.message), 0)
+            with self.subTest("Error Length", Out=len(str(result)), Exp="!=0"):
+                self.assertNotEqual(len(str(result)), 0)
 
-            with self.subTest("Error contains", Out=result.message, Exp=expected):
-                self.assertIn(expected, result.message, msg=result.message)
+            with self.subTest("Error contains", Out=str(result), Exp=expected):
+                self.assertIn(expected, str(result))
 
 
 class TestCheckRowLogic(unittest.TestCase):
@@ -174,18 +176,17 @@ class TestCheckRowLogic(unittest.TestCase):
         expected_file_name = self.errors.file_name
         expected_sheet_name = self.errors.sheet_name
         expected_section_name = self.errors.section_name
-        expected_errors = [
+        expected_errors = (
             mdl.RowFields.QTY,
             mdl.RowFields.DESIGNATOR,
             mdl.RowFields.DESIGNATOR,
             mdl.RowFields.UNIT_PRICE,
             mdl.RowFields.SUB_TOTAL,
             mdl.RowFields.SUB_TOTAL
-        ]
+        )
 
         for row, expected in zip(rows, expected_errors):
-            self.setUp()  # reset error logs before every check
-
+            self.setUp()  # reset error logs
             # ACT
             bck._check_row_logic(self.errors, row)
             result = self.errors
@@ -240,16 +241,15 @@ class TestCheckHeaderValue(unittest.TestCase):
         Should return one error per invalid header field when cell values are invalid.
         """
         # ARRANGE
-        header = replace(
-            bfx.HEADER_A,
-            model_no=vfx.MODEL_NO_BAD[0],
-            board_name=vfx.BOARD_NAME_BAD[0],
-            manufacturer=vfx.BOARD_SUPPLIER_BAD[0],
-            build_stage=vfx.BUILD_STAGE_BAD[0],
-            date=vfx.BOM_DATE_BAD[0],
-            material_cost=vfx.COST_BAD[0],
-            overhead_cost=vfx.COST_BAD[1],
-            total_cost=vfx.COST_BAD[2],
+        headers = (
+            replace(bfx.HEADER_A,model_no=vfx.MODEL_NO_BAD[0]),
+            replace(bfx.HEADER_A,board_name=vfx.BOARD_NAME_BAD[0]),
+            replace(bfx.HEADER_A,manufacturer=vfx.BOARD_SUPPLIER_BAD[0]),
+            replace(bfx.HEADER_A,build_stage=vfx.BUILD_STAGE_BAD[0]),
+            replace(bfx.HEADER_A,date=vfx.BOM_DATE_BAD[0]),
+            replace(bfx.HEADER_A,material_cost=vfx.COST_BAD[0]),
+            replace(bfx.HEADER_A,overhead_cost=vfx.COST_BAD[1]),
+            replace(bfx.HEADER_A,total_cost=vfx.COST_BAD[2]),
         )
         expected_file_name = self.errors.file_name
         expected_sheet_name = self.errors.sheet_name
@@ -265,10 +265,13 @@ class TestCheckHeaderValue(unittest.TestCase):
             mdl.HeaderFields.TOTAL_COST,
         )
 
-        # ACT
-        bck._check_header_value(self.errors, header)
+        for header, expected in zip(headers, expected_errors):
+            self.setUp()  # reset error logs
 
-        for result, expected in zip(self.errors, expected_errors):
+            # ACT
+            bck._check_header_value(self.errors, header)
+            result = self.errors
+
             # ASSERT
             with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
                 self.assertEqual(result.file_name, expected_file_name)
@@ -276,14 +279,14 @@ class TestCheckHeaderValue(unittest.TestCase):
             with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
                 self.assertEqual(result.sheet_name, expected_sheet_name)
 
-            with self.subTest("Section Name", Out=result.section, Exp=expected_section_name):
-                self.assertEqual(result.section, expected_section_name)
+            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
+                self.assertEqual(result.section_name, expected_section_name)
 
-            with self.subTest("Error Length", Out=len(result.message), Exp="!=0"):
-                self.assertNotEqual(len(result.message), 0)
+            with self.subTest("Error Length", Out=len(str(result)), Exp="!=0"):
+                self.assertNotEqual(len(str(result)), 0)
 
-            with self.subTest("Error contains", Out=result.message, Exp=expected):
-                self.assertIn(expected, result.message, msg=result.message)
+            with self.subTest("Error contains", Out=str(result), Exp=expected):
+                self.assertIn(expected, str(result))
 
 
 class TestCheckHeaderLogic(unittest.TestCase):
