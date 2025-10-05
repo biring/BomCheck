@@ -19,37 +19,42 @@
 #       exit 1
 #   fi
 
-echo ""
-echo "Running pre-commit script..."
+echo "🔍 Running pre-commit script..."
 
 # Navigate to the root of the repository (assuming this script is in ./scripts/)
 SCRIPT_DIR="$(dirname "$0")" # Step 1: Get the directory of this script
 REPO_ROOT="$SCRIPT_DIR/.." # Step 2: Move one directory up (repo root)
-cd "$REPO_ROOT" || { echo "Failed to change to repo root"; exit 1; } # Step 3: Change to the repo root directory
+cd "$REPO_ROOT" || { echo "❌ COMMIT ABORTED! Failed to change to repo root"; exit 1; } # Step 3: Change to the repo root directory
 
-# Run all unit tests
+# Run unit tests
+echo "🧪 Running unit tests..."
 python scripts/run_unit_test.py
 if [ $? -ne 0 ]; then
-    echo "Abort pre-commit script: Unit test FAILED"
+    echo "❌ COMMIT ABORTED! Unit tests FAILED."
     exit 1
+else
+    echo "✅ Unit test passes. "
 fi
 
 # Increment build number
+echo "🧪 Incrementing build number..."
 python scripts/increment_build.py
 if [ $? -ne 0 ]; then
-    echo "Abort pre-commit script: Build increment FAILED"
+    echo "❌ COMMIT ABORTED! Build number increment FAILED."
     exit 1
+else
+    echo "✅ Build number increment successful. "
 fi
 
 # Stage version.py for commit
+echo "🧪 Staging version.py..."
 git add src/version.py
 echo ""
 if [ $? -ne 0 ]; then
-    echo "Abort pre-commit script: Stage version.py for commit FAILED"
+    echo "❌ COMMIT ABORTED! Staging of version.py FAILED"
     exit 1
 else
-    echo "Staged version.py for commit due to build number increment."
+    echo "✅ Staging of version.py successful. "
 fi
 
-echo ""
-echo "Done with pre-commit"
+echo "✅ All pre-commit tasks completed. "
