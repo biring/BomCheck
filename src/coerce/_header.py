@@ -29,7 +29,7 @@ License:
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
 from src.coerce import _common as common
-from src.coerce import _constants as constant
+from src.coerce import _rules as rule
 
 
 def model_number(str_in: str) -> common.Result:
@@ -45,7 +45,7 @@ def model_number(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.MODEL_NUMBER)
+    return common.apply_coerce(str_in, rule.MODEL_NUMBER)
 
 
 def board_name(str_in: str) -> common.Result:
@@ -61,7 +61,7 @@ def board_name(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.BOARD_NAME)
+    return common.apply_coerce(str_in, rule.BOARD_NAME)
 
 
 def board_supplier(str_in: str) -> common.Result:
@@ -77,7 +77,7 @@ def board_supplier(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.BOARD_SUPPLIER)
+    return common.apply_coerce(str_in, rule.BOARD_SUPPLIER)
 
 
 def build_stage(str_in: str) -> common.Result:
@@ -93,7 +93,7 @@ def build_stage(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.BUILD_STAGE)
+    return common.apply_coerce(str_in, rule.BUILD_STAGE)
 
 
 def bom_date(str_in: str) -> common.Result:
@@ -109,7 +109,7 @@ def bom_date(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.BOM_DATE)
+    return common.apply_coerce(str_in, rule.BOM_DATE)
 
 
 def material_cost(str_in: str) -> common.Result:
@@ -125,7 +125,7 @@ def material_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.MATERIAL_COST)
+    return common.apply_coerce(str_in, rule.MATERIAL_COST)
 
 
 def overhead_cost(str_in: str) -> common.Result:
@@ -141,7 +141,7 @@ def overhead_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.OVERHEAD_COST)
+    return common.apply_coerce(str_in, rule.OVERHEAD_COST)
 
 
 def total_cost(str_in: str) -> common.Result:
@@ -157,4 +157,4 @@ def total_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, constant.TOTAL_COST)
+    return common.apply_coerce(str_in, rule.TOTAL_COST)

@@ -8,7 +8,7 @@ Example Usage:
     # Not exposed publicly; this is an internal module.
 
     # Direct usage (internal scripts or units tests only):
-    from src.rules.coerce import _constants as constant, _common as common
+    from src.rules.coerce import _rules as rule, _common as common
     result = common.coerce_text("ab 123x ", constant.MODEL_NUMBER)
     print(result.value_out)  # "AB123X"
 
