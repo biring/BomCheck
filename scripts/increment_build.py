@@ -9,7 +9,6 @@ NO_ERROR = 0
 
 def increment_build():
 
-    print()
     print("Incrementing build number...")
 
     version_file_name = "version.py"

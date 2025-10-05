@@ -16,7 +16,6 @@ import sys
 
 # Function to run the tests
 def run_tests():
-    print()
     print("Running unit tests...")
     try:
         # Get the absolute path to the tests directory
