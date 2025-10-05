@@ -19,7 +19,7 @@ Dependencies:
     - External Packages: None
 
 Notes:
-    - Tests treat coercers as pure functions returning (value, log_tuple).
+    - Tests treat coercers as pure functions returning (value_tuple).
     - Fixtures should cover typical, edge, and no-op inputs to verify logging behavior and stability.
 
 License:
@@ -50,13 +50,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "AB123X"
 
         # ACT
-        result, log = header.model_number(raw)
+        result = header.model_number(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_board_name(self):
         """
@@ -67,13 +67,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "Power PCBA"
 
         # ACT
-        result, log = header.board_name(raw)
+        result = header.board_name(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_board_supplier(self):
         """
@@ -84,13 +84,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "General Electric"
 
         # ACT
-        result, log = header.board_supplier(raw)
+        result = header.board_supplier(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_build_stage(self):
         """
@@ -101,13 +101,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "EB2"
 
         # ACT
-        result, log = header.build_stage(raw)
+        result = header.build_stage(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_bom_date(self):
         """
@@ -118,13 +118,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "2025-08-06"
 
         # ACT
-        result, log = header.bom_date(raw)
+        result = header.bom_date(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_material_cost(self):
         """
@@ -135,13 +135,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "12.5"
 
         # ACT
-        result, log = header.material_cost(raw)
+        result = header.material_cost(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_overhead_cost(self):
         """
@@ -152,13 +152,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "0.50"
 
         # ACT
-        result, log = header.overhead_cost(raw)
+        result = header.overhead_cost(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
     def test_total_cost(self):
         """
@@ -169,13 +169,13 @@ class TestHeaderCoercers(unittest.TestCase):
         expected = "100"
 
         # ACT
-        result, log = header.total_cost(raw)
+        result = header.total_cost(raw)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-        with self.subTest(Out=bool(log), Exp=True):
-            self.assertTrue(len(log) > 0)
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected):
+            self.assertEqual(result.value_out, expected)
+        with self.subTest("Log Size", Out=len(result.logs), Exp=">0"):
+            self.assertTrue(len(result.logs) > 0)
 
 
 if __name__ == "__main__":

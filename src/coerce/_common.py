@@ -32,6 +32,8 @@ from dataclasses import dataclass, field
 
 from typing import Union, Callable, Match
 
+COERCE_LOG_MSG = "'{a}' changed from '{b}' to '{c}'. {d}"
+
 
 @dataclass(frozen=True)
 class Rule:
@@ -139,3 +141,24 @@ def apply_coerce(str_in: str, rules: list[Rule]) -> Result:
     result.value_out = text_out
 
     return result
+
+
+def render_coerce_log(result: Result, field: str) -> tuple[str, ...]:
+    """
+    Render human-readable change messages from a Result's logs.
+
+    Args:
+        result (Result): The coercion outcome from apply_coerce.
+        field (str): A field label to include in each message (e.g., 'MODEL_NUMBER').
+
+    Returns:
+        tuple[str, ...]: One formatted line per applied rule. Empty if no effective change.
+    """
+    change_log: list[str] = []
+    # Optional guard; keeps log empty if no effective change
+    if result.value_in != result.value_out:
+        for log in result.logs:
+            change_log.append(
+                COERCE_LOG_MSG.format(a=field, b=log.before, c=log.after, d=log.description)
+            )
+    return tuple(change_log)

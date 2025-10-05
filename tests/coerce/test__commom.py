@@ -5,7 +5,8 @@ This suite verifies:
  - Rules compile and apply in sequence
  - Substitutions mutate text and produce Log entries
  - No-change passes do not create logs
- - Result.empty() provides a clean baseline for fixtures
+ - _show() makes control characters visible and truncates long strings
+ - render_messages() produces human-readable lines only when there is an effective change
 
 Example Usage:
     # Run this module:
@@ -34,9 +35,9 @@ from typing import Match
 from src.coerce import _common as common  # Direct internal import — acceptable in tests
 
 
-class TestCoerceText(unittest.TestCase):
+class TestApplyCoerce(unittest.TestCase):
     """
-    Unit tests for the `coerce_text` function.
+    Unit tests for the `apply_coerce` function.
     """
 
     def test_valid(self):
@@ -47,22 +48,22 @@ class TestCoerceText(unittest.TestCase):
         text = "abc-123-xyz"
         rules = [common.Rule(pattern=r"\d+", replacement="###", msg="mask digits")]
         expected_out = "abc-###-xyz"
-        expected_logs = len(rules)
+        expected_logs = 1
 
         # ACT
         result = common.apply_coerce(text, rules)
 
         # ASSERT
-        with self.subTest(Field="value_in", Out=result.value_in, Exp=text):
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
 
-        with self.subTest(Field="value_out", Out=result.value_out, Exp=expected_out):
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
 
-        with self.subTest(Field="log_count", Out=len(result.logs), Exp=expected_logs):
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
-        with self.subTest(Field="msg", Out=result.logs[0].description, Exp=rules[0].msg):
+        with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
     def test_callable(self):
@@ -84,16 +85,16 @@ class TestCoerceText(unittest.TestCase):
         result = common.apply_coerce(text, rules)
 
         # ASSERT
-        with self.subTest(Field="value_in", Out=result.value_in, Exp=text):
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
 
-        with self.subTest(Field="value_out", Out=result.value_out, Exp=expected_out):
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
 
-        with self.subTest(Field="log_count", Out=len(result.logs), Exp=expected_logs):
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
-        with self.subTest(Field="msg", Out=result.logs[0].description, Exp=rules[0].msg):
+        with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
     def test_no_change(self):
@@ -110,13 +111,13 @@ class TestCoerceText(unittest.TestCase):
         result = common.apply_coerce(text, rules)
 
         # ASSERT
-        with self.subTest(Field="value_in", Out=result.value_in, Exp=text):
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
 
-        with self.subTest(Field="value_out", Out=result.value_out, Exp=expected_out):
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
 
-        with self.subTest(Field="log_count", Out=len(result.logs), Exp=expected_logs):
+        with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
     def test_multiple(self):
@@ -151,16 +152,16 @@ class TestCoerceText(unittest.TestCase):
         result = common.apply_coerce(text, rules)
 
         # ASSERT
-        with self.subTest(Field="value_out", Out=result.value_out, Exp=expected_out):
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
 
-        with self.subTest(Field="log_count", Out=len(result.logs), Exp=expected_logs):
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
         # Verify that messages correspond to matched rules in order
         matched_msgs = [entry.description for entry in result.logs]
-        expected_msgs = ["trim ends", "collapse spaces", "mask digits", "rename label"]
-        with self.subTest(Field="log_msgs", Out=matched_msgs, Exp=expected_msgs):
+        expected_msgs = [rules[0].msg, rules[1].msg, rules[2].msg, rules[3].msg]
+        with self.subTest("Messages", Out=matched_msgs, Exp=expected_msgs):
             self.assertEqual(matched_msgs, expected_msgs)
 
 
@@ -185,7 +186,7 @@ class TestShow(unittest.TestCase):
         result = common._show(text)
 
         # ASSERT
-        with self.subTest(Field="visible", Out=result, Exp=expected):
+        with self.subTest("Visible", Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
     def test_small(self):
@@ -200,7 +201,7 @@ class TestShow(unittest.TestCase):
         result = common._show(text)  # default max_len=32
 
         # ASSERT
-        with self.subTest(Field="no_truncate", Out=result, Exp=expected):
+        with self.subTest("No Truncate", Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
     def test_truncates(self):
@@ -217,9 +218,9 @@ class TestShow(unittest.TestCase):
         result = common._show(text, max_len=max_len)
 
         # ASSERT
-        with self.subTest(Field="truncate", Out=result, Exp=expected):
+        with self.subTest("Truncate", Out=result, Exp=expected):
             self.assertEqual(result, expected)
-        with self.subTest(Field="length_check", Out=len(result), Exp=max_len):
+        with self.subTest("Length Check", Out=len(result), Exp=max_len):
             self.assertEqual(len(result), max_len)
 
     def test_truncation_counts_after_visibility_expansion(self):
@@ -238,7 +239,7 @@ class TestShow(unittest.TestCase):
         result = common._show(text, max_len=max_len)
 
         # ASSERT
-        with self.subTest(Field="truncate_visible", Out=result, Exp=expected):
+        with self.subTest("Truncate Visible", Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
     def test_max_size(self):
@@ -255,9 +256,9 @@ class TestShow(unittest.TestCase):
         result = common._show(text, max_len=max_len)
 
         # ASSERT
-        with self.subTest(Field="exact_limit", Out=result, Exp=expected):
+        with self.subTest("Exact Limit", Out=result, Exp=expected):
             self.assertEqual(result, expected)
-        with self.subTest(Field="length_check", Out=len(result), Exp=max_len):
+        with self.subTest("length Check", Out=len(result), Exp=max_len):
             self.assertEqual(len(result), max_len)
 
     def test_small_length(self):
@@ -274,8 +275,53 @@ class TestShow(unittest.TestCase):
         # ACT & ASSERT
         for text, max_len, expected in cases:
             result = common._show(text, max_len=max_len)
-            with self.subTest(Field=f"max_len={max_len}", Out=result, Exp=expected):
+            with self.subTest(f"Max Length = {max_len}", Out=result, Exp=expected):
                 self.assertEqual(result, expected)
+
+
+class TestRenderMessages(unittest.TestCase):
+    """
+    Unit tests for render_messages(result, field, template=...).
+    """
+
+    def test_empty(self):
+        """
+        Should return an empty tuple when value_in == value_out (no effective change).
+        """
+        # ARRANGE
+        text = "no digits here"
+        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
+        res = common.apply_coerce(text, rules)
+
+        # ACT
+        messages = common.render_coerce_log(res, field="TOTAL_COST")
+
+        # ASSERT
+        with self.subTest("Log msg", out=messages, exp=()):
+            self.assertEqual(messages, (), msg="Expected empty messages")
+
+    def test_render(self):
+        """
+        Should produce one formatted line per matched rule, in order.
+        """
+        # ARRANGE
+        text = "cost: 123"
+        rules = [
+            common.Rule(pattern=r"[:]", replacement="=", msg="Colon changed to equal. "),
+            common.Rule(pattern=r"\d+", replacement="###", msg="Digits masked with ###. "),
+        ]
+        res = common.apply_coerce(text, rules)
+
+        # ACT
+        messages = common.render_coerce_log(res, field="Total cost")
+
+        # ASSERT
+        with self.subTest("Log count", out=len(res.logs), exp="2"):
+            self.assertGreaterEqual(len(res.logs), 2, "Expected two log entries")
+
+        for message, rule in zip(messages, rules):
+            with self.subTest("Message contains", out=message, exp=rule.msg):
+                self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
 
 
 if __name__ == "__main__":

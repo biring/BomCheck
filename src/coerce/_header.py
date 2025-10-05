@@ -28,25 +28,11 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
-from src.models import interfaces as models
 from src.coerce import _common as common
 from src.coerce import _constants as constant
 
-COERCE_MSG = "'{a}' changed from '{b}' to '{c}'. {d}"
 
-
-def _change_log(field: str, result: common.Result) -> tuple[str, ...]:
-    change_log: list[str] = []
-    # Optional guard; keeps log empty if no effective change
-    if result.value_in != result.value_out:
-        for entry in result.logs:
-            change_log.append(
-                COERCE_MSG.format(a=field, b=entry.before, c=entry.after, d=entry.description)
-            )
-    return tuple(change_log)
-
-
-def model_number(str_in: str) -> tuple[str, tuple[str, ...]]:
+def model_number(str_in: str) -> common.Result:
     """
     Coerce/clean input string to model number format.
     
@@ -54,14 +40,15 @@ def model_number(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.MODEL_NUMBER)
-    change_log = _change_log(models.HeaderFields.MODEL_NUMBER, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.MODEL_NUMBER)
 
 
-def board_name(str_in: str) -> tuple[str, tuple[str, ...]]:
+def board_name(str_in: str) -> common.Result:
     """
     Coerce/clean input string to board name.
 
@@ -69,14 +56,15 @@ def board_name(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.BOARD_NAME)
-    change_log = _change_log(models.HeaderFields.BOARD_NAME, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.BOARD_NAME)
 
 
-def board_supplier(str_in: str) -> tuple[str, tuple[str, ...]]:
+def board_supplier(str_in: str) -> common.Result:
     """
     Coerce/clean input string to board supplier format.
 
@@ -84,14 +72,15 @@ def board_supplier(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.BOARD_SUPPLIER)
-    change_log = _change_log(models.HeaderFields.BOARD_SUPPLIER, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.BOARD_SUPPLIER)
 
 
-def build_stage(str_in: str) -> tuple[str, tuple[str, ...]]:
+def build_stage(str_in: str) -> common.Result:
     """
     Coerce/clean input string to build stage format.
 
@@ -99,14 +88,15 @@ def build_stage(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.BUILD_STAGE)
-    change_log = _change_log(models.HeaderFields.BUILD_STAGE, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.BUILD_STAGE)
 
 
-def bom_date(str_in: str) -> tuple[str, tuple[str, ...]]:
+def bom_date(str_in: str) -> common.Result:
     """
     Coerce/clean input string to bom date format.
 
@@ -114,14 +104,15 @@ def bom_date(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.BOM_DATE)
-    change_log = _change_log(models.HeaderFields.BOM_DATE, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.BOM_DATE)
 
 
-def material_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
+def material_cost(str_in: str) -> common.Result:
     """
     Coerce/clean input string to material cost format.
 
@@ -129,14 +120,15 @@ def material_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.MATERIAL_COST)
-    change_log = _change_log(models.HeaderFields.MATERIAL_COST, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.MATERIAL_COST)
 
 
-def overhead_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
+def overhead_cost(str_in: str) -> common.Result:
     """
     Coerce/clean input string to overhead cost format.
 
@@ -144,14 +136,15 @@ def overhead_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.OVERHEAD_COST)
-    change_log = _change_log(models.HeaderFields.OVERHEAD_COST, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.OVERHEAD_COST)
 
 
-def total_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
+def total_cost(str_in: str) -> common.Result:
     """
     Coerce/clean input string to total cost format.
 
@@ -159,8 +152,9 @@ def total_cost(str_in: str) -> tuple[str, tuple[str, ...]]:
         str_in (str): The string to coerce.
 
     Returns:
-        tuple[str, tuple[str, ...]]: (coerced_value, change_log_messages)
+        Result: A coercion result object containing:
+            - value_in (str): The original input string.
+            - value_out (str): The normalized output string after applying rules.
+            - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    result = common.apply_coerce(str_in, constant.TOTAL_COST)
-    change_log = _change_log(models.HeaderFields.TOTAL_COST, result)
-    return result.value_out, change_log
+    return common.apply_coerce(str_in, constant.TOTAL_COST)
