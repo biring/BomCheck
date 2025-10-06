@@ -1,13 +1,6 @@
 """
 Unit tests for the regex coercion engine (Rule, Result, apply_coerce).
 
-This suite verifies:
- - Rules compile and apply in sequence
- - Substitutions mutate text and produce Log entries
- - No-change passes do not create logs
- - _show() makes control characters visible and truncates long strings
- - render_messages() produces human-readable lines only when there is an effective change
-
 Example Usage:
     # Run this module:
     python -m unittest tests/coerce/test__common.py
@@ -40,7 +33,7 @@ class TestApplyCoerce(unittest.TestCase):
     Unit tests for the `apply_coerce` function.
     """
 
-    def test_valid(self):
+    def test_pattern_change(self):
         """
         Should apply a simple string replacement rule and record exactly one log entry.
         """
@@ -66,7 +59,53 @@ class TestApplyCoerce(unittest.TestCase):
         with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
-    def test_callable(self):
+    def test_pattern_no_change(self):
+        """
+        Should return the original text and an empty log when no rules match.
+        """
+        # ARRANGE
+        text = "will not change"
+        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
+        expected_out = text
+        expected_logs = 0
+
+        # ACT
+        result = common.apply_coerce(text, rules)
+
+        # ASSERT
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
+            self.assertEqual(result.value_in, text)
+
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
+            self.assertEqual(result.value_out, expected_out)
+
+        with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
+            self.assertEqual(len(result.logs), expected_logs)
+
+    def test_pattern_empty(self):
+        """
+        Should return the original empty text and an empty log when no rules match.
+        """
+        # ARRANGE
+        text = ""
+        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
+        expected_out = text
+        expected_logs = 0
+
+        # ACT
+        result = common.apply_coerce(text, rules)
+
+        # ASSERT
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
+            self.assertEqual(result.value_in, text)
+
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
+            self.assertEqual(result.value_out, expected_out)
+
+        with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
+            self.assertEqual(len(result.logs), expected_logs)
+
+    def test_callable_change(self):
         """
         Should support a callable replacement and log when at least one substitution occurs.
         """
@@ -97,14 +136,19 @@ class TestApplyCoerce(unittest.TestCase):
         with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
-    def test_no_change(self):
+    def test_callable_no_change(self):
         """
-        Should return the original text and an empty log when no rules match.
+        Should return the original text and an empty log when no substitution occurs.
         """
         # ARRANGE
-        text = "will not change"
-        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
-        expected_out = text
+        text = "1234567890"
+
+        def up_case_char(m: Match[str]) -> str:
+            # Replace each matched vowel with its uppercase form
+            return m.group(0).upper()
+
+        rules = [common.Rule(pattern=r"[aeiou]", replacement=up_case_char, msg="uppercase vowels")]
+        expected_out = "1234567890"
         expected_logs = 0
 
         # ACT
@@ -117,7 +161,35 @@ class TestApplyCoerce(unittest.TestCase):
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
 
-        with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
+            self.assertEqual(len(result.logs), expected_logs)
+
+    def test_callable_empty(self):
+        """
+        Should return the original empty text and an empty log when no substitution occurs.
+        """
+        # ARRANGE
+        text = ""
+
+        def up_case_char(m: Match[str]) -> str:
+            # Replace each matched vowel with its uppercase form
+            return m.group(0).upper()
+
+        rules = [common.Rule(pattern=r"[aeiou]", replacement=up_case_char, msg="uppercase vowels")]
+        expected_out = ""
+        expected_logs = 0
+
+        # ACT
+        result = common.apply_coerce(text, rules)
+
+        # ASSERT
+        with self.subTest("Value In", Out=result.value_in, Exp=text):
+            self.assertEqual(result.value_in, text)
+
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
+            self.assertEqual(result.value_out, expected_out)
+
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
     def test_multiple(self):
@@ -317,7 +389,7 @@ class TestRenderMessages(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Log count", out=len(res.logs), exp="2"):
-            self.assertGreaterEqual(len(res.logs), 2, "Expected two log entries")
+            self.assertEqual(len(res.logs), 2, "Expected two log entries")
 
         for message, rule in zip(messages, rules):
             with self.subTest("Message contains", out=message, exp=rule.msg):
