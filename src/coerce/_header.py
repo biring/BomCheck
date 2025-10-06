@@ -5,12 +5,12 @@ This module applies ordered text rules and returns a normalized value plus a hum
 
 Example Usage:
     # Preferred usage via package interface:
-    # from src.coerce import interfaces as coerce
-    # value, log = coerce.board_name("  Power   PCBA ")
+    from src.coerce import interfaces as coerce
+    result = coerce.board_name("  Power   PCBA ")
 
     # Direct usage (internal scripts or unit tests only):
     from src.coerce import _header as header
-    value, log = header.board_name("  Power   PCBA ")
+    result = header.board_name("  Power   PCBA ")
 
 Dependencies:
     - Python >= 3.10
@@ -18,9 +18,7 @@ Dependencies:
     - Internal: src.rules.coerce._common (Result, apply_coerce), src.rules.coerce._constants (field rule sets), src.models.interfaces (HeaderFields)
 
 Notes:
-    - Each function returns (value, change_log_messages).
     - Rule application order is deterministic and handled by the shared engine in _common.
-    - Change logs are formatted consistently and produced only when input != output.
     - Intended for internal use behind the rules interfaces facade to preserve API boundaries.
 
 License:
