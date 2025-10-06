@@ -128,9 +128,9 @@ def apply_coerce(str_in: str, rules: list[Rule]) -> Result:
 
     for rule in rules:
         # Apply the regex substitution
-        text_out, count = re.subn(rule.pattern, rule.replacement, text_in)
+        text_out = re.sub(rule.pattern, rule.replacement, text_in)
 
-        if count > 0:
+        if text_out != text_in:
             # Only log if the rule actually made a change
             log = Log(before=_show(text_in), after=_show(text_out), description=rule.msg)
             result.logs.append(log)
