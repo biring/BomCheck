@@ -101,3 +101,59 @@ OVERHEAD_COST: list = [
 TOTAL_COST: list = [
     REMOVE_ASCII_SPACES,
 ]
+# item
+ITEM: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# component_type
+COMPONENT_TYPE: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# device_package
+DEVICE_PACKAGE: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# description
+DESCRIPTION: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# unit
+UNITS: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# classification
+CLASSIFICATION: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# manufacturer
+MANUFACTURER: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# mfg_part_number
+MFG_PART_NUMBER: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# ul_vde_number
+UL_VDE_NUMBER: list = [
+    REMOVE_NON_SPACE_WHITES,
+]
+# validated_at
+VALIDATED_AT: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# qty
+QTY: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# designator
+DESIGNATOR: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# unit_price
+UNIT_PRICE: list = [
+    REMOVE_ALL_WHITESPACES,
+]
+# sub_total
+SUB_TOTAL: list = [
+    REMOVE_ALL_WHITESPACES,
+]
