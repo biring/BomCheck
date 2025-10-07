@@ -185,6 +185,7 @@ BUILD_STAGE: list = [
 ]
 # date
 BOM_DATE: list = [
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # material_cost
 MATERIAL_COST: list = [

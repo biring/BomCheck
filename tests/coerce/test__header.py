@@ -243,6 +243,7 @@ class TestBomDate(unittest.TestCase):
         """
         # ARRANGE
         cases = [
+            Cases("\t1/1/2025\n", "1/1/2025", rules.REMOVE_WHITESPACES_EXCEPT_SPACE.msg),
         ]
 
         for case in cases:
