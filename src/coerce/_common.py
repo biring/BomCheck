@@ -82,10 +82,12 @@ class Result:
     Holds the outcome of applying one or more coercion rules.
 
     Args:
+        attr_name (str): Attribute name associated with the coercion.
         value_in (str): Original input text.
         value_out (str): Final transformed output text.
         logs (list[Log]): List of logs describing applied transformations.
     """
+    attr_name:str = ""
     value_in: str = ""
     value_out: str = ""
     logs: list[Log] = field(default_factory=list)

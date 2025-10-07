@@ -396,5 +396,80 @@ class TestRenderMessages(unittest.TestCase):
                 self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
 
 
+class TestResult(unittest.TestCase):
+    """
+    Unit tests for the `Result` dataclass.
+    """
+
+    def test_defaults(self):
+        """
+        Should create Result with empty defaults.
+        """
+        # ARRANGE
+        r1 = common.Result()  # default construction
+
+        # ACT
+        # not applicable. default
+
+        # ASSERT
+        with self.subTest(Field="attr_name", Out=r1.attr_name, Exp=""):
+            self.assertEqual(r1.attr_name, "")
+        with self.subTest(Field="value_in", Out=r1.value_in, Exp=""):
+            self.assertEqual(r1.value_in, "")
+        with self.subTest(Field="value_out", Out=r1.value_out, Exp=""):
+            self.assertEqual(r1.value_out, "")
+        with self.subTest(Field="logs_empty", Out=len(r1.logs), Exp=0):
+            self.assertEqual(len(r1.logs), 0)
+
+    def test_independent_logs(self):
+        """
+        Should not share log lists between instances.
+        """
+        # ARRANGE
+        r1 = common.Result()  # default construction
+        r2 = common.Result()  # separate instance
+
+        # ACT – mutate r2.logs and verify r1.logs remains independent/unchanged
+        r2.logs.append(common.Log(before="a", after="b", description="demo"))
+
+        # ASSERT
+        with self.subTest(Field="r1.logs_len", Out=len(r1.logs), Exp=0):
+            self.assertEqual(len(r1.logs), 0)
+        with self.subTest(Field="r2.logs_len", Out=len(r2.logs), Exp=1):
+            self.assertEqual(len(r2.logs), 1)
+
+    def test_field_assignment(self):
+        """
+        Should hold assigned values and preserve Log entries; compare Log objects field-by-field using __dict__.
+        """
+        # ARRANGE
+        attr_name = "MODEL_NUMBER"
+        value_in = "ab-123"
+        value_out = "AB-###"
+        expected_log = common.Log(before="ab-123", after="AB-###", description="upper + mask")
+        logs = [expected_log]
+
+        # ACT
+        res = common.Result(attr_name=attr_name, value_in=value_in, value_out=value_out, logs=logs)
+
+        # ASSERT – simple fields
+        with self.subTest(Field="attr_name", Out=res.attr_name, Exp=attr_name):
+            self.assertEqual(res.attr_name, attr_name)
+        with self.subTest(Field="value_in", Out=res.value_in, Exp=value_in):
+            self.assertEqual(res.value_in, value_in)
+        with self.subTest(Field="value_out", Out=res.value_out, Exp=value_out):
+            self.assertEqual(res.value_out, value_out)
+
+        # ASSERT – logs list shape
+        with self.subTest(Field="logs_len", Out=len(res.logs), Exp=1):
+            self.assertEqual(len(res.logs), 1)
+
+        # ASSERT – compare custom Log object by dict to ensure field-by-field equality
+        result_log_dict = res.logs[0].__dict__
+        expected_log_dict = expected_log.__dict__
+        with self.subTest(Field="logs[0]", Out=result_log_dict, Exp=expected_log_dict):
+            self.assertEqual(result_log_dict, expected_log_dict)
+
+
 if __name__ == "__main__":
     unittest.main()
