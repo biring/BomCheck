@@ -79,7 +79,6 @@ BOARD_NAME: list = [
 BOARD_SUPPLIER: list = [
     COLLAPSE_MULTIPLE_SPACES,
     STRIP_EDGE_SPACES,
-
 ]
 # build_stage
 BUILD_STAGE: list = [
@@ -87,7 +86,6 @@ BUILD_STAGE: list = [
 ]
 # date
 BOM_DATE: list = [
-    REMOVE_ASCII_SPACES,
 ]
 # material_cost
 MATERIAL_COST: list = [
