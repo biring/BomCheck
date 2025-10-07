@@ -53,7 +53,7 @@ class TestModelNumber(unittest.TestCase):
         # ARRANGE
         cases = [
             Cases("BA400ul", "BA400UL", rules.TO_UPPER.msg),
-            Cases(" BA400 UL ", "BA400UL", rules.REMOVE_ASCII_SPACES.msg),
+            Cases(" BA400 UL ", "BA400UL", rules.REMOVE_SPACES_ONLY.msg),
         ]
 
         for case in cases:
@@ -196,7 +196,7 @@ class TestBuildStage(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            Cases("EB 1", "EB1", rules.REMOVE_ASCII_SPACES.msg),
+            Cases("EB 1", "EB1", rules.REMOVE_SPACES_ONLY.msg),
         ]
 
         for case in cases:
@@ -289,7 +289,7 @@ class TestMaterialCost(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            Cases(" 1.25 ", "1.25", rules.REMOVE_ASCII_SPACES.msg),
+            Cases(" 1.25 ", "1.25", rules.REMOVE_SPACES_ONLY.msg),
         ]
 
         for case in cases:
@@ -336,7 +336,7 @@ class TestOverheadCost(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            Cases(" 1.25 ", "1.25", rules.REMOVE_ASCII_SPACES.msg),
+            Cases(" 1.25 ", "1.25", rules.REMOVE_SPACES_ONLY.msg),
         ]
 
         for case in cases:
@@ -383,7 +383,7 @@ class TestTotalCost(unittest.TestCase):
         """
         # ARRANGE
         cases = [
-            Cases(" 1.25 ", "1.25", rules.REMOVE_ASCII_SPACES.msg),
+            Cases(" 1.25 ", "1.25", rules.REMOVE_SPACES_ONLY.msg),
         ]
 
         for case in cases:

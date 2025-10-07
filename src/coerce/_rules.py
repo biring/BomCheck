@@ -80,19 +80,19 @@ REMOVE_PREFIX_MFG = common.Rule(
 )
 
 # Whitespace normalization
-REMOVE_NON_SPACE_WHITES = common.Rule(
+REMOVE_WHITESPACES_EXCEPT_SPACE = common.Rule(
     r"[\t\n\r\f\v]+",
     "",
-    "Removed whitespace (tabs, newlines, etc.) but preserved spaces.")
-REMOVE_ALL_WHITESPACES = common.Rule(
+    "Removed whitespace characters (tabs, newlines, form feeds, etc.) but preserved spaces.")
+REMOVE_WHITESPACES = common.Rule(
     r"\s+",
     "",
-    "Removed all whitespace (spaces, tabs, newlines)."
+    "Removed whitespace characters (spaces, tabs, newlines, etc.)."
 )
-REMOVE_ASCII_SPACES = common.Rule(
+REMOVE_SPACES_ONLY = common.Rule(
     r" +",
     "",
-    "Removed all spaces."
+    "Removed space characters."
 )
 
 # Punctuation to comma
@@ -167,7 +167,7 @@ COLLAPSE_MULTIPLE_SPACES = common.Rule(
 # model_no
 MODEL_NUMBER: list = [
     TO_UPPER,
-    REMOVE_ASCII_SPACES,
+    REMOVE_SPACES_ONLY,
 ]
 # board_name
 BOARD_NAME: list = [
@@ -181,76 +181,76 @@ BOARD_SUPPLIER: list = [
 ]
 # build_stage
 BUILD_STAGE: list = [
-    REMOVE_ASCII_SPACES,
+    REMOVE_SPACES_ONLY,
 ]
 # date
 BOM_DATE: list = [
 ]
 # material_cost
 MATERIAL_COST: list = [
-    REMOVE_ASCII_SPACES,
+    REMOVE_SPACES_ONLY,
 ]
 # overhead_cost
 OVERHEAD_COST: list = [
-    REMOVE_ASCII_SPACES,
+    REMOVE_SPACES_ONLY,
 ]
 # total_cost
 TOTAL_COST: list = [
-    REMOVE_ASCII_SPACES,
+    REMOVE_SPACES_ONLY,
 ]
 # item
 ITEM: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # component_type
 COMPONENT_TYPE: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # device_package
 DEVICE_PACKAGE: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # description
 DESCRIPTION: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # unit
 UNITS: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # classification
 CLASSIFICATION: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # manufacturer
 MANUFACTURER: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # mfg_part_number
 MFG_PART_NUMBER: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # ul_vde_number
 UL_VDE_NUMBER: list = [
-    REMOVE_NON_SPACE_WHITES,
+    REMOVE_WHITESPACES_EXCEPT_SPACE,
 ]
 # validated_at
 VALIDATED_AT: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # qty
 QTY: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # designator
 DESIGNATOR: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # unit_price
 UNIT_PRICE: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
 # sub_total
 SUB_TOTAL: list = [
-    REMOVE_ALL_WHITESPACES,
+    REMOVE_WHITESPACES,
 ]
