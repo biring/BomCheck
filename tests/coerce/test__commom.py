@@ -38,24 +38,24 @@ class TestApplyCoerce(unittest.TestCase):
         Should apply a simple string replacement rule and record exactly one log entry.
         """
         # ARRANGE
+        attr = "Serial Number"
         text = "abc-123-xyz"
         rules = [common.Rule(pattern=r"\d+", replacement="###", msg="mask digits")]
         expected_out = "abc-###-xyz"
         expected_logs = 1
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
-
         with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
@@ -64,21 +64,22 @@ class TestApplyCoerce(unittest.TestCase):
         Should return the original text and an empty log when no rules match.
         """
         # ARRANGE
+        attr = "Description"
         text = "will not change"
         rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
         expected_out = text
         expected_logs = 0
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
@@ -87,21 +88,22 @@ class TestApplyCoerce(unittest.TestCase):
         Should return the original empty text and an empty log when no rules match.
         """
         # ARRANGE
+        attr = "Stage"
         text = ""
         rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
         expected_out = text
         expected_logs = 0
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
@@ -110,6 +112,7 @@ class TestApplyCoerce(unittest.TestCase):
         Should support a callable replacement and log when at least one substitution occurs.
         """
         # ARRANGE
+        attr = "Description"
         text = "alpha beta gamma"
 
         def up_case_char(m: Match[str]) -> str:
@@ -121,18 +124,17 @@ class TestApplyCoerce(unittest.TestCase):
         expected_logs = len(rules)
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
-
         with self.subTest("Msg", Out=result.logs[0].description, Exp=rules[0].msg):
             self.assertEqual(result.logs[0].description, rules[0].msg)
 
@@ -141,6 +143,7 @@ class TestApplyCoerce(unittest.TestCase):
         Should return the original text and an empty log when no substitution occurs.
         """
         # ARRANGE
+        attr = "Phone number"
         text = "1234567890"
 
         def up_case_char(m: Match[str]) -> str:
@@ -152,15 +155,15 @@ class TestApplyCoerce(unittest.TestCase):
         expected_logs = 0
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
@@ -169,6 +172,7 @@ class TestApplyCoerce(unittest.TestCase):
         Should return the original empty text and an empty log when no substitution occurs.
         """
         # ARRANGE
+        attr = "Phone number"
         text = ""
 
         def up_case_char(m: Match[str]) -> str:
@@ -180,15 +184,15 @@ class TestApplyCoerce(unittest.TestCase):
         expected_logs = 0
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
-
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
 
@@ -197,6 +201,7 @@ class TestApplyCoerce(unittest.TestCase):
         Should apply multiple rules sequentially and log only the rules that matched.
         """
         # ARRANGE
+        attr = "Info log"
         text = "  id: 007  \nname: bond\t"
         rules = [
             # Trim leading/trailing whitespace lines (affects the overall string)
@@ -221,15 +226,15 @@ class TestApplyCoerce(unittest.TestCase):
         expected_logs = 4
 
         # ACT
-        result = common.apply_coerce(text, rules)
+        result = common.apply_coerce(text, rules,attr)
 
         # ASSERT
+        with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
+            self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
-
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
             self.assertEqual(len(result.logs), expected_logs)
-
         # Verify that messages correspond to matched rules in order
         matched_msgs = [entry.description for entry in result.logs]
         expected_msgs = [rules[0].msg, rules[1].msg, rules[2].msg, rules[3].msg]
@@ -361,12 +366,13 @@ class TestRenderMessages(unittest.TestCase):
         Should return an empty tuple when value_in == value_out (no effective change).
         """
         # ARRANGE
+        attr = "Description"
         text = "no digits here"
         rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
-        res = common.apply_coerce(text, rules)
+        res = common.apply_coerce(text, rules, attr)
 
         # ACT
-        messages = common.render_coerce_log(res, field="TOTAL_COST")
+        messages = common.render_coerce_log(res)
 
         # ASSERT
         with self.subTest("Log msg", out=messages, exp=()):
@@ -377,21 +383,24 @@ class TestRenderMessages(unittest.TestCase):
         Should produce one formatted line per matched rule, in order.
         """
         # ARRANGE
+        attr = "Description"
         text = "cost: 123"
         rules = [
             common.Rule(pattern=r"[:]", replacement="=", msg="Colon changed to equal. "),
             common.Rule(pattern=r"\d+", replacement="###", msg="Digits masked with ###. "),
         ]
-        res = common.apply_coerce(text, rules)
+        res = common.apply_coerce(text, rules,attr)
 
         # ACT
-        messages = common.render_coerce_log(res, field="Total cost")
+        messages = common.render_coerce_log(res)
 
         # ASSERT
         with self.subTest("Log count", out=len(res.logs), exp="2"):
             self.assertEqual(len(res.logs), 2, "Expected two log entries")
 
         for message, rule in zip(messages, rules):
+            with self.subTest("Message contains", out=message, exp=attr):
+                self.assertIn(attr, message, f"Expected to contain {attr}")
             with self.subTest("Message contains", out=message, exp=rule.msg):
                 self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
 

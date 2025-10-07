@@ -26,6 +26,7 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
+from src.models import interfaces as mdl
 from src.coerce import _common as common
 from src.coerce import _rules as rule
 
@@ -43,7 +44,7 @@ def model_number(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.MODEL_NUMBER)
+    return common.apply_coerce(str_in, rule.MODEL_NUMBER, mdl.HeaderFields.MODEL_NUMBER)
 
 
 def board_name(str_in: str) -> common.Result:
@@ -59,7 +60,7 @@ def board_name(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.BOARD_NAME)
+    return common.apply_coerce(str_in, rule.BOARD_NAME, mdl.HeaderFields.BOARD_NAME)
 
 
 def board_supplier(str_in: str) -> common.Result:
@@ -75,7 +76,7 @@ def board_supplier(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.BOARD_SUPPLIER)
+    return common.apply_coerce(str_in, rule.BOARD_SUPPLIER, mdl.HeaderFields.BOARD_SUPPLIER)
 
 
 def build_stage(str_in: str) -> common.Result:
@@ -91,7 +92,7 @@ def build_stage(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.BUILD_STAGE)
+    return common.apply_coerce(str_in, rule.BUILD_STAGE, mdl.HeaderFields.BUILD_STAGE)
 
 
 def bom_date(str_in: str) -> common.Result:
@@ -107,7 +108,7 @@ def bom_date(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.BOM_DATE)
+    return common.apply_coerce(str_in, rule.BOM_DATE, mdl.HeaderFields.BOM_DATE)
 
 
 def material_cost(str_in: str) -> common.Result:
@@ -123,7 +124,7 @@ def material_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.MATERIAL_COST)
+    return common.apply_coerce(str_in, rule.MATERIAL_COST, mdl.HeaderFields.MATERIAL_COST)
 
 
 def overhead_cost(str_in: str) -> common.Result:
@@ -139,7 +140,7 @@ def overhead_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.OVERHEAD_COST)
+    return common.apply_coerce(str_in, rule.OVERHEAD_COST, mdl.HeaderFields.OVERHEAD_COST)
 
 
 def total_cost(str_in: str) -> common.Result:
@@ -155,4 +156,4 @@ def total_cost(str_in: str) -> common.Result:
             - value_out (str): The normalized output string after applying rules.
             - logs (list[Log]): Structured records of each applied rule (before, after, description). Empty if no changes were made.
     """
-    return common.apply_coerce(str_in, rule.TOTAL_COST)
+    return common.apply_coerce(str_in, rule.TOTAL_COST, mdl.HeaderFields.TOTAL_COST)

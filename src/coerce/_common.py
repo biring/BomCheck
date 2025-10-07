@@ -110,7 +110,7 @@ def _show(s: str, max_len: int = 32) -> str:
     return visible
 
 
-def apply_coerce(str_in: str, rules: list[Rule]) -> Result:
+def apply_coerce(str_in: str, rules: list[Rule], attr_name: str) -> Result:
     """
     Apply a sequence of coercion rules to the input text.
 
@@ -120,11 +120,12 @@ def apply_coerce(str_in: str, rules: list[Rule]) -> Result:
     Args:
         str_in (str): The raw input string to transform.
         rules (list[Rule]): List of regex-based coercion rules.
+        attr_name (str): Attribute name associated with the coercion.
 
     Returns:
         Result: The final output string with associated transformation logs.
     """
-    result = Result(value_in=str_in, value_out="", logs=[])
+    result = Result(attr_name=attr_name, value_in=str_in, value_out="", logs=[])
     text_in = str_in
     text_out = str_in
 
@@ -145,13 +146,12 @@ def apply_coerce(str_in: str, rules: list[Rule]) -> Result:
     return result
 
 
-def render_coerce_log(result: Result, field: str) -> tuple[str, ...]:
+def render_coerce_log(result: Result) -> tuple[str, ...]:
     """
     Render human-readable change messages from a Result's logs.
 
     Args:
         result (Result): The coercion outcome from apply_coerce.
-        field (str): A field label to include in each message (e.g., 'MODEL_NUMBER').
 
     Returns:
         tuple[str, ...]: One formatted line per applied rule. Empty if no effective change.
@@ -161,6 +161,6 @@ def render_coerce_log(result: Result, field: str) -> tuple[str, ...]:
     if result.value_in != result.value_out:
         for log in result.logs:
             change_log.append(
-                COERCE_LOG_MSG.format(a=field, b=log.before, c=log.after, d=log.description)
+                COERCE_LOG_MSG.format(a=result.attr_name, b=log.before, c=log.after, d=log.description)
             )
     return tuple(change_log)
