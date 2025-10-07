@@ -29,41 +29,140 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 from src.coerce import _common as common
 
 # General transformations
-TO_UPPER = common.Rule(r"(.*)", lambda m: m.group(0).upper(), "Converted to uppercase.")
+TO_UPPER = common.Rule(
+    r"(.*)",
+    lambda m: m.group(0).upper(),
+    "Converted to uppercase."
+)
 
 # Handle Chinese punctuation variants
-CHINESE_COMMA = common.Rule(r"[，]", ",", "Converted Chinese comma to ASCII comma.")
-CHINESE_LEFT_PAREN = common.Rule(r"[（]", "(", "Converted Chinese left parenthesis to ASCII (.")
-CHINESE_RIGHT_PAREN = common.Rule(r"[）]", ")", "Converted Chinese right parenthesis to ASCII ).")
-CHINESE_SEMICOLON = common.Rule(r"[；]", ";", "Converted Chinese semicolon to ASCII ;.")
-CHINESE_COLON = common.Rule(r"[：]", ":", "Converted Chinese colon to ASCII :.")
+CHINESE_COMMA = common.Rule(
+    r"[，]",
+    ",",
+    "Converted Chinese comma to ASCII comma."
+)
+CHINESE_LEFT_PAREN = common.Rule(
+    r"[（]",
+    "(",
+    "Converted Chinese left parenthesis to ASCII (."
+)
+CHINESE_RIGHT_PAREN = common.Rule(
+    r"[）]",
+    ")",
+    "Converted Chinese right parenthesis to ASCII )."
+)
+CHINESE_SEMICOLON = common.Rule(
+    r"[；]",
+    ";",
+    "Converted Chinese semicolon to ASCII ;."
+)
+CHINESE_COLON = common.Rule(
+    r"[：]",
+    ":",
+    "Converted Chinese colon to ASCII :."
+)
 
 # Remove known manufacturer prefixes
-REMOVE_PREFIX_MANUFACTURER = common.Rule(r"(?i)^MANUFACTURER", " ", "Removed MANUFACTURER prefix (case-insensitive).")
-REMOVE_PREFIX_MANU = common.Rule(r"(?i)^MANU", " ", "Removed MANU prefix (case-insensitive).")
-REMOVE_PREFIX_MFG = common.Rule(r"(?i)^MFG", " ", "Removed MFG prefix (case-insensitive).")
+REMOVE_PREFIX_MANUFACTURER = common.Rule(
+    r"(?i)^MANUFACTURER",
+    " ",
+    "Removed MANUFACTURER prefix (case-insensitive)."
+)
+REMOVE_PREFIX_MANU = common.Rule(
+    r"(?i)^MANU",
+    " ",
+    "Removed MANU prefix (case-insensitive)."
+)
+REMOVE_PREFIX_MFG = common.Rule(
+    r"(?i)^MFG",
+    " ",
+    "Removed MFG prefix (case-insensitive)."
+)
 
 # Whitespace normalization
-REMOVE_NON_SPACE_WHITES = common.Rule(r"[\t\n\r\f\v]+", "", "Removed whitespace (tabs, newlines, etc.) but preserved spaces.")
-REMOVE_ALL_WHITESPACES = common.Rule(r"\s+", "", "Removed all whitespace (spaces, tabs, newlines).")
-REMOVE_ASCII_SPACES = common.Rule(r" +", "", "Removed all spaces.")
+REMOVE_NON_SPACE_WHITES = common.Rule(
+    r"[\t\n\r\f\v]+",
+    "",
+    "Removed whitespace (tabs, newlines, etc.) but preserved spaces.")
+REMOVE_ALL_WHITESPACES = common.Rule(
+    r"\s+",
+    "",
+    "Removed all whitespace (spaces, tabs, newlines)."
+)
+REMOVE_ASCII_SPACES = common.Rule(
+    r" +",
+    "",
+    "Removed all spaces."
+)
 
 # Punctuation to comma
-NEWLINE_TO_COMMA = common.Rule(r"\n", ",", "Replaced newline with comma.")
-COLON_TO_COMMA = common.Rule(r"[:]", ",", "Replaced colon with comma.")
-SEMICOLON_TO_COMMA = common.Rule(r"[;]", ",", "Replaced semicolon with comma.")
-SPACE_TO_COMMA = common.Rule(r"[ ]", ",", "Replaced space with comma.")
-STRIP_LEADING_COMMA = common.Rule(r"^,+", "", "Removed leading commas.")
-STRIP_TRAILING_COMMA = common.Rule(r",+$", "", "Removed trailing commas.")
-COLLAPSE_MULTIPLE_COMMAS = common.Rule(r",{2,}", ",", "Collapsed multiple commas into one.")
+NEWLINE_TO_COMMA = common.Rule(
+    r"\n",
+    ",",
+    "Replaced newline with comma."
+)
+COLON_TO_COMMA = common.Rule(
+    r"[:]",
+    ",",
+    "Replaced colon with comma."
+)
+SEMICOLON_TO_COMMA = common.Rule(
+    r"[;]",
+    ",",
+    "Replaced semicolon with comma."
+)
+SPACE_TO_COMMA = common.Rule(
+    r"[ ]",
+    ",",
+    "Replaced space with comma."
+)
+STRIP_LEADING_COMMA = common.Rule(
+    r"^,+",
+    "",
+    "Removed leading commas."
+)
+STRIP_TRAILING_COMMA = common.Rule(
+    r",+$",
+    "",
+    "Removed trailing commas."
+)
+COLLAPSE_MULTIPLE_COMMAS = common.Rule(
+    r",{2,}",
+    ",",
+    "Collapsed multiple commas into one."
+)
 
 # Punctuation to space
-COLON_TO_SPACE = common.Rule(r"[:]", " ", "Replaced colon with space.")
-DOT_TO_SPACE = common.Rule(r"[.]", " ", "Replaced dot '.' with space.")
-DOT_COMMA_TO_SPACE = common.Rule(r"\.,", " ", "Replaced '.,' with space (e.g., 'Co.,Ltd' → 'Co Ltd').")
-NBSP_TO_SPACE = common.Rule(r"\u00A0", " ", "Replaced non-breaking space with normal space.")
-STRIP_EDGE_SPACES = common.Rule(r"^ +| +$", "", "Removed leading and trailing spaces.")
-COLLAPSE_MULTIPLE_SPACES = common.Rule(r" {2,}", " ", "Collapsed multiple spaces into one.")
+COLON_TO_SPACE = common.Rule(
+    r"[:]",
+    " ",
+    "Replaced colon with space."
+)
+DOT_TO_SPACE = common.Rule(
+    r"[.]",
+    " ",
+    "Replaced dot '.' with space."
+)
+DOT_COMMA_TO_SPACE = common.Rule(
+    r"\.,",
+    " ",
+    "Replaced '.,' with space (e.g., 'Co.,Ltd' → 'Co Ltd')."
+)
+NBSP_TO_SPACE = common.Rule(
+    r"\u00A0",
+    " ",
+    "Replaced non-breaking space with normal space."
+)
+STRIP_EDGE_SPACES = common.Rule(
+    r"^ +| +$",
+    "",
+    "Removed leading and trailing spaces."
+)
+COLLAPSE_MULTIPLE_SPACES = common.Rule(
+    r" {2,}",
+    " ",
+    "Collapsed multiple spaces into one."
+)
 
 # model_no
 MODEL_NUMBER: list = [
