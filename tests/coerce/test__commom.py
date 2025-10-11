@@ -226,7 +226,7 @@ class TestApplyCoerce(unittest.TestCase):
         expected_logs = 4
 
         # ACT
-        result = common.apply_coerce(text, rules,attr)
+        result = common.apply_coerce(text, rules, attr)
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
@@ -240,6 +240,60 @@ class TestApplyCoerce(unittest.TestCase):
         expected_msgs = [rules[0].msg, rules[1].msg, rules[2].msg, rules[3].msg]
         with self.subTest("Messages", Out=matched_msgs, Exp=expected_msgs):
             self.assertEqual(matched_msgs, expected_msgs)
+
+    def test_single_log_for_multiple_substitutions(self):
+        """
+        Should create exactly one log entry for a rule even if it makes multiple substitutions.
+        """
+        # ARRANGE
+        attr = "ID"
+        text = "a1 b2 c3"
+        rules = [common.Rule(pattern=r"\d", replacement="#", msg="mask each digit")]
+        expected_out = "a# b# c#"
+        expected_logs = 1  # one rule matched, many subs, single log
+
+        # ACT
+        result = common.apply_coerce(text, rules, attr)
+
+        # ASSERT
+        with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
+            self.assertEqual(result.value_out, expected_out)
+        with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
+            self.assertEqual(len(result.logs), expected_logs)
+        with self.subTest("Log Msg", Out=result.logs[0].description, Exp=rules[0].msg):
+            self.assertEqual(result.logs[0].description, rules[0].msg)
+
+    def test_logs_capture_visible_before_after(self):
+        """
+        Should log `before` and `after` using the same visibility rules as `_show` (\\n, \\t shown).
+        """
+        # ARRANGE
+        attr = "Notes"
+        text = "rowA\t123\nrowB"  # contains tab and newline
+        rules = [
+            common.Rule(pattern=r"\t", replacement=" ", msg="tab to space"),  # change 1
+            common.Rule(pattern=r"\d+", replacement="<num>", msg="mask digits"),  # change 2
+        ]
+
+        # Expected visible forms come from _show
+        after_first = text.replace("\t", " ")
+        after_second = after_first.replace("123", "<num>")
+        expected_before_vis = common._show(text)
+        expected_after_vis = common._show(after_second)
+
+        # ACT
+        result = common.apply_coerce(text, rules, attr)
+
+        # ASSERT
+        # Two rules matched → two logs, first.before is _show(original), last.after is _show(final)
+        with self.subTest("Log Count", Out=len(result.logs), Exp=2):
+            self.assertEqual(len(result.logs), 2)
+
+        with self.subTest("First Log BEFORE visible", Out=result.logs[0].before, Exp=expected_before_vis):
+            self.assertEqual(result.logs[0].before, expected_before_vis)
+
+        with self.subTest("Last Log AFTER visible", Out=result.logs[-1].after, Exp=expected_after_vis):
+            self.assertEqual(result.logs[-1].after, expected_after_vis)
 
 
 class TestShow(unittest.TestCase):
@@ -356,8 +410,6 @@ class TestShow(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-
-
 class TestResult(unittest.TestCase):
     """
     Unit tests for the `Result` dataclass.
@@ -460,7 +512,7 @@ class TestResult(unittest.TestCase):
             common.Rule(pattern=r"[:]", replacement="=", msg="Colon changed to equal. "),
             common.Rule(pattern=r"\d+", replacement="###", msg="Digits masked with ###. "),
         ]
-        res = common.apply_coerce(text, rules,attr)
+        res = common.apply_coerce(text, rules, attr)
 
         # ACT
         messages = res.format_to_change_log()
@@ -474,6 +526,113 @@ class TestResult(unittest.TestCase):
                 self.assertIn(attr, message, f"Expected to contain {attr}")
             with self.subTest("Message contains", out=message, exp=rule.msg):
                 self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
+
+
+class TestRule(unittest.TestCase):
+    """
+    Unit tests for the `Rule` dataclass.
+    """
+
+    def test_invalid_pattern_raises_value_error(self):
+        """
+        Should raise ValueError when regex pattern does not compile.
+        """
+        # ARRANGE
+        bad_pattern = "["  # invalid regex
+        expected = ValueError.__name__
+
+        # ACT
+        try:
+            _ = common.Rule(pattern=bad_pattern, replacement="x", msg="bad")
+            result = ""  # no exception raised
+        except ValueError as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
+class TestCoerceLog(unittest.TestCase):
+    """
+    Unit tests for the `CoerceLog` aggregator.
+    """
+
+    def test_snapshot(self):
+        """
+        Should format rows as 'file | sheet | section | message' using current context.
+        """
+        # ARRANGE
+        log = common.CoerceLog()
+        log.set_file_name("bom.xlsx")
+        log.set_sheet_name("P3")
+        log.set_section_name("Header")
+        log.add("Normalized manufacturer names")
+        log.add("Collapsed internal whitespace")
+
+        expected = (
+            "bom.xlsx | P3 | Header | Normalized manufacturer names",
+            "bom.xlsx | P3 | Header | Collapsed internal whitespace",
+        )
+
+        # ACT
+        rows = log.snapshot()
+
+        # ASSERT
+        with self.subTest("Row Count", Out=len(rows), Exp=len(expected)):
+            self.assertEqual(len(rows), len(expected))
+        for out_row, exp_row in zip(rows, expected):
+            with self.subTest("Row", Out=out_row, Exp=exp_row):
+                self.assertEqual(out_row, exp_row)
+
+    def test_add_empty_message(self):
+        """
+        Should not append entries when message is an empty string (falsy check).
+        """
+        # ARRANGE
+        log = common.CoerceLog()
+        log.set_file_name("a.xlsx")
+        log.set_sheet_name("S1")
+        log.set_section_name("Items")
+        log.add("")  # falsy → ignored
+        log.add("Applied masks")  # kept
+
+        expected_len = 1
+
+        # ACT
+        rows = log.snapshot()
+
+        # ASSERT
+        with self.subTest("Entries", Out=len(rows), Exp=expected_len):
+            self.assertEqual(len(rows), expected_len)
+        with self.subTest("Row0 EndsWith", Out=rows[0].endswith("Applied masks"), Exp=True):
+            self.assertTrue(rows[0].endswith("Applied masks"))
+
+    def test_context(self):
+        """
+        Should render all stored messages with the *current* context at snapshot time.
+        (Entries store only messages; file/sheet/section are taken when snapshot is called.)
+        """
+        # ARRANGE
+        log = common.CoerceLog()
+        log.set_file_name("v1.xlsx")
+        log.set_sheet_name("EB0")
+        log.set_section_name("Meta")
+        log.add("Rule A")
+
+        # Change context after adding messages
+        log.set_file_name("v2.xlsx")
+        log.set_sheet_name("MP")
+        log.set_section_name("Table")
+
+        expected = ("v2.xlsx | MP | Table | Rule A",)
+
+        # ACT
+        rows = log.snapshot()
+
+        # ASSERT
+        with self.subTest("Context After Change", Out=rows, Exp=expected):
+            self.assertEqual(rows, expected)
 
 
 if __name__ == "__main__":

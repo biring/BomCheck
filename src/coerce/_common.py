@@ -167,3 +167,94 @@ def apply_coerce(str_in: str, rules: list[Rule], attr_name: str) -> Result:
     result.value_out = text_out
 
     return result
+
+class CoerceLog:
+    """
+    Aggregates coercion for a current (file, sheet, section) context.
+
+    Maintains contextual state so call sites avoid repeating file/sheet/section. Provides append and read helpers for simple, intention-revealing usage.
+
+    Args:
+        self
+
+    Returns:
+        None
+
+    Raises:
+        None
+    """
+
+    def __init__(self) -> None:
+        self.file_name = ""
+        self.sheet_name = ""
+        self.section_name = ""
+        self.entries: list[str] = []
+
+    def set_file_name(self, file: str) -> None:
+        """
+        Set the active file context for subsequent coercions.
+
+        Args:
+            file (str): File name to associate with added coercions.
+
+        Returns:
+            None
+     """
+        self.file_name = file
+
+    def set_sheet_name(self, sheet: str) -> None:
+        """
+        Set the active worksheet context for subsequent coercions.
+
+        Args:
+            sheet (str): Worksheet name to associate with added coercions.
+
+        Returns:
+            None
+        """
+        self.sheet_name = sheet
+
+    def set_section_name(self, section: str) -> None:
+        """
+        Set the active section context for subsequent coercions.
+
+        Args:
+            section (str): Section or block name to associate with added coercions.
+
+        Returns:
+            None
+        """
+        self.section_name = section
+
+    def add(self, message: str) -> None:
+        """
+        Add a single coercion message if it is a non-empty string after trimming.
+
+        Args:
+            message (str): Human-readable description of the coercion.
+
+        Returns:
+            None
+        """
+        if message:
+            self.entries.append(message)
+
+    def snapshot(self) -> tuple[str, ...]:
+        """
+        Return an immutable tuple of formatted rows: "filename | sheet_name | section_name | message".
+
+        Args:
+            self
+
+        Returns:
+            tuple[str, ...]: One formatted row per stored coercion message.
+
+        Raises:
+            None
+        """
+        render_list: list[str] = []
+        for coercion in self.entries:
+            msg_format = "{a} | {b} | {c} | {d}"
+            msg = msg_format.format(a=self.file_name, b=self.sheet_name, c=self.section_name, d=coercion)
+            render_list.append(msg)
+        return tuple(render_list)
