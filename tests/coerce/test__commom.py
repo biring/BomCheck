@@ -49,7 +49,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -75,7 +75,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -99,7 +99,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -128,7 +128,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -159,7 +159,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -188,7 +188,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value In", Out=result.value_in, Exp=text):
             self.assertEqual(result.value_in, text)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
@@ -230,7 +230,7 @@ class TestApplyCoerce(unittest.TestCase):
 
         # ASSERT
         with self.subTest("Attribute Name", Out=result.attr_name, Exp=attr):
-            self.assertEqual(result.value_in, text)
+            self.assertEqual(result.attr_name, attr)
         with self.subTest("Value Out", Out=result.value_out, Exp=expected_out):
             self.assertEqual(result.value_out, expected_out)
         with self.subTest("Log Count", Out=len(result.logs), Exp=expected_logs):
@@ -356,53 +356,6 @@ class TestShow(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-class TestRenderMessages(unittest.TestCase):
-    """
-    Unit tests for render_messages(result, field, template=...).
-    """
-
-    def test_empty(self):
-        """
-        Should return an empty tuple when value_in == value_out (no effective change).
-        """
-        # ARRANGE
-        attr = "Description"
-        text = "no digits here"
-        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
-        res = common.apply_coerce(text, rules, attr)
-
-        # ACT
-        messages = common.render_coerce_log(res)
-
-        # ASSERT
-        with self.subTest("Log msg", out=messages, exp=()):
-            self.assertEqual(messages, (), msg="Expected empty messages")
-
-    def test_render(self):
-        """
-        Should produce one formatted line per matched rule, in order.
-        """
-        # ARRANGE
-        attr = "Description"
-        text = "cost: 123"
-        rules = [
-            common.Rule(pattern=r"[:]", replacement="=", msg="Colon changed to equal. "),
-            common.Rule(pattern=r"\d+", replacement="###", msg="Digits masked with ###. "),
-        ]
-        res = common.apply_coerce(text, rules,attr)
-
-        # ACT
-        messages = common.render_coerce_log(res)
-
-        # ASSERT
-        with self.subTest("Log count", out=len(res.logs), exp="2"):
-            self.assertEqual(len(res.logs), 2, "Expected two log entries")
-
-        for message, rule in zip(messages, rules):
-            with self.subTest("Message contains", out=message, exp=attr):
-                self.assertIn(attr, message, f"Expected to contain {attr}")
-            with self.subTest("Message contains", out=message, exp=rule.msg):
-                self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
 
 
 class TestResult(unittest.TestCase):
@@ -478,6 +431,49 @@ class TestResult(unittest.TestCase):
         expected_log_dict = expected_log.__dict__
         with self.subTest(Field="logs[0]", Out=result_log_dict, Exp=expected_log_dict):
             self.assertEqual(result_log_dict, expected_log_dict)
+
+    def test_render_empty(self):
+        """
+        Should return an empty tuple when value_in == value_out (no effective change).
+        """
+        # ARRANGE
+        attr = "Description"
+        text = "no digits here"
+        rules = [common.Rule(pattern=r"\d+", replacement="x", msg="digits masked")]
+        res = common.apply_coerce(text, rules, attr)
+
+        # ACT
+        messages = res.format_to_change_log()
+
+        # ASSERT
+        with self.subTest("Log msg", out=messages, exp=()):
+            self.assertEqual(messages, (), msg="Expected empty messages")
+
+    def test_render(self):
+        """
+        Should produce one formatted line per matched rule, in order.
+        """
+        # ARRANGE
+        attr = "Description"
+        text = "cost: 123"
+        rules = [
+            common.Rule(pattern=r"[:]", replacement="=", msg="Colon changed to equal. "),
+            common.Rule(pattern=r"\d+", replacement="###", msg="Digits masked with ###. "),
+        ]
+        res = common.apply_coerce(text, rules,attr)
+
+        # ACT
+        messages = res.format_to_change_log()
+
+        # ASSERT
+        with self.subTest("Log Count", out=len(res.logs), exp="2"):
+            self.assertEqual(len(res.logs), 2, "Expected two log entries")
+
+        for message, rule in zip(messages, rules):
+            with self.subTest("Message contains", out=message, exp=attr):
+                self.assertIn(attr, message, f"Expected to contain {attr}")
+            with self.subTest("Message contains", out=message, exp=rule.msg):
+                self.assertIn(rule.msg, message, f"Expected to contain {rule.msg}")
 
 
 if __name__ == "__main__":

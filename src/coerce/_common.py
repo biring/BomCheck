@@ -32,9 +32,6 @@ from dataclasses import dataclass, field
 
 from typing import Union, Callable, Match
 
-COERCE_LOG_MSG = "'{a}' changed from '{b}' to '{c}'. {d}"
-
-
 @dataclass(frozen=True)
 class Rule:
     """
@@ -81,16 +78,42 @@ class Result:
     """
     Holds the outcome of applying one or more coercion rules.
 
+    Encapsulates both the final coerced string and a trace of all transformations applied during the coercion process. Each transformation is logged with a before/after snapshot and description. This object is immutable once populated and is typically returned by `apply_coerce`.
+
     Args:
         attr_name (str): Attribute name associated with the coercion.
-        value_in (str): Original input text.
-        value_out (str): Final transformed output text.
-        logs (list[Log]): List of logs describing applied transformations.
+        value_in (str): Original input text before applying rules.
+        value_out (str): Final transformed output text after all rules.
+        logs (list[Log]): Ordered list of log entries describing applied changes.
+
+    Returns:
+        Result: A fully populated coercion outcome with logs for each effective rule.
+
+    Raises:
+        None
     """
     attr_name:str = ""
     value_in: str = ""
     value_out: str = ""
     logs: list[Log] = field(default_factory=list)
+
+    def format_to_change_log(self) -> tuple[str, ...]:
+        """
+        Render human-readable change messages from a Result's logs.
+
+        Returns:
+            tuple[str, ...]: One formatted line per applied rule. Empty if no effective change.
+        """
+        formatted_logs: list[str] = []
+        # Optional guard; keeps log empty if no effective change
+        if self.value_in != self.value_out:
+            msg_template = "'{a}' changed from '{b}' to '{c}'. {d}"
+            for entry in self.logs:
+                formatted_logs.append(
+                    msg_template.format(a=self.attr_name, b=entry.before, c=entry.after, d=entry.description)
+                )
+        # Return immutable tuple for consistency
+        return tuple(formatted_logs)
 
 
 def _show(s: str, max_len: int = 32) -> str:
@@ -144,23 +167,3 @@ def apply_coerce(str_in: str, rules: list[Rule], attr_name: str) -> Result:
     result.value_out = text_out
 
     return result
-
-
-def render_coerce_log(result: Result) -> tuple[str, ...]:
-    """
-    Render human-readable change messages from a Result's logs.
-
-    Args:
-        result (Result): The coercion outcome from apply_coerce.
-
-    Returns:
-        tuple[str, ...]: One formatted line per applied rule. Empty if no effective change.
-    """
-    change_log: list[str] = []
-    # Optional guard; keeps log empty if no effective change
-    if result.value_in != result.value_out:
-        for log in result.logs:
-            change_log.append(
-                COERCE_LOG_MSG.format(a=result.attr_name, b=log.before, c=log.after, d=log.description)
-            )
-    return tuple(change_log)
