@@ -4,7 +4,7 @@
 MAJOR = 0
 MINOR = 0
 PATCH = 0
-BUILD = 236
+BUILD = 237
 
 # Build the version string
 __version__ = f"{MAJOR}.{MINOR}.{PATCH}"
