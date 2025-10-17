@@ -260,13 +260,18 @@ git clean -f -d <dir-path>                  # Deletes the specified untracked di
 -------------------------------------------------------------------------------------------------------
 STASHING GUIDE
 -------------------------------------------------------------------------------------------------------
+git stash --help                            # Open official Git documentation for stash
+
 1. Save to stash
-git stash                     	            # Stash tracked file changes
-git stash -u                  	            # Stash tracked and untracked files
-git stash -u --keep-index -- <folder-path>  # Stash untracked files in the folder. Tracked files are not touched.
-git stash push -u -m "WIP: Bug #45"         # Stash with a message for clarity
-git stash push -m "Bug #45" <file-path-1>...# Stash specific file or files listed in series by spaces
-git stash push -u --keep-index -m "<msg>" -- <folder-path> # Stash untracked files in the folder with message.
+git stash push                              # Stash staged + unstaged tracked changes.
+git stash push -u                           # Stash staged + unstaged tracked changes, plus untracked files.
+git stash push --keep-index                 # Stash unstaged tracked changes only.
+
+git stash push -m "<msg>"                   # Stash tracked changes with a message.
+git stash push -u -m "<msg>"                # Stash tracked + untracked changes with a message.
+git stash push -u -m "<msg>" -- <path>...   # Stash tracked + untracked changes in specific files/folders.
+
+git stash push -u --keep-index -m "<msg>"   # Stash unstaged + untracked changes, keeping staged work intact.
 
 2. View stash list
 git stash list	                            # List all stashes
