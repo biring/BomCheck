@@ -40,14 +40,14 @@ ROW_A_1_ALT1: Final[Row] = Row(
     item="", component_type="ALT1", device_package="0603",
     description="2k,1%,0603", unit="PCS", classification="A",
     manufacturer="Yageo", mfg_part_number="RC0603FR-072KL", ul_vde_number="UL123",
-    validated_at="EB0", qty="0", designator="R1,R2", unit_price="0.09", sub_total="0"
+    validated_at="EB0", qty="0", designator="R1,R2", unit_price="0.09", sub_total="0.0"
 )
 
 ROW_A_1_ALT2: Final[Row] = Row(
     item="", component_type="ALT2", device_package="0603",
     description="2k,1%,0603", unit="PCS", classification="A",
     manufacturer="Vishay", mfg_part_number="CRCW06032K00FKEAC", ul_vde_number="UL124",
-    validated_at="EB0/EB1", qty="0", designator="R1,R2", unit_price="0.11", sub_total="0"
+    validated_at="EB0/EB1", qty="0", designator="R1,R2", unit_price="0.11", sub_total="0.0"
 )
 
 ROW_A_2: Final[Row] = Row(
@@ -61,14 +61,14 @@ ROW_A_2_ALT: Final[Row] = Row(
     item="", component_type="ALT", device_package="0805",
     description="10uF,20%,25V,0805", unit="PCS", classification="B",
     manufacturer="Murata", mfg_part_number="GRM21BR61C106KE15L", ul_vde_number="UL202",
-    validated_at="MP", qty="0", designator="C1,C2,C3", unit_price="0.25", sub_total="0"
+    validated_at="MP", qty="0", designator="C1,C2,C3", unit_price="0.25", sub_total="0.0"
 )
 
 ROW_A_3: Final[Row] = Row(
     item="3", component_type="Relay", device_package="SPST-4",
     description="Relay,250VAC,5A,12V,100mA", unit="PCS", classification="A",
     manufacturer="Panasonic", mfg_part_number="REL2505-12100", ul_vde_number="UL000",
-    validated_at="MP", qty="0", designator="RL1", unit_price="0.50", sub_total="0.0"
+    validated_at="MP", qty="0", designator="RL1", unit_price="0.5", sub_total="0.0"
 )
 
 ROW_A_4: Final[Row] = Row(
@@ -104,7 +104,7 @@ ROW_B1_1: Final[Row] = Row(
     item="1", component_type="Resistor", device_package="0402",
     description="1k,5%,0402", unit="PCS", classification="A",
     manufacturer="Ohmite", mfg_part_number="RES001K0A0402", ul_vde_number="UL100",
-    validated_at="P1", qty="4", designator="R1,R2,R3,R4", unit_price="0.05", sub_total="0.20"
+    validated_at="P1", qty="4", designator="R1,R2,R3,R4", unit_price="0.05", sub_total="0.2"
 )
 
 ROW_B1_2: Final[Row] = Row(
@@ -118,20 +118,20 @@ ROW_B1_3: Final[Row] = Row(
     item="3", component_type="Inductor", device_package="0805",
     description="10uH,20%,0805", unit="PCS", classification="B",
     manufacturer="Coilcraft", mfg_part_number="L080510UH", ul_vde_number="UL300",
-    validated_at="P1", qty="1", designator="L1", unit_price="0.30", sub_total="0.30"
+    validated_at="P1", qty="1", designator="L1", unit_price="0.3", sub_total="0.3"
 )
 
 ROW_B1_4: Final[Row] = Row(
     item="4", component_type="IC", device_package="SOIC-8",
     description="LDO,5V,1A", unit="PCS", classification="A",
     manufacturer="Texas Instruments", mfg_part_number="LM7805SOIC", ul_vde_number="VDE500",
-    validated_at="P1", qty="1", designator="U1", unit_price="0.50", sub_total="0.50"
+    validated_at="P1", qty="1", designator="U1", unit_price="0.5", sub_total="0.5"
 )
 
 HEADER_B1: Final[Header] = Header(
     model_no="BB200", board_name="Control PCBA", manufacturer="Ohmite",
     build_stage="P1", date="2025-02-10",
-    material_cost="1.16", overhead_cost="0.24", total_cost="1.40"
+    material_cost="1.16", overhead_cost="0.24", total_cost="1.4"
 )
 
 BOARD_B1: Final[Board] = Board(
@@ -151,14 +151,14 @@ ROW_B2_2: Final[Row] = Row(
     item="2", component_type="Capacitor", device_package="0805",
     description="1uF,10%,25V,0805", unit="PCS", classification="B",
     manufacturer="Murata", mfg_part_number="GRM21BR71C105KA01L", ul_vde_number="UL202",
-    validated_at="MP", qty="4", designator="C3,C4,C5,C6", unit_price="0.05", sub_total="0.20"
+    validated_at="MP", qty="4", designator="C3,C4,C5,C6", unit_price="0.05", sub_total="0.2"
 )
 
 ROW_B2_3: Final[Row] = Row(
     item="3", component_type="Diode", device_package="SMA",
     description="Schottky,1A,40V", unit="PCS", classification="A",
     manufacturer="OnSemi", mfg_part_number="SS14", ul_vde_number="UL303",
-    validated_at="MP", qty="2", designator="D1,D2", unit_price="0.15", sub_total="0.30"
+    validated_at="MP", qty="2", designator="D1,D2", unit_price="0.15", sub_total="0.3"
 )
 
 ROW_B2_4: Final[Row] = Row(
@@ -172,20 +172,20 @@ ROW_B2_5: Final[Row] = Row(
     item="5", component_type="MCU", device_package="QFP-32",
     description="ARM,Cortex-M0,32-bit,32-pin", unit="PCS", classification="A",
     manufacturer="STMicro", mfg_part_number="STM32F030K6T6", ul_vde_number="VDE789",
-    validated_at="MP", qty="1", designator="U2", unit_price="1.50", sub_total="1.50"
+    validated_at="MP", qty="1", designator="U2", unit_price="1.5", sub_total="1.5"
 )
 
 ROW_B2_6: Final[Row] = Row(
     item="6", component_type="Crystal", device_package="HC-49S",
     description="16MHz,±20ppm", unit="PCS", classification="B",
     manufacturer="Epson", mfg_part_number="Q16.000MHZHC49", ul_vde_number="UL505",
-    validated_at="MP", qty="1", designator="Y1", unit_price="0.10", sub_total="0.10"
+    validated_at="MP", qty="1", designator="Y1", unit_price="0.1", sub_total="0.1"
 )
 
 HEADER_B2: Final[Header] = Header(
     model_no="BB300", board_name="Interface PCBA", manufacturer="Murata",
     build_stage="MP", date="2025-03-05",
-    material_cost="2.47", overhead_cost="0.53", total_cost="3.00"
+    material_cost="2.47", overhead_cost="0.53", total_cost="3.0"
 )
 
 BOARD_B2: Final[Board] = Board(
