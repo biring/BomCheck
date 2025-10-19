@@ -1,5 +1,5 @@
 """
-Unit tests for the helper module in correct package.
+Unit tests for helper utilities in the correct package.
 
 Example Usage:
     # Preferred usage via project-root invocation:
@@ -10,17 +10,22 @@ Example Usage:
 
 Dependencies:
     - Python >= 3.10
-    - Standard Library: unittest
-    - External Packages: None
+    - Standard Library: unittest, unittest.mock
+    - Project: src.cli.interfaces (patched)
 
 Notes:
+    - Tests simulate CLI calls with patched prompt, info, and warning functions to count invocations.
+    - prompt_until_valid tests cover single-pass, one-prompt, and multi-prompt scenarios for validator return logic.
+    - Floating-point equality tests explicitly target edge rounding and epsilon boundaries.
 
 License:
     - Internal Use Only
 """
 
-import re
 import unittest
+from unittest.mock import patch
+
+from src.cli import interfaces as cli
 
 # noinspection PyProtectedMember
 import src.correct._helper as helper  # Direct internal import — acceptable in tests
@@ -112,6 +117,170 @@ class TestFloatsEqual(unittest.TestCase):
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
+
+
+class TestGenerateLogEntry(unittest.TestCase):
+    """
+    Unit tests for the `generate_log_entry` function.
+    """
+
+    def test_msg(self):
+        """
+        Should return message that includes all expected fields (field, before, after, reason) when values differ.
+        """
+        # ARRANGE
+        field = "Test"
+        before = "23"
+        after = "25"
+        reason = "Manual update."
+
+        # ACT
+        log = helper.generate_log_entry(field, before, after, reason)
+
+        with self.subTest("Log contains", Out=log, Exp=field):
+            self.assertIn(field, log)
+        with self.subTest("Log contains", Out=log, Exp=before):
+            self.assertIn(before, log)
+        with self.subTest("Log contains", Out=log, Exp=after):
+            self.assertIn(after, log)
+        with self.subTest("Log contains", Out=log, Exp=reason):
+            self.assertIn(reason, log)
+
+    def test_no_msg(self):
+        """
+        Should return an empty string when before and after values are identical.
+        """
+        # ARRANGE
+        field = "Test"
+        before = "23"
+        after = before
+        reason = "Manual update."
+
+        # ACT
+        log = helper.generate_log_entry(field, before, after, reason)
+
+        with self.subTest("Empty Log", Out=log):
+            self.assertEqual(log, "")
+
+
+class TestPromptUntilValid(unittest.TestCase):
+    """
+    Unit tests for the `prompt_until_valid` function.
+    """
+
+    data = "Test Data"
+    expected_out = "Beta"
+    field = "Test"
+
+    def no_return_when_beta(self, value):
+        if value == self.expected_out:
+            return ""
+        else:
+            return "Prompt again."
+
+    def asset_value_out(self, value_in: str, value_out: str, expected_out: str):
+        with self.subTest("Value", In=value_in, Out=value_out, Exp=expected_out):
+            self.assertEqual(value_out, self.expected_out)
+
+    def asset_info_call_count(self, actual_info_calls: int, expected_info_calls: int):
+        with self.subTest("Info call count", Out=actual_info_calls, Exp=expected_info_calls):
+            self.assertEqual(actual_info_calls, expected_info_calls)
+
+    def asset_warning_call_count(self, actual_warning_calls: int, expected_warning_calls: int):
+        with self.subTest("Warning call count", Out=actual_warning_calls, Exp=expected_warning_calls):
+            self.assertEqual(actual_warning_calls, expected_warning_calls)
+
+    def asset_prompt_call_count(self, actual_prompt_calls: int, expected_prompt_calls: int):
+        with self.subTest("Prompt call count", Out=actual_prompt_calls, Exp=expected_prompt_calls):
+            self.assertEqual(actual_prompt_calls, expected_prompt_calls)
+
+    def test_no_prompt(self):
+        """
+        Should not prompt the user when the initial value passes validation.
+        """
+
+        # ARRANGE
+        fn = self.no_return_when_beta
+        value_in = self.expected_out
+        expected_prompt_calls = 0
+        expected_info_calls = 0
+        expected_warning_calls = 0
+
+        # ACT
+        with (
+            patch.object(cli, "prompt_for_string_value", return_value=self.expected_out) as p_prompt,
+            patch.object(cli, "show_info") as p_info,
+            patch.object(cli, "show_warning") as p_warning,
+        ):
+            value_out = helper.prompt_until_valid(data=self.data, fn=fn, value=value_in, field=self.field)
+            actual_prompt_calls = p_prompt.call_count
+            actual_info_calls = p_info.call_count
+            actual_warning_calls = p_warning.call_count
+
+        # ASSERT
+        self.asset_value_out(value_in, value_out, self.expected_out)
+        self.asset_info_call_count(actual_info_calls, expected_info_calls)
+        self.asset_warning_call_count(actual_warning_calls, expected_warning_calls)
+        self.asset_prompt_call_count(actual_prompt_calls, expected_prompt_calls)
+
+    def test_one_prompt(self):
+        """
+        Should prompt once and return when the user provides a valid corrected value.
+        """
+
+        # ARRANGE
+        fn = self.no_return_when_beta
+        value_in = "alpha"
+        expected_prompt_calls = 1
+        expected_info_calls = 1
+        expected_warning_calls = 1
+
+        # ACT
+        with (
+            patch.object(cli, "prompt_for_string_value", return_value=self.expected_out) as p_prompt,
+            patch.object(cli, "show_info") as p_info,
+            patch.object(cli, "show_warning") as p_warning,
+        ):
+            value_out = helper.prompt_until_valid(data=self.data, fn=fn, value=value_in, field=self.field)
+            actual_prompt_calls = p_prompt.call_count
+            actual_info_calls = p_info.call_count
+            actual_warning_calls = p_warning.call_count
+
+        # ASSERT
+        self.asset_value_out(value_in, value_out, self.expected_out)
+        self.asset_info_call_count(actual_info_calls, expected_info_calls)
+        self.asset_warning_call_count(actual_warning_calls, expected_warning_calls)
+        self.asset_prompt_call_count(actual_prompt_calls, expected_prompt_calls)
+
+    def test_multiple_prompt(self):
+        """
+        Should loop and prompt multiple times until validator returns empty string.
+        """
+
+        # ARRANGE
+        fn = self.no_return_when_beta
+        value_in = "alpha"
+        user_inputs = ["Hello", "try again", self.expected_out]
+        expected_prompt_calls = 3
+        expected_info_calls = 1
+        expected_warning_calls = 3
+
+        # ACT
+        with (
+            patch.object(cli, "prompt_for_string_value", side_effect=user_inputs) as p_prompt,
+            patch.object(cli, "show_info") as p_info,
+            patch.object(cli, "show_warning") as p_warning,
+        ):
+            value_out = helper.prompt_until_valid(data=self.data, fn=fn, value=value_in, field=self.field)
+            actual_prompt_calls = p_prompt.call_count
+            actual_info_calls = p_info.call_count
+            actual_warning_calls = p_warning.call_count
+
+        # ASSERT
+        self.asset_value_out(value_in, value_out, self.expected_out)
+        self.asset_info_call_count(actual_info_calls, expected_info_calls)
+        self.asset_warning_call_count(actual_warning_calls, expected_warning_calls)
+        self.asset_prompt_call_count(actual_prompt_calls, expected_prompt_calls)
 
 
 if __name__ == "__main__":
