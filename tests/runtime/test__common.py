@@ -490,8 +490,8 @@ class TestLoadRuntimeJson(unittest.TestCase):
         data = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
         packet = utils.create_json_packet(data, source_file=self.filename)
         # Tamper with checksum to force a mismatch
-        packet[_jio._KEY_META][_jio._KEY_CHECKSUM] \
-            = packet[_jio._KEY_META][_jio._KEY_CHECKSUM] + 1  # type: ignore[index]
+        packet[_jio._KEY_META][_jio._KEY_SHA256] \
+            = packet[_jio._KEY_META][_jio._KEY_SHA256] + "1"  # type: ignore[index]
         utils.save_json_file(self.filepath, packet)
 
         required_keys = ["APP_NAME", "WELCOME"]

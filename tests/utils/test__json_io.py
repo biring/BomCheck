@@ -45,6 +45,92 @@ from unittest.mock import patch
 import src.utils._json_io as jio
 
 
+class TestComputePayloadSha256(unittest.TestCase):
+    """
+    Unit tests for `_compute_payload_sha256`.
+
+    Note: Use https://emn178.github.io/online-tools/sha256.html to generate expected value
+    """
+
+    def test_value(self):
+        """
+        Should match known SHA-256 for {"a": "1", "b": "2"} → concat("a1b2") based on independent verification using .
+        """
+        # ARRANGE
+        data = {"b": "2", "a": "1"}  # different insertion order
+        expected = "85337816D263D362ACB23A4255A636191075C2A90C47F2EE6DB3362F7DF11203"  # SHA256("a1b2").upper()
+
+        # ACT
+        result = jio._compute_payload_sha256(data)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_order_independence(self):
+        """
+        Should produce identical hash regardless of dict insertion order.
+        """
+        # ARRANGE
+        data_a = {"x": "10", "a": "Z", "m": "7"}
+        data_b = {"m": "7", "x": "10", "a": "Z"}  # same pairs, different order
+
+        # ACT
+        result_a = jio._compute_payload_sha256(data_a)
+        result_b = jio._compute_payload_sha256(data_b)
+
+        # ASSERT
+        with self.subTest(Out=result_a, Exp=result_b):
+            self.assertEqual(result_a, result_b)
+
+    def test_utf8(self):
+        """
+        Should correctly hash UTF-8 content. Example: {"Δ": "é", "a": "1"} → concat("a1Δé").
+        """
+        # ARRANGE
+        data = {"Δ": "é", "a": "1"}  # sorted keys: "a", "Δ" → "a1Δé"
+        expected = "81840CFFD7C0887838BA7B8E65E6EC2AA15A9243C1CB2DEDF131710C1E5EE033"  # SHA256("a1Δé").upper()
+
+        # ACT
+        result = jio._compute_payload_sha256(data)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_empty(self):
+        """
+        Should equal SHA-256 of empty string when payload is {}.
+        """
+        # ARRANGE
+        data = {}
+        expected = "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"  # SHA256("").upper()
+
+        # ACT
+        result = jio._compute_payload_sha256(data)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_stringification(self):
+        """
+        Should stringify non-string values before concatenation.
+
+        Example: {"x": 10, "y": True} → concat("x10yTrue").
+        """
+        # ARRANGE
+        data = {"x": 10, "y": True}
+        expected = "8FB6798C3A7699067328977CF29EDDCFCEE1E9F56A832216A3B4C661B9461C1D"  # SHA256("x10yTrue").upper()
+
+        # ACT
+        result = jio._compute_payload_sha256(data)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 class TestCreateJsonPacket(unittest.TestCase):
     """
     Unit test for the `create_json_packet` function.
@@ -59,18 +145,18 @@ class TestCreateJsonPacket(unittest.TestCase):
         source_file = "example.csv"
 
         fake_timestamp = "2025-09-06T12:00:00Z"
-        fake_checksum = 123456789
+        fake_checksum = "A591A6D40BF420404A011733CFB7B190D62C65BF0BCDA32B57B277D9AD9F146E"
 
         expected_payload = dict(payload)  # shallow copy
         expected_meta = {
             jio._KEY_UTC: fake_timestamp,
             jio._KEY_SOURCE: source_file,
-            jio._KEY_CHECKSUM: fake_checksum,
+            jio._KEY_SHA256: fake_checksum,
         }
 
         # Patch helper functions to control outputs
         with patch("src.utils._json_io._now_utc_iso", return_value=fake_timestamp), \
-                patch("src.utils._json_io._compute_dict_checksum_uint32",
+                patch("src.utils._json_io._compute_payload_sha256",
                       return_value=fake_checksum):
             # ACT
             result = jio.create_json_packet(payload, source_file)
@@ -751,114 +837,6 @@ class TestNowUtcIso(unittest.TestCase):
             self.assertEqual(parsed.microsecond, 0)
 
 
-class TestComputeDictChecksumUint32(unittest.TestCase):
-    """
-    Unit tests for `compute_dict_checksum_uint32` in `src.utils.json`.
-
-    These tests verify deterministic, order-independent checksumming of a dict by:
-      - Sorting keys lexicographically,
-      - Concatenating key+value text (values stringified),
-      - UTF-8 byte summation modulo 2^32.
-
-    Scope: Input→output correctness only. No mocks, no logging/print assertions.
-    """
-
-    def test_example_from_docstring_ascii(self):
-        """
-        Should match the worked example: {"a": "1", "b": "2"} → sum("a1b2") = 294.
-        """
-        # ARRANGE
-        data = {"b": "2", "a": "1"}  # Deliberately unsorted order
-        expected = 294  # 'a1b2' bytes → 97+49+98+50
-
-        # ACT
-        result = jio._compute_dict_checksum_uint32(data)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_insertion_order_independence(self):
-        """
-        Should produce the same checksum regardless of dict insertion order.
-        """
-        # ARRANGE
-        data_a = {"x": "10", "a": "Z", "m": "7"}
-        data_b = {"m": "7", "x": "10", "a": "Z"}  # Same pairs, different order
-
-        # ACT
-        result_a = jio._compute_dict_checksum_uint32(data_a)
-        result_b = jio._compute_dict_checksum_uint32(data_b)
-
-        # ASSERT
-        with self.subTest(Out=result_a, Exp=result_b):
-            self.assertEqual(result_a, result_b)
-
-    def test_empty_dict_returns_zero(self):
-        """
-        Should return 0 for an empty dictionary (no bytes to sum).
-        """
-        # ARRANGE
-        data = {}
-        expected = 0
-
-        # ACT
-        result = jio._compute_dict_checksum_uint32(data)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_unicode_utf8_handling(self):
-        """
-        Should correctly sum UTF-8 bytes for non-ASCII characters.
-        Example: {"a": "1", "Δ": "é"} → bytes("a1Δé") = [97,49,206,148,195,169] → 864.
-        """
-        # ARRANGE
-        data = {"Δ": "é", "a": "1"}  # Sorted keys: "a", "Δ" → concat "a1Δé"
-        expected = 864  # 97 + 49 + 206 + 148 + 195 + 169
-
-        # ACT
-        result = jio._compute_dict_checksum_uint32(data)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_value_stringification_for_non_string_values(self):
-        """
-        Should convert non-string values to strings before concatenation.
-        Example: {"x": 10, "y": True} → concat "x10yTrue" → sum = 754.
-        """
-        # ARRANGE
-        data = {"x": 10, "y": True}  # str(10) → "10", str(True) → "True"
-        expected = 754  # bytes("x10yTrue") sum
-
-        # ACT
-        result = jio._compute_dict_checksum_uint32(data)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_uint32_range_property_on_reasonable_input(self):
-        """
-        Should always return an int within the uint32 range [0, 2^32-1].
-        (Property check on a moderately sized input.)
-        """
-        # ARRANGE
-        # Build a moderately large mapping; keys sort lexicographically due to zero-padding.
-        data = {f"k{str(i).zfill(4)}": f"v{str(i * i)}" for i in range(0, 500)}
-
-        # ACT
-        result = jio._compute_dict_checksum_uint32(data)
-
-        # ASSERT
-        in_range = 0 <= result <= 0xFFFFFFFF
-        with self.subTest(Out=in_range, Exp=True):
-            self.assertTrue(in_range)
-
-
 class TestVerifyJsonPayloadChecksum(unittest.TestCase):
     """
     Unit tests for `verify_json_payload_checksum`
@@ -870,8 +848,8 @@ class TestVerifyJsonPayloadChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"a": "1", "b": "2", "Δ": "é"}  # Realistic sample including Unicode
-        checksum = jio._compute_dict_checksum_uint32(data)
-        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: checksum}, jio._KEY_PAYLOAD: data}
+        checksum = jio._compute_payload_sha256(data)
+        obj = {jio._KEY_META: {jio._KEY_SHA256: checksum}, jio._KEY_PAYLOAD: data}
         expected = True
 
         # ACT
@@ -888,8 +866,8 @@ class TestVerifyJsonPayloadChecksum(unittest.TestCase):
         # ARRANGE
         data = {"x": 10, "y": True,
                 "z": "ok"}  # Non-string values get stringified in checksum helper
-        checksum = jio._compute_dict_checksum_uint32(data)
-        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: str(checksum)}, jio._KEY_PAYLOAD: data}
+        checksum = jio._compute_payload_sha256(data)
+        obj = {jio._KEY_META: {jio._KEY_SHA256: checksum}, jio._KEY_PAYLOAD: data}
         expected = True
 
         # ACT
@@ -905,10 +883,10 @@ class TestVerifyJsonPayloadChecksum(unittest.TestCase):
         """
         # ARRANGE
         original_data = {"k1": "v1", "k2": "v2"}
-        checksum = jio._compute_dict_checksum_uint32(original_data)
+        checksum = jio._compute_payload_sha256(original_data)
 
         # Create object but tamper the data (simulate drift) without updating checksum
-        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: checksum}, jio._KEY_PAYLOAD: {"k1": "v1", "k2": "v2X"}}
+        obj = {jio._KEY_META: {jio._KEY_SHA256: checksum}, jio._KEY_PAYLOAD: {"k1": "v1", "k2": "v2X"}}
         expected = False
 
         # ACT
@@ -924,10 +902,9 @@ class TestVerifyJsonPayloadChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"alpha": "A", "beta": "B"}
-        correct_checksum = jio._compute_dict_checksum_uint32(data)
-
-        # Use an incorrect checksum (off-by-one) in meta
-        obj = {jio._KEY_META: {jio._KEY_CHECKSUM: correct_checksum + 1}, jio._KEY_PAYLOAD: data}
+        not_data = {"one": "1", "two": "2"} # Not the same as data
+        incorrect_checksum = jio._compute_payload_sha256(not_data)
+        obj = {jio._KEY_META: {jio._KEY_SHA256: incorrect_checksum}, jio._KEY_PAYLOAD: data}
         expected = False
 
         # ACT

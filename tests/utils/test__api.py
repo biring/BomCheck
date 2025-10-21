@@ -476,7 +476,7 @@ class TestJsonIO(unittest.TestCase):
         meta = pkt[_jio._KEY_META]
 
         # Structure: required meta keys present (no value pinning except source)
-        for key in (_jio._KEY_UTC, _jio._KEY_SOURCE, _jio._KEY_CHECKSUM):
+        for key in (_jio._KEY_UTC, _jio._KEY_SOURCE, _jio._KEY_SHA256):
             with self.subTest("Meta key present", Key=key, Out=(key in meta), Exp=True):
                 self.assertIn(key, meta)
 
@@ -650,16 +650,17 @@ class TestJsonIO(unittest.TestCase):
         data = {"x": "10", "y": True}
         # Compute checksum via implementation helper to build a valid packet
         from src.utils import _json_io as _jio  # local import to access helper
-        ck_good = _jio._compute_dict_checksum_uint32(data)
+        ck_good = _jio._compute_payload_sha256(data)
         pkt_good = {
             "meta_data": {"generated_at_utc": "Z", "source_file_name": "s",
-                          "payload_checksum": ck_good},
+                          "payload_sha256": ck_good},
             "payload_data": dict(data),
         }
-        ck_bad = ck_good + 1  # make incorrect checksum
+        not_data = {"one": "1", "two": "2"} # not the same as data
+        ck_bad = _jio._compute_payload_sha256(not_data)  # make incorrect checksum
         pkt_bad = {
             "meta_data": {"generated_at_utc": "Z", "source_file_name": "s",
-                          "payload_checksum": ck_bad},
+                          "payload_sha256": ck_bad},
             "payload_data": {"x": "10", "y": False},  # changed payload
         }
 

@@ -36,7 +36,7 @@ Notes:
 License:
  - Internal Use Only
 """
-
+import hashlib
 import json
 import re
 from datetime import datetime, timezone
@@ -55,12 +55,12 @@ LINE_KEY_VALUE_RE = re.compile(
 class JsonMeta(TypedDict):
     generated_at_utc: str
     source_file_name: str
-    payload_checksum: int  # uint32
+    payload_sha256: str
 
 
 _KEY_UTC: Final[str] = list(JsonMeta.__annotations__.keys())[0]
 _KEY_SOURCE: Final[str] = list(JsonMeta.__annotations__.keys())[1]
-_KEY_CHECKSUM: Final[str] = list(JsonMeta.__annotations__.keys())[2]
+_KEY_SHA256: Final[str] = list(JsonMeta.__annotations__.keys())[2]
 
 
 # JSON PACKET SCHEMA
@@ -143,44 +143,35 @@ def _now_utc_iso() -> str:
     )
 
 
-def _compute_dict_checksum_uint32(data: dict[str, Any]) -> int:
+def _compute_payload_sha256(payload: dict[str, Any]) -> str:
     """
-    Compute a deterministic 32-bit unsigned checksum from a dictionary's contents.
+    Compute a deterministic SHA-256 for a dictionary's contents.
 
     The checksum is calculated by:
       1. Sorting keys lexicographically to ensure consistent ordering.
       2. Concatenating each key and value with no separators.
       3. Encoding the concatenated string as UTF-8 bytes.
-      4. Summing all byte values modulo 2^32.
+      4. Compute SHA-256 over the encoded concatenated string.
 
     Args:
-        data (dict[str, Any]): Dictionary whose keys and values are included in the checksum. Values will be converted to strings before concatenation.
+        payload (dict[str, Any]): Dictionary whose keys and values are included in the checksum.
 
     Returns:
-        int: The checksum as an unsigned 32-bit integer.
-
-    Example:
-        # Ordered pairs: ("a", "1"), ("b", "2")
-        # Concatenated string: "a1b2"
-        # UTF-8 bytes: [97, 49, 98, 50]
-        # Sum = 97 + 49 + 98 + 50 = 294 → 294 (within uint32 range)
-        294
+        str: 64-char uppercase hex SHA-256.
     """
-    # Collect strings of keys and values in deterministic order
+
+    # Sorting keys ensures stable order across Python runs
     parts: list[str] = []
-    for key in sorted(data.keys()):
-        value = data[key]
+    for key in sorted(payload.keys()):
+        value = payload[key]
         parts.append(str(key))
         parts.append(str(value))
 
     # Convert concatenated string to UTF-8 bytes
-    byte_seq = "".join(parts).encode("utf-8")
+    encoded_data_string = "".join(parts).encode("utf-8")
 
-    # Sum bytes modulo 2^32 to fit into an unsigned 32-bit integer
-    checksum = 0
-    for byte in byte_seq:
-        checksum = (checksum + byte) & 0xFFFFFFFF
-    return checksum
+    # Calculate and return SHA-256
+    return hashlib.sha256(encoded_data_string).hexdigest().upper()
 
 
 def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, Any]:
@@ -192,7 +183,7 @@ def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, A
             "meta": {
                 "generated_at_utc": "<ISO 8601 UTC timestamp>",
                 "source_file_name": "<original filename>",
-                "checksum": <uint32 checksum of data>
+                "payload_sha256": <SHA-256 of payload>
             },
             "payload": { ... }  # shallow copy of the provided data
         }
@@ -208,7 +199,7 @@ def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, A
     meta_info = {
         _KEY_UTC: _now_utc_iso(),
         _KEY_SOURCE: str(source_file),
-        _KEY_CHECKSUM: _compute_dict_checksum_uint32(payload),
+        _KEY_SHA256: _compute_payload_sha256(payload),
     }
     # Return JSON-ready structure with shallow copy of `data
     return {_KEY_META: meta_info, _KEY_PAYLOAD: dict(payload)}
@@ -216,31 +207,29 @@ def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, A
 
 def verify_json_payload_checksum(packet: dict[str, Any]) -> bool:
     """
-    Verify that the calculated checksum of the payload matches the checksum stored in the metadata.
-
-    This function compares the stored checksum against a newly computed checksum for the payload. Returns True if they match, False otherwise.
+    Verify the SHA-256 of the payload matches the stored SHA-256 in the metadata.
 
     Args:
         packet (dict[str, Any]): JSON-like dictionary with the structure:
             {
                 "meta": {
-                    "checksum": <uint32>
+                    "SHA-256": <str>
                 },
                 "data": { ... }
             }
 
     Returns:
-        bool: True if the computed checksum matches the stored checksum; False otherwise.
+        bool: True if the computed and stored SHA-256 match; False otherwise.
     """
     # Extract metadata and data
     meta_section = packet[_KEY_META]
     data_section = packet[_KEY_PAYLOAD]
 
-    # Parse stored checksum as int
-    expected_checksum = int(meta_section[_KEY_CHECKSUM])
+    # Parse stored checksum
+    expected_checksum = meta_section[_KEY_SHA256]
 
     # Compute checksum for data
-    actual_checksum = _compute_dict_checksum_uint32(data_section)
+    actual_checksum = _compute_payload_sha256(data_section)
 
     # Return comparison result
     return actual_checksum == expected_checksum
