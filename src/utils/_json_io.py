@@ -1,11 +1,11 @@
 """
-Utility helpers for serializing/deserializing JSON and reading/writing JSON files.
+Utility functions for serializing and deserializing JSON data, reading/writing JSON files, and parsing strict key–value text formats.
 
 This module includes helpers to:
     - Conversion between dicts (string keys) ↔ JSON strings (`dict_to_json_string`, `json_string_to_dict`)
     - Reading/writing JSON files (`load_json_file`, `save_json_file`)
-    - JSON packet structure helpers with metadata and checksum support
-    - Strict key–value text parser for `"Key" = "Value"` configuration formats
+    - JSON packet structure helpers with metadata and deterministic SHA-256 checksums
+    - Parse strict `"Key" = "Value"` text formats with optional list values
 
 Typical uses include:
     - Centralized JSON I/O for configuration, small datasets, and test fixtures
@@ -27,10 +27,10 @@ Dependencies:
 Notes:
     - Keys are assumed to be strings; values must be JSON-serializable.
     - Files are read/written as UTF-8; `ensure_ascii=False` preserves Unicode characters.
-    - `indent_spaces=None` emits compact JSON; set to an int for pretty-printing.
-    - Functions raise `RuntimeError` with wrapped original exceptions for clearer diagnostics.
-    - Strict key–value parsing enforces `"Key" = "Value"` format and rejects duplicates.
     - Functions raise `RuntimeError` with wrapped original exceptions for clear diagnostics.
+    - Packet checksums are computed over sorted key–value pairs.
+    - Strict parser rejects duplicate keys and malformed lines; supports comments prefixed with `#`.
+    - Designed for deterministic serialization and integrity verification within the utils package.
     - Intended for internal use within the `utils` package to centralize JSON I/O.
 
 License:
@@ -46,9 +46,14 @@ LINE_KEY_VALUE_RE = re.compile(
     r'^\s*'  # Optional leading whitespace
     r'"([^"]+)"'  # "key" — one or more non-quote characters inside quotes
     r'\s*=\s*'  # Optional spaces around '='
-    r'"([^"]*)"'  # "value" — zero or more non-quote characters inside quotes
+    r'(?:'  # Non-capturing group for either form of value
+    r'"([^"]*)"'  # Case 1: "value" — zero or more non-quote characters inside quotes
+    r'|'  # OR
+    r'\[\s*([^\]]*?)\s*\]'  # Case 2: [ ... ] — list of values inside square brackets (no nested brackets)
+    r')'  # End non-capturing group
     r'\s*$'  # Optional trailing whitespace
 )
+LIST_ITEM_RE = re.compile(r'"([^"\\]*(?:\\.[^"\\]*)*)"')
 
 
 # JSON PACKET META DATA SCHEMA
@@ -77,14 +82,14 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
     """
     Parse a quoted key–value configuration text into a dictionary.
 
-    Each non-empty, non-comment line must match the exact form `"Key" = "Value"`. Lines beginning with `#` are ignored, and trailing comments introduced by `#` are stripped before validation. Invalid lines are skipped with a WARNING log entry. Duplicate keys terminate parsing with an exception.
+    Each non-empty, non-comment line must match the exact form `"Key" = "Value"` or `"Key" = ["Value1", "Value2", ...]`. Lines beginning with `#` are ignored, and trailing comments introduced by `#` are stripped before validation. Invalid lines are skipped with a WARNING log entry. Duplicate keys terminate parsing with an exception.
 
     Args:
         source_path (str): Logical name or file path used only for diagnostics in logs/errors.
         text (str): Entire input content to parse.
 
     Returns:
-        dict[str, str]: Mapping of parsed keys to values.
+        dict[str, str]: Mapping of parsed keys to values. List values are stored as their bracketed string representation (e.g., '["A", "B"]').
 
     Raises:
         RuntimeError: If the same key appears more than once in the input.
@@ -114,8 +119,26 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
                 f"Invalid key-value format at {source_path}:{line_no}; ignoring line: {raw_line!r}")
             continue
 
-        # Extract key/value from regex groups (1 = key, 2 = value).
-        key, value = match.group(1), match.group(2)
+        # Extract key/value from regex groups (1 = key, 2 = single value, 3 = list of values).
+        key = match.group(1)
+        value = None
+
+        # Case 1: Standard quoted value ("Key" = "Value")
+        if match.group(2) is not None:
+            value = match.group(2)
+
+        # Case 2: List-style value ("Key" = ["A", "B", "C"])
+        elif match.group(3) is not None:
+            raw_items = match.group(3)
+            # Extract only properly quoted items; supports escaped quotes and commas inside items
+            items = [m.group(1).encode("utf-8").decode("unicode_escape")
+                     for m in LIST_ITEM_RE.finditer(raw_items)]
+            value = "[" + ", ".join(f'"{i}"' for i in items) + "]"
+
+        else:
+            # Neither group matched; ignore this line safely
+            print(f"Invalid value at {source_path}:{line_no}; ignoring line: {raw_line!r}")
+            continue
 
         # Enforce unique keys.
         if key in result:
@@ -201,7 +224,7 @@ def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, A
         _KEY_SOURCE: str(source_file),
         _KEY_SHA256: _compute_payload_sha256(payload),
     }
-    # Return JSON-ready structure with shallow copy of `data
+    # Return JSON-ready structure with shallow copy of data
     return {_KEY_META: meta_info, _KEY_PAYLOAD: dict(payload)}
 
 

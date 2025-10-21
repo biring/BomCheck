@@ -751,6 +751,101 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
 
+    def test_list_values_basic_spacing(self):
+        """
+        Should parse list values with varying internal whitespace and normalize
+        to bracketed string with comma+space separators.
+        """
+        # ARRANGE
+        src = "lists.conf"
+        text = (
+            '"Fruits" = ["Apple","Banana" ,  "Cherry"  ]\n'
+            '"EmptyList" = [   ]\n'
+        )
+        # Expect normalized comma+space formatting in stored string
+        expected = {
+            "Fruits": '["Apple", "Banana", "Cherry"]',
+            "EmptyList": "[]",
+        }
+
+        # ACT
+        result = jio.parse_strict_key_value_to_dict(src, text)
+
+        # ASSERT
+        with self.subTest(Field="Fruits", Out=result.get("Fruits"), Exp=expected["Fruits"]):
+            self.assertEqual(result.get("Fruits"), expected["Fruits"])
+        with self.subTest(Field="EmptyList", Out=result.get("EmptyList"), Exp=expected["EmptyList"]):
+            self.assertEqual(result.get("EmptyList"), expected["EmptyList"])
+
+    def test_list_items_with_commas_and_unicode_escape(self):
+        """
+        Should keep commas inside quoted items and decode unicode escapes via unicode_escape.
+        Example item: "Last, First" and "Ohm=\\u03A9" -> "Ohm=Ω".
+        """
+        # ARRANGE
+        src = "lists_unicode.conf"
+        text = (
+            '"People" = ["Doe, Jane", "Smith, John"]\n'
+            '"Symbols" = ["Ohm=\\u03A9", "Delta=\\u0394"]\n'
+        )
+        expected = {
+            "People": '["Doe, Jane", "Smith, John"]',
+            "Symbols": '["Ohm=Ω", "Delta=Δ"]',
+        }
+
+        # ACT
+        result = jio.parse_strict_key_value_to_dict(src, text)
+
+        # ASSERT
+        with self.subTest(Field="People", Out=result.get("People"), Exp=expected["People"]):
+            self.assertEqual(result.get("People"), expected["People"])
+        with self.subTest(Field="Symbols", Out=result.get("Symbols"), Exp=expected["Symbols"]):
+            self.assertEqual(result.get("Symbols"), expected["Symbols"])
+
+    def test_list_ignores_unquoted_items(self):
+        """
+        Should only include properly quoted items and ignore unquoted tokens.
+        Example: ["Good", bad, "AlsoGood"] -> ["Good", "AlsoGood"].
+        """
+        # ARRANGE
+        src = "lists_partial.conf"
+        text = (
+            '"Mixed" = ["Good", bad, "AlsoGood", another, "End"]\n'
+        )
+        expected = {
+            "Mixed": '["Good", "AlsoGood", "End"]'
+        }
+
+        # ACT
+        result = jio.parse_strict_key_value_to_dict(src, text)
+
+        # ASSERT
+        with self.subTest(Field="Mixed", Out=result.get("Mixed"), Exp=expected["Mixed"]):
+            self.assertEqual(result.get("Mixed"), expected["Mixed"])
+
+    def test_list_duplicate_key_raises(self):
+        """
+        Should still detect duplicate keys when using list-style values.
+        """
+        # ARRANGE
+        src = "dupe_lists.conf"
+        text = (
+            '"Key" = ["A", "B"]\n'
+            '"Key" = ["C"]\n'
+        )
+        expected_error = RuntimeError.__name__
+
+        # ACT
+        try:
+            jio.parse_strict_key_value_to_dict(src, text)
+            result = ""
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected_error):
+            self.assertEqual(result, expected_error)
+
 
 class TestNowUtcIso(unittest.TestCase):
     """
@@ -902,7 +997,7 @@ class TestVerifyJsonPayloadChecksum(unittest.TestCase):
         """
         # ARRANGE
         data = {"alpha": "A", "beta": "B"}
-        not_data = {"one": "1", "two": "2"} # Not the same as data
+        not_data = {"one": "1", "two": "2"}  # Not the same as data
         incorrect_checksum = jio._compute_payload_sha256(not_data)
         obj = {jio._KEY_META: {jio._KEY_SHA256: incorrect_checksum}, jio._KEY_PAYLOAD: data}
         expected = False
