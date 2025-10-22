@@ -764,8 +764,8 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
         )
         # Expect normalized comma+space formatting in stored string
         expected = {
-            "Fruits": '["Apple", "Banana", "Cherry"]',
-            "EmptyList": "[]",
+            "Fruits": ["Apple", "Banana", "Cherry"],
+            "EmptyList": [],
         }
 
         # ACT
@@ -789,8 +789,8 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
             '"Symbols" = ["Ohm=\\u03A9", "Delta=\\u0394"]\n'
         )
         expected = {
-            "People": '["Doe, Jane", "Smith, John"]',
-            "Symbols": '["Ohm=Ω", "Delta=Δ"]',
+            "People": ["Doe, Jane", "Smith, John"],
+            "Symbols": ["Ohm=Ω", "Delta=Δ"],
         }
 
         # ACT
@@ -813,7 +813,7 @@ class TestParseStrictKeyValueToDict(unittest.TestCase):
             '"Mixed" = ["Good", bad, "AlsoGood", another, "End"]\n'
         )
         expected = {
-            "Mixed": '["Good", "AlsoGood", "End"]'
+            "Mixed": ["Good", "AlsoGood", "End"]
         }
 
         # ACT

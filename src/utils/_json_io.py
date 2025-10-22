@@ -78,7 +78,7 @@ _KEY_META: Final[str] = list(JsonPkt.__annotations__.keys())[0]
 _KEY_PAYLOAD: Final[str] = list(JsonPkt.__annotations__.keys())[1]
 
 
-def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str]:
+def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, Any]:
     """
     Parse a quoted key–value configuration text into a dictionary.
 
@@ -89,12 +89,12 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
         text (str): Entire input content to parse.
 
     Returns:
-        dict[str, str]: Mapping of parsed keys to values. List values are stored as their bracketed string representation (e.g., '["A", "B"]').
+        dict[str, Any]: keys map to either str (for "Key" = "Value") or list[str] (for "Key" = ["A", "B"]).
 
     Raises:
         RuntimeError: If the same key appears more than once in the input.
     """
-    result: dict[str, str] = {}
+    result: dict[str, str | list[str]] = {}
 
     for line_no, raw_line in enumerate(text.splitlines(), start=1):
         # Ignore empty lines exactly (after trimming whitespace).
@@ -133,7 +133,7 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, str
             # Extract only properly quoted items; supports escaped quotes and commas inside items
             items = [m.group(1).encode("utf-8").decode("unicode_escape")
                      for m in LIST_ITEM_RE.finditer(raw_items)]
-            value = "[" + ", ".join(f'"{i}"' for i in items) + "]"
+            value = items
 
         else:
             # Neither group matched; ignore this line safely
