@@ -55,6 +55,16 @@ from ._file_path import (
 )
 
 # noinspection PyProtectedMember
+from ._folder_path import (
+    construct_folder_path,
+    create_folder_if_missing,
+    find_drive_letter,
+    find_root_folder,
+    is_folder_path,
+    list_immediate_sub_folders,
+)
+
+# noinspection PyProtectedMember
 from ._json_io import (
     create_json_packet,
     dict_to_json_string,
@@ -115,6 +125,14 @@ __all__ = [
     "get_files_in_directory",
     "is_existing_file_path",
     "is_valid_file_path",
+
+    # folder_path
+    "construct_folder_path",
+    "create_folder_if_missing",
+    "find_drive_letter",
+    "find_root_folder",
+    "is_folder_path",
+    "list_immediate_sub_folders",
 
     # json_io
     "create_json_packet",

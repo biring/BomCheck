@@ -44,7 +44,6 @@ import os
 import sys
 
 import src.utils as utils
-import src.utils.directory as dir_util
 
 # CONSTANTS
 DEST_FOLDER = ("src", "runtime",)
@@ -53,15 +52,15 @@ DEST_FOLDER = ("src", "runtime",)
 def main() -> int:
     # Discover *.txt sources colocated with this script
     source_dir = os.path.dirname(os.path.abspath(__file__))
-    source_filenames = utils.get_files_in_directory(source_dir, utils.TEXT_FILE_TYPE)
+    source_filenames = utils.get_files_in_directory(source_dir, list(utils.TEXT_FILE_TYPE))
     if not source_filenames:
         print(f"No '{utils.TEXT_FILE_TYPE}' source files found in {source_dir}")
         return -1
 
     # Resolve and validate the runtime output directory
-    project_root = dir_util.find_root()
-    runtime_dir = dir_util.construct_directory_path(project_root, DEST_FOLDER)
-    if not dir_util.is_directory_path(runtime_dir):
+    project_root = utils.find_root_folder()
+    runtime_dir = utils.construct_folder_path(project_root, DEST_FOLDER)
+    if not utils.is_folder_path(runtime_dir):
         print(f"Missing runtime folder structure {DEST_FOLDER} under project root: {project_root}")
         return -1
 

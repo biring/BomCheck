@@ -446,6 +446,158 @@ class TestFilePath(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
+class TestFolderPath(unittest.TestCase):
+    """
+    Unit tests for the public API functions in the `utils._folder_path` module.
+    """
+
+    def setUp(self):
+        """
+        Create a temporary directory tree for testing folder utilities.
+        """
+        self.temp_dir = tempfile.mkdtemp(prefix="api_folder_")
+        self.sub_a = os.path.join(self.temp_dir, "A")
+        self.sub_b = os.path.join(self.temp_dir, "B")
+        os.makedirs(self.sub_a, exist_ok=True)
+        os.makedirs(self.sub_b, exist_ok=True)
+
+    def tearDown(self):
+        """
+        Clean up all directories created for tests.
+        """
+        for root, dirs, files in os.walk(self.temp_dir, topdown=False):
+            for name in files:
+                os.remove(os.path.join(root, name))
+            for name in dirs:
+                os.rmdir(os.path.join(root, name))
+        os.rmdir(self.temp_dir)
+
+    def test_construct_folder_path(self):
+        """
+        Should join subfolders to base path and normalize the result.
+        """
+        # ARRANGE
+        base = self.temp_dir
+        subs = ("x", "y", "z")
+        expected = os.path.normpath(os.path.join(base, *subs))
+
+        # ACT
+        result = api.construct_folder_path(base, subs)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_create_folder_if_missing(self):
+        """
+        Should create a folder if missing and return True.
+        """
+        # ARRANGE
+        new_dir = os.path.join(self.temp_dir, "new_folder")
+        exists_before = os.path.isdir(new_dir)
+
+        # ACT
+        result = api.create_folder_if_missing(new_dir)
+        exists_after = os.path.isdir(new_dir)
+
+        # ASSERT
+        with self.subTest("Pre-existence", Out=exists_before, Exp=False):
+            self.assertFalse(exists_before)
+        with self.subTest("Result", Out=result, Exp=True):
+            self.assertTrue(result)
+        with self.subTest("Existence after", Out=exists_after, Exp=True):
+            self.assertTrue(exists_after)
+
+    def test_create_folder_if_missing_existing(self):
+        """
+        Should return True when folder already exists.
+        """
+        # ARRANGE
+        os.makedirs(self.sub_a, exist_ok=True)
+
+        # ACT
+        result = api.create_folder_if_missing(self.sub_a)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=True):
+            self.assertTrue(result)
+
+    def test_is_folder_path(self):
+        """
+        Should return True for folders and False otherwise.
+        """
+        # ARRANGE
+        file_path = os.path.join(self.temp_dir, "file.txt")
+        with open(file_path, "w", encoding="utf-8") as f:
+            f.write("x")
+
+        test_cases = [(self.temp_dir, True), (file_path, False), ("nope", False)]
+
+        # ACT + ASSERT
+        for path, expected in test_cases:
+            result = api.is_folder_path(path)
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_list_immediate_sub_folders(self):
+        """
+        Should list only direct subfolders and raise for invalid path.
+        """
+        # ARRANGE
+        expected = {"A", "B"}
+
+        # ACT
+        result = set(api.list_immediate_sub_folders(self.temp_dir))
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+        # INVALID path should raise
+        bad_path = os.path.join(self.temp_dir, "no_folder_here")
+        expected_error = FileNotFoundError.__name__
+        try:
+            api.list_immediate_sub_folders(bad_path)
+            err = ""
+        except Exception as e:
+            err = type(e).__name__
+
+        with self.subTest(Out=err, Exp=expected_error):
+            self.assertEqual(err, expected_error)
+
+    def test_find_root_folder_and_dev_resolution(self):
+        """
+        Should return a valid folder path for project root.
+        """
+        # ACT
+        result = api.find_root_folder()
+
+        # ASSERT
+        with self.subTest("Exists", Out=os.path.isdir(result), Exp=True):
+            self.assertTrue(os.path.isdir(result))
+
+    def test_find_drive_letter_non_windows(self):
+        """
+        Should raise ValueError on non-Windows systems.
+        """
+        # ARRANGE
+        expected = ValueError.__name__
+
+        # ACT
+        try:
+            api.find_drive_letter()
+            result = ""
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            if os.name != "nt":
+                self.assertEqual(result, expected)
+            else:
+                self.assertIn(result, ("", None))  # allowed on Windows
+
+
 class TestJsonIO(unittest.TestCase):
     """
     Unit tests for the public JSON I/O API functions exposed via `src.utils._api`.
@@ -656,7 +808,7 @@ class TestJsonIO(unittest.TestCase):
                           "payload_sha256": ck_good},
             "payload_data": dict(data),
         }
-        not_data = {"one": "1", "two": "2"} # not the same as data
+        not_data = {"one": "1", "two": "2"}  # not the same as data
         ck_bad = _jio._compute_payload_sha256(not_data)  # make incorrect checksum
         pkt_bad = {
             "meta_data": {"generated_at_utc": "Z", "source_file_name": "s",

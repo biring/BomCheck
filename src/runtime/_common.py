@@ -40,7 +40,6 @@ License:
 """
 
 # Internal utility imports for runtime resource management
-import src.utils.directory as dir_util
 import src.utils as utils
 
 # CONSTANTS
@@ -254,14 +253,14 @@ def _resolve_json_file_path(resource_name: str, base_dir: str | None = None) -> 
     # Locate the application root and the runtime directory
     if base_dir is None:
         # Locate the application root and runtime folder
-        project_root = dir_util.find_root()
-        runtime_dir = dir_util.construct_directory_path(project_root, RUNTIME_FOLDER)
+        project_root = utils.find_root_folder()
+        runtime_dir = utils.construct_folder_path(project_root, RUNTIME_FOLDER)
     else:
         # Use the provided base directory (useful for tests)
         runtime_dir = base_dir
 
     # Enumerate JSON files available in the runtime directory
-    available_filenames = utils.get_files_in_directory(runtime_dir, utils.JSON_FILE_EXT)
+    available_filenames = utils.get_files_in_directory(runtime_dir, list(utils.JSON_FILE_EXT))
 
     # Validate presence of the requested resource file
     if target_filename not in available_filenames:
