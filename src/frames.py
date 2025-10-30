@@ -564,8 +564,8 @@ def check_qty_matched_ref_des_count(df):
         # Count the number of reference designators
         designator_string = row.iloc[designator_index]
         count_of_designator = len(designator_string.split(','))
-        # raise an error when counts don't match
-        if count_of_designator != count_of_quantity:
+        # raise an error when counts is integer and does not match
+        if count_of_designator != count_of_quantity and int(count_of_quantity) == float(count_of_quantity):
             print(f"Quantity does not match number of designators for item {row.iloc[0]}")
             print('Fix input data file and try again')
             exit()
