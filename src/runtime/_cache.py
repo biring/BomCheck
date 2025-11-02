@@ -31,6 +31,7 @@ License:
 
 from . import _helpers as hlp
 
+
 class Cache:
     """
     Manage in-memory access to a runtime JSON resource.
