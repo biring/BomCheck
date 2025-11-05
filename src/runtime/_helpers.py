@@ -46,6 +46,7 @@ def assert_all_values_are_str_or_list_str(key_value_map: dict[str, str | list[st
 
     Raises:
         TypeError: If any value in the dictionary is not of type `str`.
+        TypeError: If the input is not a dictionary, if any key is not a string, or if any value is not a string or list of strings.
     """
 
     # Ensure provided data is a dict
@@ -65,14 +66,14 @@ def assert_all_values_are_str_or_list_str(key_value_map: dict[str, str | list[st
         raise TypeError(f"Invalid value type for key '{key}': expected str or list[str], got {type(value).__name__}.")
 
 
-def assert_required_keys_are_present(key_value_map: dict[str, str], required_keys: list[str]) -> None:
+def assert_required_keys_are_present(key_value_map: dict[str, str | list [str]], required_keys: list[str]) -> None:
     """
     Verify that all required keys are present in the provided dictionary.
 
     Compares the list of `required_keys` against the keys in `key_value_map` and raises a `KeyError` if any required key is missing.
 
     Args:
-        key_value_map (dict[str, str]): Dictionary mapping keys to string values.
+        key_value_map (dict[str, str | list[str] ]): Dictionary mapping keys to string values or list of string.
         required_keys (list[str]): List of keys that must be present in the dictionary.
 
     Returns:
@@ -128,15 +129,14 @@ def load_and_validate_json(resource_name: str, resource_path: str) -> dict:
         dict[str, str | list[str]]: Validated mapping extracted from the JSON file.
 
     Raises:
-        RuntimeError: If the file read fails, checksum verification fails, payload data is empty or payload
-            extraction fails.
+        RuntimeError: If the file read fails, checksum verification fails, payload data is empty or payload extraction fails.
     """
     # Load the JSON package
     json_package = utils.load_json_file(resource_path)
 
     # Verify integrity of the payload via checksum in meta
     if not utils.verify_json_payload_checksum(json_package):
-        raise RuntimeError(f"'{resource_name} runtime resource JSON data checksum verification failed.")
+        raise RuntimeError(f"'{resource_name}' runtime resource JSON data checksum verification failed.")
 
     # Extract the "key:value" mapping (shallow copy)
     key_value_map = utils.extract_payload(json_package)
