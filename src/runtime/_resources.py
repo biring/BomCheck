@@ -82,7 +82,7 @@ def _load_component_type() -> None:
         None: Updates the module-level cache in place.
 
     Raises:
-        RuntimeError: If the resource file is missing, corrupt, or fails validation.
+        RuntimeError: If the resource cannot be loaded, validated, or accessed.
     """
     try:
         component_type_cache.load_resource(COMPONENT_TYPE_SOURCE, component_type.REQUIRED_KEYS)
@@ -106,7 +106,7 @@ def get_component_type_keys() -> tuple[str, ...]:
         tuple[str, ...]: All keys present in the resource, in cache order.
 
     Raises:
-        RuntimeError: If the resource has not been loaded or the cache is empty.
+        RuntimeError: If the resource cannot be loaded, validated, or accessed.
     """
     try:
         return component_type_cache.get_all_keys()
@@ -131,7 +131,7 @@ def get_component_type_values(key: str) -> tuple[str, ...]:
         tuple[str, ...]: The list of strings mapped to the key.
 
     Raises:
-        RuntimeError: If the resource is not loaded or the key is missing or invalid.
+        RuntimeError: If the resource cannot be loaded, validated, or accessed.
     """
     try:
         return component_type_cache.get_list_value(key)
