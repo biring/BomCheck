@@ -1,44 +1,52 @@
 """
-Public bindings for runtime resource categories.
+Public bindings for runtime resources.
 
-This module acts as the stable, public-facing interface to all runtime
-resource categories. Each category is exposed with:
- - A module alias providing its public API (`get()` and `load()` functions)
- - A companion module containing its key constants and REQUIRED_KEYS list
-
-This indirection allows category modules (e.g., `_info.py`) to remain
-internal while exposing them under predictable, stable names. This
-supports easier refactoring and external usage without breaking imports.
-
-Main capabilities:
- - Provide a single import point for all runtime categories
- - Keep category implementations private while exposing their APIs
- - Group each category’s accessors and keys in one place
+Provides a stable import surface for loading runtime JSON resources and accessing component-type keys/values while keeping per-category modules private.This module exposes the minimal API to load runtime JSON resources and retrieve component-type data without directly accessing internal modules.
 
 Example Usage:
+    # Preferred usage via public package interface:
     from src.runtime import interfaces as rt
-    # Access a string resource by key constant
-    greeting = rt.info_msg.get(rt.info_key.WELCOME)
+    rt.load_all_resources()
+
+    # Direct internal access (allowed in tests or internal scripts only):
+    Not applicable. Use public package interface provided above
 
 Dependencies:
- - Python >= 3.10
- - Internal: Each category module and its corresponding *_keys module
+    - Python >= 3.10
+    - Standard Library: typing
 
 Notes:
- - Categories should follow the naming convention:
-       <category>_msg → category loader/accessor module
-       <category>_key → category constants module
- - All public imports for runtime categories should be added here.
- - Designed for use by higher-level code, not for category implementation.
+    - Serves as the boundary layer for runtime resource access.
+    - Keeps lower-level modules private and stable across refactors.
+    - Intended for other layers like controllers or services.
 
 License:
- - Internal Use Only
+    - Internal Use Only
 """
 
-from . import _info as info_msg
-from . import _info_keys as info_key
+# noinspection PyProtectedMember
+from ._helpers import (
+    RUNTIME_JSON_PREFIX,
+    RUNTIME_FOLDER,
+)
+
+# noinspection PyProtectedMember
+from ._resources import (
+    COMPONENT_TYPE_SOURCE,
+
+    load_all_resources,
+
+    get_component_type_keys,
+    get_component_type_values,
+)
 
 __all__ = [
-    'info_msg',
-    'info_key'
+    RUNTIME_JSON_PREFIX,
+    RUNTIME_FOLDER,
+    COMPONENT_TYPE_SOURCE,
+
+    'load_all_resources',
+
+    'get_component_type_keys',
+    'get_component_type_values',
 ]
