@@ -48,7 +48,7 @@ class Cache:
 
     def _fetch_value(self, key: str) -> str | list[str]:
         """
-        Retrieve values for a given key.
+        Retrieve the raw value for a given key from the loaded resource.
 
         Args:
             key (str): Key to look up within the loaded resource.
@@ -57,12 +57,16 @@ class Cache:
             str | list[str]: String value or list of string values for the specified key.
 
         Raises:
-            TypeError: If key name is not string type.
-            KeyError: If key name not found.
+            RuntimeError: If no resource has been loaded.
+            TypeError: If the key is not a string.
+            KeyError: If the key is not present in the loaded resource.
         """
+        if self.data_map is None:
+            raise RuntimeError("No resource loaded. Call load_resource() before accessing values.")
+
         # Verify key type
         if not isinstance(key, str):
-            raise TypeError(f"'{key}' name must be type sting, got {type(key).__name__}.")
+            raise TypeError(f"'{key}' name must be type string, got {type(key).__name__}.")
 
         # get key value
         try:
@@ -86,7 +90,11 @@ class Cache:
             None: The data is stored internally for subsequent access.
 
         Raises:
-            ResourceWarning: If the resource is already loaded.
+            ResourceWarning: If the resource is already loaded for this Cache instance.
+            FileNotFoundError: If the runtime JSON file for the given resource is not found.
+            RuntimeError: If the JSON file cannot be read, the checksum verification fails, the payload is empty, or payload extraction fails.
+            KeyError: If any required key is missing from the loaded data.
+            TypeError: If the loaded data contains invalid types (non-str keys/values).
         """
 
         # Prevent duplicate loading
@@ -116,11 +124,11 @@ class Cache:
             tuple[str, ...]: All keys currently cached for the resource.
 
         Raises:
-            RuntimeError: If no resource has been loaded or the cache is empty.
+            KeyError: If no resource has been loaded yet.
         """
         # Ensure the cache has been initialized with a resource
         if self.data_map is None:
-            raise KeyError(f"'{self.resource}' resource is empty. Load resource before requesting value of a key.")
+            raise KeyError(f"'{self.resource}' resource is not loaded. Load resource before requesting value of a key.")
 
         return tuple(self.data_map.keys())
 
@@ -135,7 +143,9 @@ class Cache:
             str: The string value associated with the key.
 
         Raises:
-            TypeError: If value is not string type.
+            RuntimeError: If no resource has been loaded.
+            TypeError: If the key is not a string or the stored value is not a string.
+            KeyError: If the key is not present in the resource.
         """
         value = self._fetch_value(key)
 
@@ -149,19 +159,24 @@ class Cache:
         """
         Retrieve a list of string values for a given key.
 
+        If the stored value is a single string, it is normalized to a single-item list.
+
         Args:
             key (str): Key to look up within the loaded resource.
 
         Returns:
-            tuple[str, ...]: Tuple of string values for the specified key.
+            tuple[str, ...]: Tuple of values for the specified key. A stored string is returned
+                as a one-element tuple.
 
         Raises:
-            RuntimeError: If value lookup fails.
+            RuntimeError: If no resource has been loaded.
+            TypeError: If the key is not a string or the stored value is neither a string nor a list.
+            KeyError: If the key is not present in the resource.
         """
         value = self._fetch_value(key)
 
         # Enforce value is a list
-        if not isinstance(value, str | list):
+        if not isinstance(value, (str | list)):
             raise TypeError(f"'{key}' key value should be type string or list, got type '{type(value).__name__}'. ")
 
         # Normalize single string into list
