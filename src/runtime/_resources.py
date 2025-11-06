@@ -62,7 +62,7 @@ from . import _component_type as component_type
 # MODULE CONSTANTS
 # Name of the JSON resource file (without extension) for component type definitions.
 # Used as the logical identifier for loading the corresponding runtime resource.
-COMPONENT_TYPE_SOURCE: Final[str] = "_component_type"
+COMPONENT_TYPE_SOURCE: Final[str] = "component_type"
 
 # MODULE VARIABLES
 # Global cache instance storing data from the '_component_type.json' resource.
