@@ -146,13 +146,16 @@ class TestLoadComponentType(_Asserts, _TestFixture):
         """
         # ARRANGE
         expected_error = RuntimeError.__name__
+        self.tear_down() # to remove the loaded file so it does not load
 
-        # ACT
-        try:
-            resources._load_component_type()
-            actual_error = ""
-        except Exception as e:
-            actual_error = type(e).__name__
+        with patch.object(utils, "find_root_folder") as p_root:
+            p_root.return_value = self.tmp_project_root
+            # ACT
+            try:
+                resources._load_component_type()
+                actual_error = ""
+            except Exception as e:
+                actual_error = type(e).__name__
 
         # ASSERT
         self.assert_equal(actual=actual_error, expected=expected_error)
@@ -205,7 +208,6 @@ class TestGetComponentTypeKeys(_Asserts, _TestFixture):
                 actual_error = ""
             except Exception as e:
                 actual_error = type(e).__name__
-                print(e)
 
         # ASSERT
         self.assert_equal(actual=actual_error, expected=expected_error)
