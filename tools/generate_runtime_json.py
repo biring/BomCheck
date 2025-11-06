@@ -1,37 +1,48 @@
 """
-Generate runtime JSON files from colocated *.txt key=value sources.
+Generate runtime JSON files from co-located json sources.
 
-This module provides:
-    - Discovery of sources files defined in `DATA_LOCATION`
-    - Strict parsing of key=value content into a dict
-    - Construction of per-source `_<basename>.json` outputs
-    - Wrapping the payload with metadata/checksum
-    - Exit codes suitable for use in build or CI scripts
+This tool:
+  - Discovers source files configured in `DATA_LOCATION`
+  - Builds per-source outputs named with `rt.RUNTIME_JSON_PREFIX` + "<basename>.json"
+  - Wraps the payload (key/value map) with metadata which contains a SHA-256 checksum
+  - Returns exit codes suitable for CI/build pipelines
 
-Common use cases include seeding runtime lookup tables, configuration stubs, and small data dictionaries that should be packaged as JSON at build time.
+
+Typical uses:
+  - Seeding runtime lookup tables
+  - Generating configuration stubs
+  - Producing small data dictionaries that must ship as JSON at build time
+
 
 Example Usage:
     # Preferred usage via package/module import:
     Not applicable. Not for use with other modules.
 
     # Direct CLI usage (from repo root or the script's directory):
-    python -m tools/generate_runtime_json.py
-    or:
     python tools/generate_runtime_json.py
 
+Behavior:
+  - Each FileLocation maps <source_folder>/<name>.json → <dest_folder>/<prefix>_<name>.json
+  - Input files must be valid JSON. Invalid JSON will raise during load.
+  - Destination directory must already exist; this tool does not create directories.
+  - If an existing runtime file is present and its payload checksum matches the new source,
+    generation is skipped for that file (“no change detected”).
+  - If an existing runtime file is unreadable/invalid, a warning is printed and the file is regenerated.
+
+Exit codes:
+  -  0  — all files processed successfully (including skipped/no-op cases)
+  - -1  — one or more files failed to generate
+
 Dependencies:
-    - Python >= 3.10
-    - Standard Library: os, sys
-    - Internal Modules: src.utils
+  - Python >= 3.10
+  - Standard library: sys, dataclasses
+  - Internal: src.utils, src.runtime.interfaces
 
 Notes:
-    - Input format is STRICT `"key"="value"` per line; parsing failures raise exceptions.
-    - Output directory is resolved as `<project_root>/src/runtime`; this tool does not create the directory if missing.
-    - File name and extension validation are enforced via `src.utils.file`.
-    - JSON payload wrapper is produced by `create_json_packet`, which embeds metadata (e.g., source filename) and a checksum over the data.
-    - Returns:
-         *  0 on success (all files processed)
-         * -1 if any generation failed
+  - Source JSON must be a strict key/value mapping (dict). Non-mapping content will raise.
+  - Payloads are wrapped via `utils.create_json_packet(...)` before saving.
+  - Checksums are computed with SHA-256 over the payload mapping.
+  - Console output is designed for human-readable CI logs.
 
 License:
  - Internal Use Only
@@ -78,12 +89,12 @@ def main() -> int:
         print(f"🧪 Processing {data.source_file_name}")
         try:
             # Build source file path
-            source_file_name = data.source_file_name + utils.TEXT_FILE_TYPE
+            source_file_name = data.source_file_name + utils.JSON_FILE_EXT
             source_folder_path = utils.construct_folder_path(project_root, data.source_folder_path)
             source_file_path = utils.build_file_path(source_folder_path, source_file_name)
 
             # Verify source file name
-            utils.assert_filename_with_extension(source_file_path, utils.TEXT_FILE_TYPE)
+            utils.assert_filename_with_extension(source_file_path, utils.JSON_FILE_EXT)
 
             # Verify source file exists
             if not utils.is_existing_file_path(source_file_path):
@@ -99,15 +110,14 @@ def main() -> int:
 
             # Verify destination file folder exists
             if not utils.is_folder_path(dest_folder_path):
-                raise RuntimeError("⚠️ Destination folder missing: {dest_folder_path}. This tool does not create directories.")
+                raise RuntimeError(f"⚠️ Destination folder missing: {dest_folder_path}. This tool does not create directories.")
 
             # Warn user when creating new destination file
             if not utils.is_existing_file_path(dest_file_path):
                 print(f"⚠️ Destination file missing: {dest_file_name}. This tool will create a new file.")
 
             # Load and parse strict key/value content
-            raw_text = utils.load_text_file(source_file_path)
-            new_kv_map = utils.parse_strict_key_value_to_dict(source_file_path, raw_text)
+            new_kv_map = utils.load_json_file(source_file_path)
             new_sha256 = sha256(new_kv_map)
 
             # Compare with existing payload if present
