@@ -35,6 +35,78 @@ from tests.fixtures import v3_value as vfx
 from tests.fixtures import v3_bom as bfx
 
 
+class TestComponentTypeLookup(unittest.TestCase):
+    """
+    Unit tests for the `component_type_lookup` function.
+    """
+
+    def test_exact_match(self):
+        """
+        Should return the canonical key when both metrics match a known alias above the threshold.
+        """
+        # ARRANGE
+        str_in = "SMD Ceramic Capacitor"
+        ignore_list = ("SMD", "DIP")
+        lookup_dict = {
+            "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
+            "Resistor": ["Resistor", "Res", "Resistance"]
+        }
+        expected_out = "Capacitor"
+
+        # ACT
+        result, log = auto.component_type_lookup(str_in, ignore_list, lookup_dict)
+
+        # ASSERT
+        with self.subTest("Output", Out=result, Exp=expected_out):
+            self.assertEqual(result, expected_out)
+        with self.subTest("Log", Out=log):
+            self.assertIn(str_in, log)
+            self.assertIn(expected_out, log)
+            self.assertIn(mdl.RowFields.COMPONENT, log)
+
+    def test_no_match_below_threshold(self):
+        """
+        Should return the original string and empty log when no matches exceed the threshold.
+        """
+        # ARRANGE
+        str_in = "Unknown Part"
+        ignore_str = ("SMD",)
+        lookup_dict = {
+            "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
+            "Resistor": ["Resistor", "Res", "Resistance"]
+        }
+
+        # ACT
+        result, log = auto.component_type_lookup(str_in, ignore_str, lookup_dict)
+
+        # ASSERT
+        with self.subTest("Output", Out=result, Exp=str_in):
+            self.assertEqual(result, str_in)
+        with self.subTest("Log", Out=log, Exp=""):
+            self.assertEqual(log, "")
+
+    def test_multiple_key_matches(self):
+        """
+        Should return the original input when multiple canonical keys match (ambiguity).
+        """
+        # ARRANGE
+        str_in = "Ceramic Capacitor"
+        ignore_str = ()
+        lookup_dict = {
+            "Capacitor": ["Ceramic Capacitor"],
+            "Resistor": ["Ceramic Capacitor"],  # Duplicate alias to create ambiguity
+        }
+
+        # ACT
+        result, log = auto.component_type_lookup(str_in, ignore_str, lookup_dict)
+
+        # ASSERT
+        with self.subTest("Output", Out=result, Exp=str_in):
+            self.assertEqual(result, str_in)
+        with self.subTest("Log", Out=log, Exp=""):
+            self.assertEqual(log, "")
+
+
 class TestExpandDesignators(unittest.TestCase):
     """
     Unit tests for the `expand_designators` function.

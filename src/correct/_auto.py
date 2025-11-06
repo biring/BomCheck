@@ -45,9 +45,71 @@ LOG_TOTAL_COST_CHANGE = "Total cost set to the product of material and overhead 
 ERR_FLOAT_PARSE = "{field} value '{value}' is not a valid floating point number: {reason}"
 
 
+def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict: dict[str, list[str]]) -> tuple[
+    str, str]:
+    """
+    Perform fuzzy lookup to map a raw component type string to a standardized type key.
+
+    This function compares the input string against all known component type variants using both Jaccard and Levenshtein similarity. It ignores specific substrings (e.g., "SMD", "DIP"), and if both metrics produce the same best match above the given threshold, the corresponding canonical component key is returned. If no match passes the threshold, the original input is returned.
+
+    Args:
+        str_in (str): Raw component type string (e.g., "SMD Ceramic Cap").
+        ignore_str (tuple[str, ...]): Substrings to remove before comparison.
+        lookup_dict (dict[str, list[str]]): Mapping of canonical component keys to their known aliases.
+
+    Returns:
+        tuple[str, str]:
+            - Normalized component type (canonical key or original input if no match).
+            - Audit log message (empty string if no change).
+
+    Raises:
+        None
+
+    """
+    str_out = str_in
+    change_log = ""
+
+    # ignore SMD, DIP if found in component type name as they add not value
+    str_test = str_in
+    for remove_str in ignore_str:
+        str_test = str_test.replace(remove_str, '')
+
+    # Get all values from the component dict
+    value_list = [value for sublist in lookup_dict.values() for value in sublist]
+
+    # Get the best matched value
+    value1, level1 = helper.jaccard_match(str_test, value_list)
+    value2, level2 = helper.levenshtein_match(str_test, value_list)
+
+    key_matches: list[str] = []
+    if value1 != "" and value2 != "" and value1 == value2:
+        # Get the key of the matched value
+        for key, values in lookup_dict.items():
+            if value1 in values:
+                key_matches.append(key)
+
+    if len(key_matches) == 1 and str_in != key_matches[0]:
+        str_out = key_matches[0]
+
+        reason = "{Value1} = {Level1:1.2f}. {Value2} = {Level2:1.2f}. ".format(
+            Value1=value1, Level1=level1, Value2=value2, Level2=level2
+        )
+        change_log = TEMPLATE_AUTOCORRECT_MSG.format(
+            field=mdl.RowFields.COMPONENT,
+            before=str_in,
+            after=str_out,
+            reason=reason
+        )
+    elif len(key_matches) > 1:
+        # TODO: log ambiguity with match list example ("For '{str_in}' component type found multiple keys: {key_matches}. Expected only one match")
+        pass
+
+    return str_out, change_log
+
+
 def expand_designators(str_in: str) -> tuple[str, str]:
     """
-    Expands designator ranges within the sting.
+    Expands designator ranges within the string.
 
     This function processes a string containing comma-separated reference designators and expands any ranges written in the form "PrefixStart-PrefixEnd". Each expanded value is preserved with its original prefix, while non-range values remain unchanged. The result is returned as a comma-separated string. For example if input is "R1, R3-R6, R12, R45-R43" output will be "R1,R3,R4,R5,R6,R12,R45,R44,R43"
 
@@ -101,7 +163,7 @@ def material_cost(header: mdl.Header, rows: tuple[mdl.Row, ...]) -> tuple[str, s
     Base fields of sub-total and material cost must be float parse compatible.
 
     Args:
-        header (mdl.Hoard): Bom header containing the material cost to autocorrect.
+        header (mdl.Header): Bom header containing the material cost to autocorrect.
         rows (tuple[mdl.Row, ...]): list of BOM row containing the sub-total used to calculate the correct material cost.
 
     Returns:
@@ -210,7 +272,7 @@ def sub_total(row: mdl.Row) -> tuple[str, str]:
 
 def total_cost(header: mdl.Header) -> tuple[str, str]:
     """
-    Autocorrect the total cost to the product of material cost and overhead cost.
+    Autocorrect the total cost to the sum of material cost and overhead cost.
 
     Base fields of material overhead and total cost must be float parse compatible.
 
@@ -262,7 +324,7 @@ def total_cost(header: mdl.Header) -> tuple[str, str]:
             field=mdl.HeaderFields.TOTAL_COST,
             before=total_cost_in,
             after=total_cost_out,
-            reason=LOG_SUBTOTAL_CHANGE
+            reason=LOG_TOTAL_COST_CHANGE
         )
 
     return str_out, change_log
