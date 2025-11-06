@@ -2,3 +2,6 @@
 .venv
 data 
 **/__pycache__
+
+# Ignore base JSON files in 'tools' used for creating runtime-generated JSONs. Source files do not need to be tracked, as the final versions are stored/tracked in the 'runtime' folder
+tools/**/*.json
