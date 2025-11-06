@@ -42,6 +42,8 @@ from dataclasses import dataclass
 
 import src.utils as utils
 
+from src.runtime import interfaces as rt
+
 # TODO - make this import via utility interface
 # noinspection PyProtectedMember
 from src.utils._json_io import _compute_payload_sha256 as sha256 # import of private function is acceptable for tools
@@ -57,9 +59,10 @@ class FileLocation:
 # CONSTANTS
 SUCCESS: int = 0
 FAILURE: int = -1
-RUNTIME_FILE_PREFIX: str = '_'
+TOOLS_FOLDER: tuple[str, ...] = ("tools", )
+RUNTIME_FILE_PREFIX: str = rt.RUNTIME_JSON_PREFIX
 DATA_LOCATION: tuple[FileLocation, ...] = (
-    FileLocation(("tools",), "component_type", ("src", "runtime")),
+    FileLocation(TOOLS_FOLDER, rt.COMPONENT_TYPE_SOURCE, rt.RUNTIME_FOLDER),
 )
 
 
