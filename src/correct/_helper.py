@@ -5,6 +5,8 @@ This module provides:
  - floats_equal: compare two floats using fixed precision and epsilon tolerance
  - generate_log_entry: build a one-line change log when a value changes
  - prompt_until_valid: standard CLI loop that shows info on first failure, warns on each invalid entry, and reprompts
+ - levenshtein_match: find the closest match using Levenshtein string ratio
+ - jaccard_match: find the closest match using character-level Jaccard similarity
 
 Example Usage:
     # Preferred usage via package interface:
@@ -22,6 +24,8 @@ Dependencies:
 Notes:
     - Internal-only utilities; keep prompting, messaging, and tolerance settings centralized for consistent UX across correctors.
     - Pure logic aside from CLI calls in prompt_until_valid; floats_equal parameters (_DIGITS_OF_PRECISION, _EPSILON) define comparison strictness.
+    - Recommended thresholds: Levenshtein 0.8–0.9, Jaccard 0.6–0.8 depending on string length and expected similarity.
+
 
 License:
     - Internal Use Only
@@ -30,7 +34,11 @@ License:
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
 from typing import Callable
+import Levenshtein
 from src.cli import interfaces as cli
+
+JACCARD_THRESHOLD = 0.70
+LEVENSHTEIN_THRESHOLD = 0.85
 
 _DIGITS_OF_PRECISION = 6  # Number of decimal places to round to before comparison.
 _EPSILON = 1e-6  # Acceptable tolerance for equality after rounding. This helps absorb tiny floating-point noise.
@@ -136,3 +144,84 @@ def prompt_until_valid(data: str, fn: Callable, value: str, field: str) -> str:
         msg = fn(value_out)
 
     return value_out
+
+
+def levenshtein_match(test_string: str, reference_strings: tuple[str],
+                      ratio_threshold: float = LEVENSHTEIN_THRESHOLD) -> tuple[str, float]:
+    """
+    Find the best fuzzy match for a test string from a list of reference strings using Levenshtein ratio.
+
+    Both the test string and reference strings are normalized to lowercase and stripped of leading/trailing spaces. The best match must exceed the provided ratio threshold to be returned.
+
+    Args:
+        test_string (str): Input string to match.
+        reference_strings (tuple[str]): List of candidate strings to compare against.
+        ratio_threshold (float): Minimum acceptable Levenshtein ratio (0.0–1.0).
+
+    Returns:
+        tuple[str, float]: The best matching reference string and its ratio. Returns ("", 0.0) if no match meets the threshold.
+
+    Raises:
+        None
+    """
+    # Initialize variables to keep track of the best match and its distance
+    best_match: str = ""
+    best_ratio: float = 0.0  # start with the lowest possible ratio
+    lower_test_string = test_string.lower().strip()
+
+    # Loop through each reference string
+    for ref_string in reference_strings:
+        lower_ref_string = ref_string.lower().strip()
+        # Compute the Levenshtein ratio between the test string and the current reference string
+        match_ratio = Levenshtein.ratio(lower_test_string, lower_ref_string)
+        # TODO debug log print(f'L = {match_ratio:2.2f} {test_string:20} {ref_string:20}')
+
+        # If the distance is smaller than the current minimum distance, update the best match
+        if match_ratio > ratio_threshold and match_ratio >= best_ratio:
+            best_ratio = match_ratio
+            best_match = ref_string
+
+    # Return the best matching reference string
+    return best_match, best_ratio
+
+
+def jaccard_match(test_string: str, reference_strings: tuple[str], similarity_threshold: float = JACCARD_THRESHOLD) -> \
+        tuple[str, float]:
+    """
+    Find the best fuzzy match for a test string using character-level Jaccard similarity.
+
+    The function compares the character sets of the test string and each reference string, returning the one with the highest similarity above the threshold.
+
+    Args:
+        test_string (str): The string to match.
+        reference_strings (tuple[str]): List of reference strings to evaluate.
+        similarity_threshold (float): Minimum acceptable Jaccard similarity (0.0–1.0).
+
+    Returns:
+        tuple[str, float]: The best matching reference string and its similarity score. Returns ("", 0.0) if no candidate meets the threshold.
+
+    Raises:
+        None
+    """
+    best_match: str = ""
+    best_similarity: float = 0.0
+    set1 = set(test_string.lower().strip())
+
+    # Iterate through each reference string
+    for ref_string in reference_strings:
+        # Compute Jaccard similarity coefficient
+        set2 = set(ref_string.lower().strip())
+        intersection = len(set1.intersection(set2))
+        union = len(set1.union(set2))
+        matching_similarity = 0.0
+        if union > 0.0:  # protect against divide by zero
+            matching_similarity = intersection / union
+        # TODO - Debug log print(f'J = {matching_similarity:2.2f} {test_string:20} {ref_string:20}')
+
+        # Update best match if similarity is higher
+        if (matching_similarity > best_similarity) and (matching_similarity >= similarity_threshold):
+            best_similarity = matching_similarity
+            best_match = ref_string
+
+    # Return the best matching reference string
+    return best_match, best_similarity

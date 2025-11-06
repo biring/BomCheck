@@ -283,5 +283,157 @@ class TestPromptUntilValid(unittest.TestCase):
         self.asset_prompt_call_count(actual_prompt_calls, expected_prompt_calls)
 
 
+class TestLevenshteinMatch(unittest.TestCase):
+    """
+    Unit tests for the `levenshtein_match` function.
+    """
+
+    def test_best_match(self):
+        """
+        Should return the closest match and its ratio when above the given threshold.
+        """
+        # ARRANGE
+        test_string = "X1 Capacitor"
+        reference_strings = ["Resistor", "Capacitor", "Inductor"]
+        ratio_threshold = 0.1
+        expected_match = "Capacitor"
+
+        # ACT
+        match, ratio = helper.levenshtein_match(test_string, reference_strings, ratio_threshold)
+
+        # ASSERT
+        with self.subTest(Out=match, Exp=expected_match):
+            self.assertEqual(match, expected_match)
+        with self.subTest("Ratio above threshold", Out=ratio, Exp=True):
+            self.assertGreaterEqual(ratio, ratio_threshold)
+
+    def test_no_match(self):
+        """
+        Should return ('', 0.0) when no reference exceeds the threshold ratio.
+        """
+        # ARRANGE
+        test_string = "Capacitor"
+        reference_strings = ["Resistor", "Inductor"]
+        ratio_threshold = 0.9
+        expected = ("", 0.0)
+
+        # ACT
+        result = helper.levenshtein_match(test_string, reference_strings, ratio_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_exact_match(self):
+        """
+        Should return (same_string, 1.0) for exact matches.
+        """
+        # ARRANGE
+        test_string = "Diode"
+        reference_strings = ["Diode", "Resistor"]
+        ratio_threshold = 0.5
+        expected = ("Diode", 1.0)
+
+        # ACT
+        result = helper.levenshtein_match(test_string, reference_strings, ratio_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_empty_reference(self):
+        """
+        Should return ('', 0.0) when reference list is empty.
+        """
+        # ARRANGE
+        test_string = "Capacitor"
+        reference_strings = []
+        ratio_threshold = 0.5
+        expected = ("", 0.0)
+
+        # ACT
+        result = helper.levenshtein_match(test_string, reference_strings, ratio_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
+class TestJaccardMatch(unittest.TestCase):
+    """
+    Unit tests for the `jaccard_match` function.
+    """
+
+    def test_best_match(self):
+        """
+        Should return the best matching string and similarity score above the threshold.
+        """
+        # ARRANGE
+        test_string = "X1 Capacitor"
+        reference_strings = ["Resistor", "Capacitator", "Inductor"]
+        similarity_threshold = 0.1
+        expected_match = "Capacitator"
+
+        # ACT
+        match, similarity = helper.jaccard_match(test_string, reference_strings, similarity_threshold)
+
+        # ASSERT
+        with self.subTest(Out=match, Exp=expected_match):
+            self.assertEqual(match, expected_match)
+        with self.subTest("Similarity above threshold", Out=similarity, Exp=True):
+            self.assertGreaterEqual(similarity, similarity_threshold)
+
+    def test_no_match(self):
+        """
+        Should return ('', 0.0) when no reference meets the similarity threshold.
+        """
+        # ARRANGE
+        test_string = "Resistor"
+        reference_strings = ["Capacitor", "Inductor"]
+        similarity_threshold = 0.9
+        expected = ("", 0.0)
+
+        # ACT
+        result = helper.jaccard_match(test_string, reference_strings, similarity_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_exact_match(self):
+        """
+        Should return (same_string, 1.0) when test and reference strings are identical.
+        """
+        # ARRANGE
+        test_string = "Connector"
+        reference_strings = ["Connector", "Transistor"]
+        similarity_threshold = 0.5
+        expected = ("Connector", 1.0)
+
+        # ACT
+        result = helper.jaccard_match(test_string, reference_strings, similarity_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_empty_reference(self):
+        """
+        Should return ('', 0.0) when reference list is empty.
+        """
+        # ARRANGE
+        test_string = "Capacitor"
+        reference_strings = []
+        similarity_threshold = 0.5
+        expected = ("", 0.0)
+
+        # ACT
+        result = helper.jaccard_match(test_string, reference_strings, similarity_threshold)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 if __name__ == "__main__":
     unittest.main()
