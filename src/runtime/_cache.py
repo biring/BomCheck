@@ -116,6 +116,20 @@ class Cache:
 
         self.data_map = data
 
+    def get_data_map(self) -> dict[str, str | list[str]]:
+        """
+        Return the full validated data map for the loaded resource.
+
+        Returns:
+            dict[str, str | list[str]]: The validated data map.
+
+        Raises:
+            ResourceWarning: If no resource has been loaded yet.
+        """
+        if self.data_map is None:
+            raise ResourceWarning(f"'{self.resource}' resource is not loaded. Load resource before accessing resource data.")
+        return self.data_map
+
     def get_all_keys(self) -> tuple[str, ...]:
         """
         Return all keys available in the loaded resource.

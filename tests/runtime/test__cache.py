@@ -219,6 +219,46 @@ class TestGetAllKeys(_Asserts, _TestFixture):
         self.assert_equal(actual=actual_error, expected=expected_error)
 
 
+class TestGetDataMap(_Asserts, _TestFixture):
+    """
+    Unit test for get_data_map.
+    """
+
+    def test_valid(self):
+        """
+        Should return the validated dictionary of key–value pairs for the loaded resource.
+        """
+        # ARRANGE
+        expected_map = TEST_DATA_JSON
+
+        with patch.object(utils, "find_root_folder") as p_root:
+            p_root.return_value = self.tmp_project_root
+
+            # ACT
+            self.cache.load_resource(TEST_RESOURCE_NAME, TEST_REQUIRED_KEYS)
+            actual_map = self.cache.get_data_map()
+
+        # ASSERT
+        self.assert_equal(actual=actual_map, expected=expected_map)
+
+    def test_raises(self):
+        """
+        Should raise if called before any resource has been loaded.
+        """
+        # ARRANGE
+        expected_error = ResourceWarning.__name__
+
+        # ACT
+        try:
+            _ = self.cache.get_data_map()
+            actual_error = ""
+        except Exception as e:
+            actual_error = type(e).__name__
+
+        # ASSERT
+        self.assert_equal(actual=actual_error, expected=expected_error)
+
+
 class TestGetListValue(_Asserts, _TestFixture):
     """
     Unit tests for Cache.get_list_value.
