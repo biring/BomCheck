@@ -31,7 +31,6 @@ from src.models import interfaces as mdl
 # noinspection PyProtectedMember
 from src.correct import _auto as auto  # Direct internal import — acceptable in tests
 
-from tests.fixtures import v3_value as vfx
 from tests.fixtures import v3_bom as bfx
 
 
@@ -45,7 +44,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         Should return the canonical key when both metrics match a known alias above the threshold.
         """
         # ARRANGE
-        str_in = "SMD Ceramic Capacitor"
+        row = replace(bfx.ROW_A_1, component_type="SMD Ceramic Capacitor")
         ignore_list = ("SMD", "DIP")
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
@@ -54,13 +53,13 @@ class TestComponentTypeLookup(unittest.TestCase):
         expected_out = "Capacitor"
 
         # ACT
-        result, log = auto.component_type_lookup(str_in, ignore_list, lookup_dict)
+        result, log = auto.component_type_lookup(row, ignore_list, lookup_dict)
 
         # ASSERT
         with self.subTest("Output", Out=result, Exp=expected_out):
             self.assertEqual(result, expected_out)
         with self.subTest("Log", Out=log):
-            self.assertIn(str_in, log)
+            self.assertIn(row.component_type, log)
             self.assertIn(expected_out, log)
             self.assertIn(mdl.RowFields.COMPONENT, log)
 
@@ -69,7 +68,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         Should return the original string and empty log when no matches exceed the threshold.
         """
         # ARRANGE
-        str_in = "Unknown Part"
+        row = replace(bfx.ROW_A_1, component_type="Unknown Part")
         ignore_str = ("SMD",)
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
@@ -77,11 +76,11 @@ class TestComponentTypeLookup(unittest.TestCase):
         }
 
         # ACT
-        result, log = auto.component_type_lookup(str_in, ignore_str, lookup_dict)
+        result, log = auto.component_type_lookup(row, ignore_str, lookup_dict)
 
         # ASSERT
-        with self.subTest("Output", Out=result, Exp=str_in):
-            self.assertEqual(result, str_in)
+        with self.subTest("Output", Out=result, Exp=row.component_type):
+            self.assertEqual(result, row.component_type)
         with self.subTest("Log", Out=log, Exp=""):
             self.assertEqual(log, "")
 
@@ -90,7 +89,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         Should return the original input when multiple canonical keys match (ambiguity).
         """
         # ARRANGE
-        str_in = "Ceramic Capacitor"
+        row = replace(bfx.ROW_A_1, component_type="Ceramic Capacitor")
         ignore_str = ()
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor"],
@@ -98,11 +97,11 @@ class TestComponentTypeLookup(unittest.TestCase):
         }
 
         # ACT
-        result, log = auto.component_type_lookup(str_in, ignore_str, lookup_dict)
+        result, log = auto.component_type_lookup(row, ignore_str, lookup_dict)
 
         # ASSERT
-        with self.subTest("Output", Out=result, Exp=str_in):
-            self.assertEqual(result, str_in)
+        with self.subTest("Output", Out=result, Exp=row.component_type):
+            self.assertEqual(result, row.component_type)
         with self.subTest("Log", Out=log, Exp=""):
             self.assertEqual(log, "")
 
@@ -117,15 +116,15 @@ class TestExpandDesignators(unittest.TestCase):
         Should return the original designator string and an empty change log when no corrections are made.
         """
         # ARRANGE
-        cases = vfx.DESIGNATOR_GOOD
+        cases = (bfx.ROW_A_1, bfx.ROW_A_2, bfx.ROW_A_3)
 
-        for value_in in cases:
+        for row in cases:
             # ACT
-            value_out, log = auto.expand_designators(value_in)
+            value_out, log = auto.expand_designators(row)
 
             # ASSERT
-            with self.subTest("Value Out", Out=value_out, Exp=value_in):
-                self.assertEqual(value_in, value_out)
+            with self.subTest("Value Out", Out=value_out, Exp=row.designator):
+                self.assertEqual(row.designator, value_out)
             with self.subTest("Log", Out=""):
                 self.assertEqual(log, "")
 
@@ -136,21 +135,21 @@ class TestExpandDesignators(unittest.TestCase):
         # ARRANGE
         field = mdl.RowFields.DESIGNATOR
         cases = (
-            ("R1-R3", "R1,R2,R3"),
-            ("R1, R3-R6, R12, R45-R43", "R1,R3,R4,R5,R6,R12,R45,R44,R43"),
-            ("R1-R2, C10-C12", "R1,R2,C10,C11,C12"),
-            ("R5-R3", "R5,R4,R3"),
+            (replace(bfx.ROW_A_1, designator="R1-R3"), "R1,R2,R3"),
+            (replace(bfx.ROW_A_1, designator="R1, R3-R6, R12, R45-R43"), "R1,R3,R4,R5,R6,R12,R45,R44,R43"),
+            (replace(bfx.ROW_A_1, designator="R1-R2, C10-C12"), "R1,R2,C10,C11,C12"),
+            (replace(bfx.ROW_A_3, designator="R5-R3"), "R5,R4,R3"),
         )
 
-        for value_in, value_out in cases:
+        for row, value_out in cases:
             # ACT
-            out, log = auto.expand_designators(value_in)
+            out, log = auto.expand_designators(row)
 
             # ASSERT
             with self.subTest("Value Out", Out=out, Exp=value_out):
                 self.assertEqual(out, value_out)
             with self.subTest("Log", Out=log):
-                self.assertIn(value_in, log, value_in)
+                self.assertIn(row.designator, log, row.designator)
                 self.assertIn(value_out, log, value_out)
                 self.assertIn(field, log, field)
 

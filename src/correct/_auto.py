@@ -45,7 +45,7 @@ LOG_TOTAL_COST_CHANGE = "Total cost set to the product of material and overhead 
 ERR_FLOAT_PARSE = "{field} value '{value}' is not a valid floating point number: {reason}"
 
 
-def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict: dict[str, list[str]]) -> tuple[
+def component_type_lookup(row: mdl.Row, ignore_str: tuple[str, ...], lookup_dict: dict[str, list[str]]) -> tuple[
     str, str]:
     """
     Perform fuzzy lookup to map a raw component type string to a standardized type key.
@@ -53,7 +53,7 @@ def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict:
     This function compares the input string against all known component type variants using both Jaccard and Levenshtein similarity. It ignores specific substrings (e.g., "SMD", "DIP"), and if both metrics produce the same best match above the given threshold, the corresponding canonical component key is returned. If no match passes the threshold, the original input is returned.
 
     Args:
-        str_in (str): Raw component type string (e.g., "SMD Ceramic Cap").
+        row (mdl.Row): Bom row containing the component type to autocorrect.
         ignore_str (tuple[str, ...]): Substrings to remove before comparison.
         lookup_dict (dict[str, list[str]]): Mapping of canonical component keys to their known aliases.
 
@@ -66,6 +66,7 @@ def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict:
         None
 
     """
+    str_in = row.component_type
     str_out = str_in
     change_log = ""
 
@@ -76,6 +77,7 @@ def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict:
 
     # Get all values from the component dict
     value_list = [value for sublist in lookup_dict.values() for value in sublist]
+    value_list = tuple(value_list)
 
     # Get the best matched value
     value1, level1 = helper.jaccard_match(str_test, value_list)
@@ -107,7 +109,7 @@ def component_type_lookup(str_in: str, ignore_str: tuple[str, ...], lookup_dict:
     return str_out, change_log
 
 
-def expand_designators(str_in: str) -> tuple[str, str]:
+def expand_designators(row: mdl.Row) -> tuple[str, str]:
     """
     Expands designator ranges within the string.
 
@@ -120,12 +122,12 @@ def expand_designators(str_in: str) -> tuple[str, str]:
         - Descending ranges (e.g., "R6-R3") are supported and expanded in reverse order.
 
     Args:
-        str_in (str): designator string, possibly with ranges.
+        row (mdl.Row): Bom row containing the designator string, possibly with ranges, to autocorrect.  .
 
     Returns:
         tuple[str, str]: Range expanded designator string, change log string.
     """
-
+    str_in = row.designator
     change_log = ""
 
     parts = [p.strip() for p in str_in.split(",") if p.strip()]
