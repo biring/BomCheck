@@ -36,17 +36,21 @@ from ._resources import (
 
     load_all_resources,
 
+    get_component_type_data_map,
     get_component_type_keys,
     get_component_type_values,
 )
 
 __all__ = [
+    # Constants
     RUNTIME_JSON_PREFIX,
     RUNTIME_FOLDER,
     COMPONENT_TYPE_SOURCE,
-
+    # All resource loader
     'load_all_resources',
-
+    # Component type resource
+    'get_component_type_data_map',
     'get_component_type_keys',
     'get_component_type_values',
+    # Add other resource below as needed
 ]

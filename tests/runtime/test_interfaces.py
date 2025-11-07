@@ -149,6 +149,9 @@ class TestComponentTypeResourceInterfaces(_Asserts, _Fixture):
         Should load the resource and return correct keys and normalized tuple[str] values.
         """
         # ARRANGE
+        # Data map should match test data
+        expected_map = self.TEST_DATA
+
         # Keys should match the payload's top-level keys.
         expected_keys = tuple(self.TEST_DATA.keys())
 
@@ -163,11 +166,17 @@ class TestComponentTypeResourceInterfaces(_Asserts, _Fixture):
             # Load everything via the public surface
             rt.load_all_resources()
 
+            # Fetch data map
+            out_map = rt.get_component_type_data_map()
+
             # Fetch keys
             out_keys = rt.get_component_type_keys()
 
             # Fetch values
             out_vals = rt.get_component_type_values(requested_key)
+
+        # ASSERT (data map)
+        self.assert_equal(actual=out_map, expected=expected_map)
 
         # ASSERT (keys)
         self.assert_equal(actual=out_keys, expected=expected_keys)
@@ -175,7 +184,7 @@ class TestComponentTypeResourceInterfaces(_Asserts, _Fixture):
         # ASSERT (values)
         self.assert_equal(actual=out_vals, expected=expected_values)
 
-    def test_component_type_raises(self):
+    def test_component_type_value_raises(self):
         """
         Should raise RuntimeError when requesting values for a missing key.
         """
@@ -195,6 +204,23 @@ class TestComponentTypeResourceInterfaces(_Asserts, _Fixture):
                 actual_error = ""
             except Exception as e:
                 actual_error = type(e).__name__
+
+        # ASSERT
+        self.assert_equal(actual=actual_error, expected=expected_error)
+
+    def test_component_type_data_map_raises(self):
+        """
+        Should raise RuntimeError when requesting data mapf for a resource has not been loaded.
+        """
+        # ARRANGE
+        expected_error = RuntimeError.__name__
+
+        # ACT
+        try:
+            _ = rt.get_component_type_data_map()
+            actual_error = ""
+        except Exception as e:
+            actual_error = type(e).__name__
 
         # ASSERT
         self.assert_equal(actual=actual_error, expected=expected_error)
