@@ -146,7 +146,7 @@ def prompt_until_valid(data: str, fn: Callable, value: str, field: str) -> str:
     return value_out
 
 
-def levenshtein_match(test_string: str, reference_strings: tuple[str],
+def levenshtein_match(test_string: str, reference_strings: tuple[str, ...],
                       ratio_threshold: float = LEVENSHTEIN_THRESHOLD) -> tuple[str, float]:
     """
     Find the best fuzzy match for a test string from a list of reference strings using Levenshtein ratio.
@@ -155,7 +155,7 @@ def levenshtein_match(test_string: str, reference_strings: tuple[str],
 
     Args:
         test_string (str): Input string to match.
-        reference_strings (tuple[str]): List of candidate strings to compare against.
+        reference_strings (tuple[str, ...]): List of candidate strings to compare against.
         ratio_threshold (float): Minimum acceptable Levenshtein ratio (0.0–1.0).
 
     Returns:
@@ -185,7 +185,7 @@ def levenshtein_match(test_string: str, reference_strings: tuple[str],
     return best_match, best_ratio
 
 
-def jaccard_match(test_string: str, reference_strings: tuple[str], similarity_threshold: float = JACCARD_THRESHOLD) -> \
+def jaccard_match(test_string: str, reference_strings: tuple[str, ...], similarity_threshold: float = JACCARD_THRESHOLD) -> \
         tuple[str, float]:
     """
     Find the best fuzzy match for a test string using character-level Jaccard similarity.
@@ -194,7 +194,7 @@ def jaccard_match(test_string: str, reference_strings: tuple[str], similarity_th
 
     Args:
         test_string (str): The string to match.
-        reference_strings (tuple[str]): List of reference strings to evaluate.
+        reference_strings (tuple[str, ...]): List of reference strings to evaluate.
         similarity_threshold (float): Minimum acceptable Jaccard similarity (0.0–1.0).
 
     Returns:
