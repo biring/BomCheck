@@ -31,6 +31,7 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API.
 
+import copy
 from typing import Final
 from . import _cache as cache
 
@@ -91,6 +92,29 @@ def _load_component_type() -> None:
         raise RuntimeError(
             f"'{COMPONENT_TYPE_SOURCE}' resource failed to load."
             f"\n{type(err).__name__}: {str(err)}"
+        ) from err
+
+
+def get_component_type_data_map() -> dict[str, str | list[str]]:
+    """
+    Return a deep-copied data map for the 'component_type' resource.
+
+    This function retrieves the validated data map from the preloaded `component_type_cache` and returns a deep copy to ensure the caller cannot mutate the cached state.
+
+    Returns:
+        dict[str, str | list[str]]: The validated data map.
+
+    Raises:
+        RuntimeError: If the resource cannot be loaded, validated, or accessed.
+    """
+    try:
+        # Defensive copy to protect cache integrity
+        return copy.deepcopy(component_type_cache.get_data_map())
+    except Exception as err:
+        # Uniform exception interface for external consumers
+        raise RuntimeError(
+            f"'{COMPONENT_TYPE_SOURCE}' resource data access failed. "
+            f"\n{type(err).__name__}: {err}"
         ) from err
 
 

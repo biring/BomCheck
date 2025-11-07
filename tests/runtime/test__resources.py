@@ -160,6 +160,55 @@ class TestLoadComponentType(_Asserts, _TestFixture):
         # ASSERT
         self.assert_equal(actual=actual_error, expected=expected_error)
 
+class TestGetComponentTypeDataMap(_Asserts, _TestFixture):
+    """
+    Unit test for the `get_component_type_data_map` function.
+    """
+
+    def setUp(self):
+        self.set_up(resources.COMPONENT_TYPE_SOURCE)
+
+    def tearDown(self):
+        self.tear_down()
+
+    def test_valid(self):
+        """
+        Should return a deep copy of the validated data map.
+        """
+        # ARRANGE
+        expected_map = TEST_DATA_JSON
+
+        with patch.object(utils, "find_root_folder") as p_root:
+            p_root.return_value = self.tmp_project_root
+            # ACT
+            resources._load_component_type()
+            actual_map = resources.get_component_type_data_map()
+
+        # ASSERT
+        # Verify equality and deep-copy integrity
+        self.assert_equal(actual=actual_map, expected=expected_map)
+        # Object should not match
+        with self.subTest("Address comparison",Actual=hex(id(actual_map)),
+                Expected=hex(id(resources.component_type_cache.data_map))):
+            self.assertIsNot(actual_map, resources.component_type_cache.data_map)
+
+    def test_raises(self):
+        """
+        Should raise RuntimeError when called before the resource is loaded.
+        """
+        # ARRANGE
+        expected_error = RuntimeError.__name__
+
+        # ACT
+        try:
+            _ = resources.get_component_type_data_map()
+            actual_error = ""
+        except Exception as e:
+            actual_error = type(e).__name__
+
+        # ASSERT
+        self.assert_equal(actual=actual_error, expected=expected_error)
+
 
 class TestGetComponentTypeKeys(_Asserts, _TestFixture):
     """
