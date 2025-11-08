@@ -1,17 +1,17 @@
 """
-Public interface façade for the `correct` package.
+Public interface façade for the `correction` package.
 
 This module re-exports curated BOM field-correction functions for BOM fix/issue workflows while keeping underlying logic encapsulated. It defines the public entry points for BOM correction workflows while keeping underlying logic encapsulated.
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.correct import interfaces as correct
-    value, log = correct.expand_designators("R1,R2-R5,R7")
+    from src.correction import interfaces as correction
+    value, log = correction.expand_designators("R1,R2-R5,R7")
     print(value)  # "R1,R2,R3,R4,R5,R7"
 
     # Direct internal access (for tests or internal scripts only):
-    from src.correct import interfaces as correct
-    value, log = correct.expand_designators("R1,R2-R5,R7")
+    from src.correction import interfaces as correction
+    value, log = correction.expand_designators("R1,R2-R5,R7")
     print(value)  # "R1,R2,R3,R4,R5,R7"
 
 Dependencies:

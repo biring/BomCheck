@@ -13,7 +13,7 @@ Example Usage:
     # Not exposed publicly; this is an internal module.
 
     # Direct usage (internal scripts or unit tests only):
-    import src.correct._common as common
+    import src.correction._common as common
     result = common.float_equals("1.3234", "1.32345")
 
 Dependencies:

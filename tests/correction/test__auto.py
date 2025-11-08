@@ -3,7 +3,7 @@ Unit tests for autocorrection functions.
 
 Example Usage:
     # Preferred usage via project-root invocation:
-    python -m unittest tests/correct/test__auto.py
+    python -m unittest tests/correction/test__auto.py
 
     # Direct discovery (runs all tests, including this module):
     python -m unittest discover -s tests
@@ -11,7 +11,7 @@ Example Usage:
 Dependencies:
     - Python >= 3.10
     - Standard Library: unittest, dataclasses
-    - Project Modules: src.correct._auto, src.models.interfaces, tests.fixtures.v3_bom, tests.fixtures.v3_value
+    - Project Modules: src.correction._auto, src.models.interfaces, tests.fixtures.v3_bom, tests.fixtures.v3_value
 
 Notes:
     - Tests use dataclasses.replace for variant creation
@@ -29,7 +29,7 @@ from dataclasses import replace
 from src.models import interfaces as mdl
 
 # noinspection PyProtectedMember
-from src.correct import _auto as auto  # Direct internal import — acceptable in tests
+from src.correction import _auto as auto  # Direct internal import — acceptable in tests
 
 from tests.fixtures import v3_bom as bfx
 

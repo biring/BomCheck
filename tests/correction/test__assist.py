@@ -8,7 +8,7 @@ This module verifies that:
 
 Example Usage:
     # Preferred usage via project-root invocation:
-    python -m unittest tests/correct/test__assist.py
+    python -m unittest tests/correction/test__assist.py
 
     # Direct discovery:
     python -m unittest discover -s tests
@@ -35,7 +35,7 @@ from typing import Callable, Any
 from src.cli import interfaces as cli
 
 # noinspection PyProtectedMember
-import src.correct._assist as assist  # Direct internal import — acceptable in tests
+import src.correction._assist as assist  # Direct internal import — acceptable in tests
 
 import tests.fixtures.v3_bom as bfx
 

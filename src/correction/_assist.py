@@ -8,17 +8,17 @@ This module provides wrappers that:
 
 Example Usage:
     # Preferred usage via package workflow:
-    from src.correct import _assist as assist
+    from src.correction import _assist as assist
     value, log = assist.part_number(header)
 
     # Direct module usage (acceptable in tests only):
-    import src.correct._assist as assist
+    import src.correction._assist as assist
     value, log = assist.model_number(header)
 
 Dependencies:
  - Python >= 3.10
  - Standard Library: typing
- - Internal Packages: src.models, src.review, src.cli, src.correct._helper
+ - Internal Packages: src.models, src.review, src.cli, src.correction._helper
 
 Notes:
  - Each function returns (corrected_value, change_log).
@@ -33,7 +33,7 @@ __all__ = []  # Internal-only; not part of public API.
 from src.review import interfaces as review
 from src.models import interfaces as mdl
 
-import src.correct._helper as helper
+import src.correction._helper as helper
 
 LOG_MANUAL_CHANGE = "Manual change by user."
 

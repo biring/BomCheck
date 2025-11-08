@@ -1,9 +1,9 @@
 """
-Smoke tests for the public `src.correct.interfaces` façade.
+Smoke tests for the public `src.correction.interfaces` façade.
 
 Example Usage:
     # Run this test module directly:
-    python -m unittest tests/correct/test_interfaces.py
+    python -m unittest tests/correction/test_interfaces.py
 
     # Discover and run all tests:
     python -m unittest discover -s tests
@@ -11,7 +11,7 @@ Example Usage:
 Dependencies:
     - Python >= 3.10
     - Standard Library: unittest, unittest.mock, dataclasses
-    - Internal: src.cli.interfaces, src.correct.interfaces, tests.fixtures.v3_bom
+    - Internal: src.cli.interfaces, src.correction.interfaces, tests.fixtures.v3_bom
 
 Notes:
     - High-level smoke tests for API surface validation; not rule-level checks.
@@ -26,7 +26,7 @@ from dataclasses import replace
 from typing import Any, Callable
 from unittest.mock import patch
 from src.cli import interfaces as cli
-from src.correct import interfaces as correct
+from src.correction import interfaces as correct
 from tests.fixtures import v3_bom as bfx
 
 
@@ -90,7 +90,7 @@ class _Asserts(unittest.TestCase):
 
 class TestInterface(_Asserts):
     """
-    Unit tests for the public `src.correct.interfaces` façade.
+    Unit tests for the public `src.correction.interfaces` façade.
     """
 
     def test_model_number_good(self):

@@ -8,7 +8,7 @@ Example Usage:
     # Not exposed publicly; this is an internal module.
 
     # Direct internal access (for tests or internal scripts only):
-    import src.correct._auto as auto
+    import src.correction._auto as auto
     value, log = auto.material_cost(header, rows)
 
 Dependencies:

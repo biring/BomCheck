@@ -1,9 +1,9 @@
 """
-Unit tests for helper utilities in the correct package.
+Unit tests for helper utilities in the correction package.
 
 Example Usage:
     # Preferred usage via project-root invocation:
-    python -m unittest tests/correct/test__helper.py
+    python -m unittest tests/correction/test__helper.py
 
     # Direct discovery (runs all tests, including this module):
     python -m unittest discover -s tests
@@ -28,7 +28,7 @@ from unittest.mock import patch
 from src.cli import interfaces as cli
 
 # noinspection PyProtectedMember
-import src.correct._helper as helper  # Direct internal import — acceptable in tests
+import src.correction._helper as helper  # Direct internal import — acceptable in tests
 
 
 class TestFloatsEqual(unittest.TestCase):
