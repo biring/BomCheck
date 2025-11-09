@@ -159,15 +159,14 @@ def expand_designators(row: mdl.Row) -> tuple[str, str]:
     return str_out, change_log
 
 
-def material_cost(header: mdl.Header, rows: tuple[mdl.Row, ...]) -> tuple[str, str]:
+def material_cost(board: mdl.Board) -> tuple[str, str]:
     """
     Autocorrect the material cost to sum of the sub-total.
 
     Base fields of sub-total and material cost must be float parse compatible.
 
     Args:
-        header (mdl.Header): Bom header containing the material cost to autocorrect.
-        rows (tuple[mdl.Row, ...]): list of BOM row containing the sub-total used to calculate the correct material cost.
+        board (mdl.Header): Bom board containing the header with material cost to autocorrect.
 
     Returns:
      tuple[str, str]: correct material cost string, change log string.
@@ -175,6 +174,8 @@ def material_cost(header: mdl.Header, rows: tuple[mdl.Row, ...]) -> tuple[str, s
     Raises:
         ValueError: If base fields cannot be parsed as float.
     """
+    header: mdl.Header = board.header
+    rows: tuple[mdl.Row, ...] = board.rows
     str_out = header.material_cost
     change_log = ""
     material_cost_out = 0

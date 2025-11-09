@@ -176,7 +176,7 @@ class TestMaterialCost(unittest.TestCase):
         expected_value = board.header.material_cost
 
         # ACT
-        value_out, log = auto.material_cost(board.header, board.rows)
+        value_out, log = auto.material_cost(board)
 
         # ASSERT
         with self.subTest("Value Out", Out=value_out, Exp=expected_value):
@@ -190,13 +190,12 @@ class TestMaterialCost(unittest.TestCase):
         """
         # ARRANGE
         field = mdl.HeaderFields.MATERIAL_COST
-        rows = bfx.BOARD_A.rows
-        # Deliberately make header.material_cost incorrect by prefixing an extra digit
-        header = replace(bfx.HEADER_B1, material_cost="1" + bfx.BOARD_A.header.material_cost)
+        header_bad_material: mdl.Header = replace(bfx.HEADER_A, material_cost="99")
+        board: mdl.Board = replace(bfx.BOARD_A, header=header_bad_material)
         expected_value = bfx.BOARD_A.header.material_cost
 
         # ACT
-        value_out, log = auto.material_cost(header, rows)
+        value_out, log = auto.material_cost(board)
 
         # ASSERT
         with self.subTest("Value Out", Out=value_out, Exp=expected_value):
@@ -205,7 +204,7 @@ class TestMaterialCost(unittest.TestCase):
         # Log should mention the field name and both old and new values
         with self.subTest("Log contains", Out=log):
             self.assertIn(field, log)
-            self.assertIn(header.material_cost, log)
+            self.assertIn(board.header.material_cost, log)
             self.assertIn(expected_value, log)
 
     def test_raise_on_bad_inputs(self):
@@ -222,15 +221,15 @@ class TestMaterialCost(unittest.TestCase):
         header_bad_material = replace(bfx.HEADER_B1, material_cost="*")
 
         cases = (
-            (good_header, rows_bad_sub_total),
-            (header_bad_material, good_rows),
+            replace(bfx.BOARD_A, rows=rows_bad_sub_total),
+            replace(bfx.BOARD_A, header=header_bad_material),
         )
         expected = ValueError.__name__
 
-        for header, rows in cases:
+        for board in cases:
             # ACT
             try:
-                auto.material_cost(header, rows)
+                auto.material_cost(board)
                 result = ""  # No exception
             except ValueError as e:
                 result = type(e).__name__

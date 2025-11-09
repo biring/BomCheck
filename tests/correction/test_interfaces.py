@@ -821,12 +821,11 @@ class TestInterface(_Asserts):
         """
         # ARRANGE
         fn = correct.material_cost
-        rows = bfx.BOARD_A.rows
-        header = bfx.BOARD_A.header
+        board = bfx.BOARD_A
         expected = bfx.BOARD_A.header.material_cost
 
         # ACT
-        result, log = fn(header, rows)
+        result, log = fn(board)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected, msg=fn.__name__)
@@ -838,12 +837,12 @@ class TestInterface(_Asserts):
         """
         # ARRANGE
         fn = correct.material_cost
-        rows = bfx.BOARD_A.rows
         header = replace(bfx.BOARD_A.header, material_cost="999")
+        board = replace(bfx.BOARD_A, header=header)
         expected = bfx.BOARD_A.header.material_cost
 
         # ACT
-        result, log = fn(header, rows)
+        result, log = fn(board)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected, msg=fn.__name__)
