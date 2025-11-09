@@ -27,7 +27,7 @@ from src.models.interfaces import Row, Header, Board, Bom
 
 # =============================
 # Bom A
-# Board 1 with 3 rows with alternatives and unused items
+# Board 1 with 3 valid rows plus alternatives and unused items
 # =============================
 ROW_A_1: Final[Row] = Row(
     item="1", component_type="Resistor", device_package="0603",
@@ -93,6 +93,93 @@ BOARD_A: Final[Board] = Board(
 BOM_A: Final[Bom] = Bom(
     boards=(BOARD_A,),
     file_name="bom_A.xlsx",
+)
+
+# =============================
+# Bom A - BAD FORMATTING
+# Board 1 with 3 valid rows plus alternatives and unused items
+# Field values contain "\t" which is not allowed and should be fixed automatically by cleaner module)
+# =============================
+ROW_A_1_BAD_FORMATTING: Final[Row] = Row(
+    item="\t1", component_type="\tResistor", device_package="\t0603",
+    description="\t2k,1%,0603", unit="\tPCS", classification="\tA",
+    manufacturer="\tDelta", mfg_part_number="\tRES002K0A0603", ul_vde_number="\tUL569",
+    validated_at="\tEB0", qty="\t2", designator="\tR1,R2", unit_price="\t0.1", sub_total="\t0.2"
+)
+
+HEADER_A_BAD_FORMATTING: Final[Header] = Header(
+    model_no="\tAB100", board_name="\tPower PCBA", manufacturer="\tDelta",
+    build_stage="\tMB", date="\t2025-01-12", material_cost="\t2.0",
+    overhead_cost="\t0.4", total_cost="\t2.4"
+)
+
+BOARD_A_BAD_FORMATTING: Final[Board] = Board(
+    header=HEADER_A_BAD_FORMATTING,
+    rows=(ROW_A_1_BAD_FORMATTING, ROW_A_1_ALT1, ROW_A_1_ALT2, ROW_A_2, ROW_A_2_ALT, ROW_A_3, ROW_A_4),
+    sheet_name=HEADER_A_BAD_FORMATTING.board_name,
+)
+
+BOM_A_BAD_FORMATTING: Final[Bom] = Bom(
+    boards=(BOARD_A_BAD_FORMATTING,),
+    file_name="bom_A_bad_formatting.xlsx",
+)
+
+# =============================
+# Bom A - BAD MATH
+# Board 1 with 3 valid rows plus alternatives and unused items
+# Math is incorrect and should be fixed automatically by the fixer module
+# =============================
+ROW_A_1_BAD_MATH: Final[Row] = Row(
+    item="1", component_type="Resistor", device_package="0603",
+    description="2k,1%,0603", unit="PCS", classification="A",
+    manufacturer="Delta", mfg_part_number="RES002K0A0603", ul_vde_number="UL569",
+    validated_at="EB0", qty="2", designator="R1,R2", unit_price="0.1", sub_total="0.4"
+)  # sub_total is incorrect
+
+HEADER_A_BAD_MATH: Final[Header] = Header(
+    model_no="AB100", board_name="Power PCBA", manufacturer="Delta",
+    build_stage="MB", date="2025-01-12", material_cost="2.5",
+    overhead_cost="0.4", total_cost="9.4"
+)  # material_cost and total_cost is incorrect
+
+BOARD_A_BAD_MATH: Final[Board] = Board(
+    header=HEADER_A_BAD_MATH,
+    rows=(ROW_A_1_BAD_MATH, ROW_A_1_ALT1, ROW_A_1_ALT2, ROW_A_2, ROW_A_2_ALT, ROW_A_3, ROW_A_4),
+    sheet_name=HEADER_A_BAD_MATH.board_name,
+)
+
+BOM_A_BAD_MATH: Final[Bom] = Bom(
+    boards=(BOARD_A_BAD_MATH,),
+    file_name="bom_A_bad_math.xlsx",
+)
+
+# =============================
+# Bom A - BAD VALUE
+# Board 1 with 3 valid rows plus alternatives and unused items
+# Values are not correct and would require manual overwrite by the fixer module.
+# =============================
+ROW_A_1_BAD_VALUE: Final[Row] = Row(
+    item="#1", component_type="#Resistor", device_package="#0603",
+    description="#2k,1%,0603", unit="#PCS", classification="#A",
+    manufacturer="#Delta", mfg_part_number="#RES002K0A0603", ul_vde_number="#UL569",
+    validated_at="#EB0", qty="#2", designator="#R1,R2", unit_price="#0.1", sub_total="#0.4"
+)  # added "#" to all values in this row so will require manual overwrite
+
+HEADER_A_BAD_VALUE: Final[Header] = Header(
+    model_no="#AB100", board_name="#Power PCBA", manufacturer="#Delta",
+    build_stage="#MB", date="#2025-01-12", material_cost="#2.5",
+    overhead_cost="#0.4", total_cost="#9.4"
+)  # added "#" to all values in this header so will require manual overwrite
+
+BOARD_A_BAD_VALUE: Final[Board] = Board(
+    header=HEADER_A_BAD_VALUE,
+    rows=(ROW_A_1_BAD_VALUE, ROW_A_1_ALT1, ROW_A_1_ALT2, ROW_A_2, ROW_A_2_ALT, ROW_A_3, ROW_A_4),
+    sheet_name=HEADER_A_BAD_VALUE.board_name,
+)
+
+BOM_A_BAD_VALUE: Final[Bom] = Bom(
+    boards=(BOARD_A_BAD_VALUE,),
+    file_name="bom_A_bad_value.xlsx",
 )
 
 # =============================
