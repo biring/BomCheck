@@ -27,6 +27,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 import re
 from src.models import interfaces as mdl
+from src.runtime import interfaces as rt
 from src.utils import parse_to_float
 
 # TODO : Reorganize to one shared folder for all rules or make math a utility
@@ -45,8 +46,7 @@ LOG_TOTAL_COST_CHANGE = "Total cost set to the product of material and overhead 
 ERR_FLOAT_PARSE = "{field} value '{value}' is not a valid floating point number: {reason}"
 
 
-def component_type_lookup(row: mdl.Row, ignore_str: tuple[str, ...], lookup_dict: dict[str, list[str]]) -> tuple[
-    str, str]:
+def component_type_lookup(row: mdl.Row) -> tuple[str, str]:
     """
     Perform fuzzy lookup to map a raw component type string to a standardized type key.
 
@@ -54,8 +54,6 @@ def component_type_lookup(row: mdl.Row, ignore_str: tuple[str, ...], lookup_dict
 
     Args:
         row (mdl.Row): Bom row containing the component type to autocorrect.
-        ignore_str (tuple[str, ...]): Substrings to remove before comparison.
-        lookup_dict (dict[str, list[str]]): Mapping of canonical component keys to their known aliases.
 
     Returns:
         tuple[str, str]:
@@ -70,7 +68,10 @@ def component_type_lookup(row: mdl.Row, ignore_str: tuple[str, ...], lookup_dict
     str_out = str_in
     change_log = ""
 
-    # ignore SMD, DIP if found in component type name as they add not value
+    ignore_str: tuple[str, ...] = ()  # TODO - Get it from configuration/runtime
+    lookup_dict: dict[str, list[str]] = rt.get_component_type_data_map()
+
+    # ignore strings such as SMD and DIP if found in component type name as they add not value
     str_test = str_in
     for remove_str in ignore_str:
         str_test = str_test.replace(remove_str, '')

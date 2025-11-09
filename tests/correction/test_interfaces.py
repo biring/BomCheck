@@ -25,9 +25,10 @@ import unittest
 from dataclasses import replace
 from typing import Any, Callable
 from unittest.mock import patch
-from src.cli import interfaces as cli
-from src.correction import interfaces as correct
-from tests.fixtures import v3_bom as bfx
+from src.runtime import interfaces as rt  # for patch at interface
+from src.cli import interfaces as cli # for patch at interface
+from src.correction import interfaces as correct # Module under test
+from tests.fixtures import v3_bom as bfx # Fixtures for module test
 
 
 def _act_with_patch(fn: Callable, value: Any, prompt_return: str) -> tuple[str, str]:
@@ -742,7 +743,7 @@ class TestInterface(_Asserts):
         """
         # ARRANGE
         fn = correct.component_type_lookup
-        row = replace(bfx.ROW_B2_5, component_type="SMD MCU")
+        row = replace(bfx.ROW_B2_5, component_type="MCU")
         ignore_list = ("SMD", "DIP")
         lookup_dict = {
             "IC": ["Integrated Circuit", "MCU"],
@@ -750,8 +751,10 @@ class TestInterface(_Asserts):
         }
         expected = "IC"
 
-        # ACT
-        result, log = fn(row, ignore_list, lookup_dict)
+        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+            p_data_map.return_value = lookup_dict
+            # ACT
+            result, log = fn(row)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected, msg=fn.__name__)
@@ -771,8 +774,10 @@ class TestInterface(_Asserts):
         }
         expected = "Silicon Diode"
 
-        # ACT
-        result, log = fn(row, ignore_list, lookup_dict)
+        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+            p_data_map.return_value = lookup_dict
+            # ACT
+            result, log = fn(row)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected, msg=fn.__name__)

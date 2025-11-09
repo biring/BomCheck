@@ -25,8 +25,10 @@ License:
 
 import unittest
 from dataclasses import replace
+from unittest.mock import patch
 
 from src.models import interfaces as mdl
+from src.runtime import interfaces as rt  # for patch at interface
 
 # noinspection PyProtectedMember
 from src.correction import _auto as auto  # Direct internal import — acceptable in tests
@@ -52,8 +54,10 @@ class TestComponentTypeLookup(unittest.TestCase):
         }
         expected_out = "Capacitor"
 
-        # ACT
-        result, log = auto.component_type_lookup(row, ignore_list, lookup_dict)
+        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+            p_data_map.return_value = lookup_dict
+            # ACT
+            result, log = auto.component_type_lookup(row)
 
         # ASSERT
         with self.subTest("Output", Out=result, Exp=expected_out):
@@ -75,8 +79,10 @@ class TestComponentTypeLookup(unittest.TestCase):
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
 
-        # ACT
-        result, log = auto.component_type_lookup(row, ignore_str, lookup_dict)
+        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+            p_data_map.return_value = lookup_dict
+            # ACT
+            result, log = auto.component_type_lookup(row)
 
         # ASSERT
         with self.subTest("Output", Out=result, Exp=row.component_type):
@@ -96,8 +102,10 @@ class TestComponentTypeLookup(unittest.TestCase):
             "Resistor": ["Ceramic Capacitor"],  # Duplicate alias to create ambiguity
         }
 
-        # ACT
-        result, log = auto.component_type_lookup(row, ignore_str, lookup_dict)
+        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+            p_data_map.return_value = lookup_dict
+            # ACT
+            result, log = auto.component_type_lookup(row)
 
         # ASSERT
         with self.subTest("Output", Out=result, Exp=row.component_type):
