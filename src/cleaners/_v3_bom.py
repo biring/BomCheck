@@ -71,8 +71,8 @@ def clean_v3_bom(bom: mdl.Bom) -> tuple[mdl.Bom, tuple[str, ...]]:
         clean_header = _clean_header(change_log, board.header)
 
         ## Reconstruct the Board object with coerced fields
-        board: mdl.Board = mdl.Board(header=clean_header, rows=tuple(clean_rows), sheet_name=board.sheet_name)
-        clean_boards.append(board)
+        clean_board: mdl.Board = mdl.Board(header=clean_header, rows=tuple(clean_rows), sheet_name=board.sheet_name)
+        clean_boards.append(clean_board)
 
     # Collect all cleaned boards and reconstruct final BOM
     clean_bom: mdl.Bom = mdl.Bom(boards=tuple(clean_boards), file_name=bom.file_name)
@@ -91,10 +91,10 @@ def _clean_header(change_log: types.ChangeLog, header: mdl.Header) -> mdl.Header
 
     Args:
         change_log (types.ChangeLog): Shared context-aware change log collector.
-        row (mdl.Row): Raw row instance.
+        header (mdl.Header): Raw header instance.
 
     Returns:
-        mdl.Row: New row with normalized values.
+        mdl.Header: New header with normalized values.
 
     Raises:
         ValueError: If any coerced values cannot be mapped back to `mdl.Row` fields during reconstruction.
@@ -138,8 +138,7 @@ def _clean_row(change_log: types.ChangeLog, row: mdl.Row) -> mdl.Row:
     """
     Clean (coerce and normalize) all row-level fields.
 
-    Invokes field-specific coercers for each BOM row attribute and logs
-    any transformations that result_value in a changed value.
+    Invokes field-specific coercers for each BOM row attribute and logs any transformations that result in a changed value.
 
     Args:
         change_log (help.CleanLog): Shared log collector for contextual tracking.
