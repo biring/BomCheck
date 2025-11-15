@@ -24,11 +24,10 @@ License:
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
+from src.common import ChangeLog
 from tests.fixtures import v3_bom as fx
 # noinspection PyProtectedMember
 from src.cleaners import _v3_bom as cb  # Direct internal import — acceptable in tests
-# noinspection PyProtectedMember
-from src.cleaners import _types as common  # Direct internal import — acceptable in tests
 
 
 class TestCoerceBom(unittest.TestCase):
@@ -105,15 +104,15 @@ class TestCoerceHeader(unittest.TestCase):
         """
         # ARRANGE
         header = fx.BOARD_A.header
-        log = common.ChangeLog()
+        log = ChangeLog()
         # ACT
         out_header = cb._clean_header(log, header)
         # ASSERT
         for k, v in header.__dict__.items():
             with self.subTest(Field=k, Out=out_header.__dict__.get(k), Exp=v):
                 self.assertEqual(out_header.__dict__.get(k), v)
-        with self.subTest("Log size", Out=len(log.to_frozen_list()), Exp=0):
-            self.assertEqual(len(log.to_frozen_list()), 0)
+        with self.subTest("Log size", Out=len(log.render()), Exp=0):
+            self.assertEqual(len(log.render()), 0)
 
     def test_invalid(self):
         """
@@ -129,14 +128,14 @@ class TestCoerceHeader(unittest.TestCase):
                 ),
             ),
         )
-        log = common.ChangeLog()
+        log = ChangeLog()
         # ACT
         out_header = cb._clean_header(log, dirty.boards[0].header)
         # ASSERT (spot-check)
         with self.subTest("Coerced cell", In=dirty.boards[0].header.board_name, Out=out_header.board_name):
             self.assertNotEqual(out_header.board_name, dirty.boards[0].header.board_name)
-        with self.subTest("Log size", Out=len(log.to_frozen_list()), Exp=0):
-            self.assertGreater(len(log.to_frozen_list()), 0)
+        with self.subTest("Log size", Out=len(log.render()), Exp=0):
+            self.assertGreater(len(log.render()), 0)
 
     def test_raises(self):
         """
@@ -144,7 +143,7 @@ class TestCoerceHeader(unittest.TestCase):
         """
         # ARRANGE
         header = fx.BOARD_A.header
-        log = common.ChangeLog()
+        log = ChangeLog()
         expected = ValueError.__name__
 
         # ACT
@@ -174,15 +173,15 @@ class TestCoerceRow(unittest.TestCase):
         """
         # ARRANGE
         row = fx.BOARD_A.rows[0]
-        log = common.ChangeLog()
+        log = ChangeLog()
         # ACT
         out_row = cb._clean_row(log, row)
         # ASSERT
         for k, v in row.__dict__.items():
             with self.subTest(Field=k, Out=out_row.__dict__.get(k), Exp=v):
                 self.assertEqual(out_row.__dict__.get(k), v)
-        with self.subTest("Log size", Out=len(log.to_frozen_list()), Exp=0):
-            self.assertEqual(len(log.to_frozen_list()), 0)
+        with self.subTest("Log size", Out=len(log.render()), Exp=0):
+            self.assertEqual(len(log.render()), 0)
 
     def test_invalid(self):
         """
@@ -190,7 +189,7 @@ class TestCoerceRow(unittest.TestCase):
         """
         # ARRANGE (start clean and add space to dirty up a field)
         dirty = replace(fx.ROW_A_1, classification=" " + fx.ROW_A_1.classification + " ")
-        log = common.ChangeLog()
+        log = ChangeLog()
 
         # ACT
         out_row = cb._clean_row(log, dirty)
@@ -198,8 +197,8 @@ class TestCoerceRow(unittest.TestCase):
         # ASSERT (spot-check)
         with self.subTest("Coerced cell", In=dirty.classification, Out=out_row.classification):
             self.assertNotEqual(dirty.classification, out_row.classification)
-        with self.subTest("Log size", Out=len(log.to_frozen_list()), Exp=0):
-            self.assertGreater(len(log.to_frozen_list()), 0)
+        with self.subTest("Log size", Out=len(log.render()), Exp=0):
+            self.assertGreater(len(log.render()), 0)
 
     def test_raises(self):
         """
@@ -207,7 +206,7 @@ class TestCoerceRow(unittest.TestCase):
         """
         # ARRANGE
         row = fx.BOARD_A.rows[0]
-        log = common.ChangeLog()
+        log = ChangeLog()
         expected = ValueError.__name__
         # ACT
         with patch("src.cleaners._v3_bom.mdl.Row", side_effect=TypeError("bad mapping")):

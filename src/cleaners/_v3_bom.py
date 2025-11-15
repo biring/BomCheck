@@ -27,10 +27,10 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API. Star import from this module gets nothing.
 
+from src.common import ChangeLog
+
 from src.models import interfaces as mdl
 from src.coerce import interfaces as coerce
-
-from . import _types as types
 
 
 def clean_v3_bom(bom: mdl.Bom) -> tuple[mdl.Bom, tuple[str, ...]]:
@@ -49,7 +49,8 @@ def clean_v3_bom(bom: mdl.Bom) -> tuple[mdl.Bom, tuple[str, ...]]:
         ValueError: If reconstruction of any board, header, or row fails due to an invalid field mapping.
     """
     # Initialize contextual log (file, sheet, section tracking)
-    change_log = types.ChangeLog()
+    change_log = ChangeLog()
+    change_log.set_module_name("Cleaner")
     change_log.set_file_name(bom.file_name)
 
     clean_boards: list[mdl.Board] = []
@@ -78,19 +79,19 @@ def clean_v3_bom(bom: mdl.Bom) -> tuple[mdl.Bom, tuple[str, ...]]:
     clean_bom: mdl.Bom = mdl.Bom(boards=tuple(clean_boards), file_name=bom.file_name)
 
     # Extract full log snapshot for external reporting
-    frozen_change_log = change_log.to_frozen_list()
+    frozen_change_log = change_log.render()
 
     return clean_bom, frozen_change_log
 
 
-def _clean_header(change_log: types.ChangeLog, header: mdl.Header) -> mdl.Header:
+def _clean_header(change_log: ChangeLog, header: mdl.Header) -> mdl.Header:
     """
     Coerce and normalize all row fields and append emitted messages to the shared log.
 
     Applies field-specific coercers in a defined order, maps label-based fields to dataclass attributes, and rebuilds a normalized `mdl.Row`.
 
     Args:
-        change_log (types.ChangeLog): Shared context-aware change log collector.
+        change_log (ChangeLog): Shared context-aware change log collector.
         header (mdl.Header): Raw header instance.
 
     Returns:
@@ -134,7 +135,7 @@ def _clean_header(change_log: types.ChangeLog, header: mdl.Header) -> mdl.Header
         ) from e
 
 
-def _clean_row(change_log: types.ChangeLog, row: mdl.Row) -> mdl.Row:
+def _clean_row(change_log: ChangeLog, row: mdl.Row) -> mdl.Row:
     """
     Clean (coerce and normalize) all row-level fields.
 
