@@ -33,7 +33,7 @@ from dataclasses import replace
 from src.models.interfaces import Row, Header, Board, Bom, RowFields, HeaderFields
 from src.correction import interfaces as correct
 
-from . import _types as types
+from src.common import ChangeLog
 
 
 def fix_v3_bom(bom: Bom) -> tuple[Bom, tuple[str, ...]]:
@@ -52,7 +52,8 @@ def fix_v3_bom(bom: Bom) -> tuple[Bom, tuple[str, ...]]:
         ValueError: If reconstruction of any row, header, or board fails due to invalid mappings.
     """
     # Initialize contextual change log scoped by file → sheet → section
-    change_log = types.ChangeLog()
+    change_log = ChangeLog()
+    change_log.set_module_name("fixer")
     change_log.set_file_name(bom.file_name)
 
     fixed_boards: list[Board] = []
@@ -77,7 +78,8 @@ def fix_v3_bom(bom: Bom) -> tuple[Bom, tuple[str, ...]]:
 
         # Apply manual header fixes before auto-calculated fields like cost
         fixed_header_manual = _fix_header_manual(change_log, board.header)
-        fixed_board_manual: Board = Board(header=fixed_header_manual, rows=tuple(fixed_rows),sheet_name=board.sheet_name)
+        fixed_board_manual: Board = Board(header=fixed_header_manual, rows=tuple(fixed_rows),
+                                          sheet_name=board.sheet_name)
         fixed_header_auto = _fix_header_auto(change_log, fixed_board_manual)
         fixed_board_auto: Board = Board(header=fixed_header_auto, rows=tuple(fixed_rows), sheet_name=board.sheet_name)
         fixed_boards.append(fixed_board_auto)
@@ -86,17 +88,17 @@ def fix_v3_bom(bom: Bom) -> tuple[Bom, tuple[str, ...]]:
     fixed_bom: Bom = Bom(boards=tuple(fixed_boards), file_name=bom.file_name)
 
     # Extract full log snapshot for external reporting
-    frozen_change_log = change_log.to_tuple()
+    frozen_change_log = change_log.render()
 
     return fixed_bom, frozen_change_log
 
 
-def _fix_header_manual(change_log: types.ChangeLog, header: Header) -> Header:
+def _fix_header_manual(change_log: ChangeLog, header: Header) -> Header:
     """
     Apply manual header corrections in a defined order and append any resulting messages to the change-log.
 
     Args:
-        change_log (types.ChangeLog): Context-aware collector for change messages.
+        change_log (ChangeLog): Context-aware collector for change messages.
         header (Header): Header instance to correct.
 
     Returns:
@@ -134,12 +136,12 @@ def _fix_header_manual(change_log: types.ChangeLog, header: Header) -> Header:
     return header
 
 
-def _fix_header_auto(change_log: types.ChangeLog, board: Board) -> Header:
+def _fix_header_auto(change_log: ChangeLog, board: Board) -> Header:
     """
     Apply automatic header corrections (e.g., computed costs) based on board context and append messages to the change-log.
 
     Args:
-        change_log (types.ChangeLog): Context-aware collector for change messages.
+        change_log (ChangeLog): Context-aware collector for change messages.
         board (Board): Board providing header and row context for computed fields.
 
     Returns:
@@ -183,12 +185,12 @@ def _fix_header_auto(change_log: types.ChangeLog, board: Board) -> Header:
     return header
 
 
-def _fix_row_manual(change_log: types.ChangeLog, row: Row) -> Row:
+def _fix_row_manual(change_log: ChangeLog, row: Row) -> Row:
     """
     Apply manual row corrections in a defined order and append messages for any detected or applied changes.
 
     Args:
-        change_log (types.ChangeLog): Context-aware collector for change messages.
+        change_log (ChangeLog): Context-aware collector for change messages.
         row (Row): Row instance to correct.
 
     Returns:
@@ -233,12 +235,12 @@ def _fix_row_manual(change_log: types.ChangeLog, row: Row) -> Row:
     return row
 
 
-def _fix_row_auto(change_log: types.ChangeLog, row: Row) -> Row:
+def _fix_row_auto(change_log: ChangeLog, row: Row) -> Row:
     """
     Apply automatic row corrections (e.g., lookups, expansions, and computed totals) and append messages to the change-log.
 
     Args:
-        change_log (types.ChangeLog): Context-aware collector for change messages.
+        change_log (ChangeLog): Context-aware collector for change messages.
         row (Row): Row instance to correct.
 
     Returns:

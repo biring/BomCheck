@@ -24,13 +24,12 @@ License:
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
+from src.common import ChangeLog
 from src.models import interfaces as mdl
 from src.runtime import interfaces as rt  # for patch at interface
 from src.cli import interfaces as cli  # for patch at interface
 # noinspection PyProtectedMember
 from src.fixer import _v3_bom as fb  # Direct internal import — acceptable in tests
-# noinspection PyProtectedMember
-from src.fixer import _types as ft  # Direct internal import — acceptable in tests
 from tests.fixtures import v3_bom as bf
 
 COMPONENT_TYPE_LOOKUP = {
@@ -122,7 +121,7 @@ class TestFixHeaderManual(unittest.TestCase):
     """
 
     def reset_log(self):
-        self.log = ft.ChangeLog()
+        self.log = ChangeLog()
         self.log.set_file_name("TestFile")
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
@@ -137,7 +136,7 @@ class TestFixHeaderManual(unittest.TestCase):
         # ACT
         self.reset_log()
         header_out = fb._fix_header_manual(self.log, header_in)
-        log_length = len(self.log.to_tuple())
+        log_length = len(self.log.render())
 
         # ASSERT
         for field, str_in, str_out, str_exp in zip(header_out.__dict__.keys(), header_in.__dict__.values(),
@@ -177,7 +176,7 @@ class TestFixHeaderManual(unittest.TestCase):
                 str_in = getattr(header_in, attr_name)
                 str_out = getattr(header_out, attr_name)
                 str_exp = getattr(bf.HEADER_A, attr_name)
-                log_list = self.log.to_tuple()
+                log_list = self.log.render()
 
                 # ASSERT
                 with self.subTest(label, In=str_in, Out=str_out, Exp=str_exp):
@@ -224,7 +223,7 @@ class TestFixHeaderAuto(unittest.TestCase):
     """
 
     def reset_log(self):
-        self.log = ft.ChangeLog()
+        self.log = ChangeLog()
         self.log.set_file_name("TestFile")
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
@@ -240,7 +239,7 @@ class TestFixHeaderAuto(unittest.TestCase):
         # ACT
         self.reset_log()
         header_out = fb._fix_header_auto(self.log, board_in)
-        log_length = len(self.log.to_tuple())
+        log_length = len(self.log.render())
 
         # ASSERT
         for field, str_in, str_out, str_exp in zip(header_out.__dict__.keys(), header_in.__dict__.values(),
@@ -282,7 +281,7 @@ class TestFixHeaderAuto(unittest.TestCase):
                 str_in = getattr(header_in, attr_name)
                 str_out = getattr(header_out, attr_name)
                 str_exp = getattr(bf.HEADER_A, attr_name)
-                log_list = self.log.to_tuple()
+                log_list = self.log.render()
 
                 # ASSERT
                 with self.subTest(label, In=str_in, Out=str_out, Exp=str_exp):
@@ -326,7 +325,7 @@ class TestFixRowManual(unittest.TestCase):
     """
 
     def setUp(self):
-        self.log = ft.ChangeLog()
+        self.log = ChangeLog()
         self.log.set_file_name("TestFile")
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
@@ -342,7 +341,7 @@ class TestFixRowManual(unittest.TestCase):
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_row = fb._fix_row_manual(self.log, row)
-            log_length = len(self.log.to_tuple())
+            log_length = len(self.log.render())
 
         # ASSERT
         for field, str_in, str_out, str_exp in zip(out_row.__dict__.keys(), row.__dict__.values(),
@@ -393,7 +392,7 @@ class TestFixRowManual(unittest.TestCase):
                 str_in = getattr(row_in, attr_name)
                 str_out = getattr(row_out, attr_name)
                 str_exp = getattr(bf.ROW_A_1, attr_name)
-                log_list = self.log.to_tuple()
+                log_list = self.log.render()
 
                 # ASSERT
                 with self.subTest(label, In=str_in, Out=str_out, Exp=str_exp):
@@ -442,7 +441,7 @@ class TestFixRowAuto(unittest.TestCase):
     """
 
     def setUp(self):
-        self.log = ft.ChangeLog()
+        self.log = ChangeLog()
         self.log.set_file_name("TestFile")
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
@@ -458,7 +457,7 @@ class TestFixRowAuto(unittest.TestCase):
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_row = fb._fix_row_auto(self.log, row)
-            log_length = len(self.log.to_tuple())
+            log_length = len(self.log.render())
 
         # ASSERT
         for field, str_in, str_out, str_exp in zip(out_row.__dict__.keys(), row.__dict__.values(),
@@ -499,7 +498,7 @@ class TestFixRowAuto(unittest.TestCase):
                 str_in = getattr(row_in, attr_name)
                 str_out = getattr(row_out, attr_name)
                 str_exp = getattr(bf.ROW_A_1, attr_name)
-                log_list = self.log.to_tuple()
+                log_list = self.log.render()
 
                 # ASSERT
                 with self.subTest(label, In=str_in, Out=str_out, Exp=str_exp):
