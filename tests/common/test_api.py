@@ -20,9 +20,15 @@ Notes:
 License:
     - Internal Use Only
 """
-
+import os
+import shutil
+import tempfile
 import unittest
-from src.common import ChangeLog
+from typing import Any
+from unittest.mock import patch
+
+from src import utils
+from src.common import ChangeLog, JsonCache
 
 
 class TestChangeLog(unittest.TestCase):
@@ -64,6 +70,143 @@ class TestChangeLog(unittest.TestCase):
         for idx, (out_row, exp_row) in enumerate(zip(result, expected)):
             with self.subTest(Row=idx, Out=out_row, Exp=exp_row):
                 self.assertEqual(out_row, exp_row)
+
+
+class TestJsonCacheInterface(unittest.TestCase):
+    """
+    Interface-level unit tests for JsonCache via `src.common`.
+
+    These tests focus on:
+        - get_data_map_copy: returns a copy of the JSON payload.
+        - get_keys: returns all keys as a sorted tuple.
+        - get_value: returns typed values for existing keys.
+
+    Error paths (missing keys, type mismatches, etc.) are validated in the internal unit tests and are not re-tested here.
+    """
+
+    TEST_RESOURCE_PREFIX: str = "_"
+    TEST_RESOURCE_FOLDER_PARTS: tuple[str, ...] = ("a", "b")
+
+    TEST_JSON_PAYLOAD: dict[str, Any] = {
+        "app_name": "BomCheck",
+        "log_level": "DEBUG",
+        "retry_count": -3,
+        "error_types": ["Info", "Warning", "Error"],
+    }
+
+    def setUp(self) -> None:
+        """
+        Prepare a temporary project root and runtime folder, and write a JSON
+        resource packet for use by JsonCache interface tests.
+        """
+        # ARRANGE: create isolated project root; removed in tearDown()
+        self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_api_tmp_")
+
+        # Mirror the on-disk runtime layout used by production code
+        self.runtime_dir = utils.construct_folder_path(
+            self.tmp_project_root,
+            self.TEST_RESOURCE_FOLDER_PARTS,
+        )
+        os.makedirs(self.runtime_dir, exist_ok=True)
+
+        # Build resource filename and path
+        self.resource_name = "settings"
+        resource_filename = (
+                self.TEST_RESOURCE_PREFIX + self.resource_name + utils.JSON_FILE_EXT
+        )
+        resource_path = os.path.join(self.runtime_dir, resource_filename)
+
+        # Wrap payload in the standard packet envelope expected by the loader
+        packet = utils.create_json_packet(
+            self.TEST_JSON_PAYLOAD,
+            source_file=resource_filename,
+        )
+
+        # Persist packet where JsonCache will look for it
+        utils.save_json_file(resource_path, packet)
+
+        # Patch `find_root_folder` so runtime resolution points at our temp root
+        self._root_patcher = patch.object(
+            utils,
+            "find_root_folder",
+            return_value=self.tmp_project_root,
+        )
+        self._root_patcher.start()
+
+        # Pre-compute required keys used in these tests
+        self.required_keys: tuple[str, ...] = tuple(self.TEST_JSON_PAYLOAD.keys())
+
+    def tearDown(self) -> None:
+        """
+        Restore patched functions and remove the temporary project root.
+        """
+        # Stop patching find_root_folder
+        self._root_patcher.stop()
+
+        # Best-effort cleanup of temporary directories
+        shutil.rmtree(self.tmp_project_root, ignore_errors=True)
+
+    def test_get_data_map_method(self) -> None:
+        """
+        Should return a dictionary containing the validated JSON payload.
+        """
+        # ARRANGE
+        cache = JsonCache(
+            resource_name=self.resource_name,
+            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
+            required_keys=self.required_keys,
+        )
+
+        # ACT
+        data_copy = cache.get_data_map_copy()
+
+        # ASSERT
+        with self.subTest(Scenario="data_map", Out=data_copy, Exp=self.TEST_JSON_PAYLOAD):
+            self.assertEqual(data_copy, self.TEST_JSON_PAYLOAD)
+
+    def test_get_keys_method(self) -> None:
+        """
+        Should return all JSON keys as a sorted tuple.
+        """
+        # ARRANGE
+        cache = JsonCache(
+            resource_name=self.resource_name,
+            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
+            required_keys=self.required_keys,
+        )
+        expected_keys = tuple(sorted(self.TEST_JSON_PAYLOAD.keys()))
+
+        # ACT
+        actual_keys = cache.get_keys()
+
+        # ASSERT
+        with self.subTest(Out=actual_keys, Exp=expected_keys):
+            self.assertEqual(actual_keys, expected_keys)
+
+    def test_get_value_method(self) -> None:
+        """
+        Should return the stored value when the key exists and the requested
+        type matches the stored value type.
+        """
+        # ARRANGE
+        cache = JsonCache(
+            resource_name=self.resource_name,
+            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
+            required_keys=self.required_keys,
+        )
+
+        cases = (
+            (str, "app_name", self.TEST_JSON_PAYLOAD["app_name"]),  # String
+            (int, "retry_count", self.TEST_JSON_PAYLOAD["retry_count"]),  # Integer
+            (list, "error_types", self.TEST_JSON_PAYLOAD["error_types"]),  # List
+        )
+
+        # ACT + ASSERT
+        for data_type, key, expected_value in cases:
+            actual_value = cache.get_value(key, data_type)
+
+            with self.subTest(Key=key, Out=actual_value, Exp=expected_value):
+                self.assertEqual(actual_value, expected_value)
 
 
 if __name__ == "__main__":
