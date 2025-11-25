@@ -155,6 +155,7 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
+            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
 
         # ACT
@@ -173,6 +174,7 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
+            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
         expected_keys = tuple(sorted(self.TEST_JSON_PAYLOAD.keys()))
 
@@ -193,6 +195,7 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
+            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
 
         cases = (

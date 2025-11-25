@@ -47,7 +47,7 @@ T = TypeVar("T")  # dictionary value type
 
 
 def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple[str, ...],
-                                resource_prefix: str = "_") -> str:
+                                resource_prefix: str) -> str:
     """
     Resolve the absolute path to a shared JSON runtime resource.
 
@@ -56,7 +56,7 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
     Args:
         resource_name (str): Logical resource name without prefix or extension (for example, "settings" or "log_msg").
         resource_folder_parts (tuple[str, ...]): Folder path segments under the project root that contain the JSON resources.
-        resource_prefix (str, optional): Filename prefix added before the logical resource name. Defaults to "_".
+        resource_prefix (str): Filename prefix added before the logical resource name.
 
     Returns:
         str: Absolute filesystem path to the JSON resource file.
@@ -153,7 +153,8 @@ class JsonCache:
             self,
             resource_name: str,
             resource_folder_parts: tuple[str, ...],
-            required_keys: tuple[str, ...] = (),
+            required_keys: tuple[str, ...],
+            resource_prefix: str,
     ) -> None:
         """
         Initialize a cache for a JSON runtime resource.
@@ -164,6 +165,7 @@ class JsonCache:
             resource_name (str): Logical file stem without prefix or extension (for example, "log_msg").
             resource_folder_parts (tuple[str, ...]): Folder path segments under the project root where the resource resides.
             required_keys (tuple[str, ...]): Keys that must be present in the resource payload.
+            resource_prefix (str): Filename prefix added before the logical resource name.
 
         Returns:
             None: The cache is initialized in place when construction succeeds.
@@ -178,7 +180,7 @@ class JsonCache:
 
         try:
             # Resolve the JSON file path
-            resource_file_path = _resolve_json_resource_path(resource_name, resource_folder_parts)
+            resource_file_path = _resolve_json_resource_path(resource_name, resource_folder_parts, resource_prefix)
 
             # Load JSON and extract data
             data = _load_json_resource(resource_name, resource_file_path)
