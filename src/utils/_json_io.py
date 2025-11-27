@@ -199,33 +199,36 @@ def _compute_payload_sha256(payload: dict[str, Any]) -> str:
 
 def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, Any]:
     """
-    Build the JSON packet with meta and payload data.
+    Build a deterministic JSON packet with metadata and a sorted payload.
 
-    The returned structure contains:
+    The payload dictionary is first sorted lexicographically by key to ensure stable ordering and reproducible SHA-256 checksums. Metadata includes the UTC generation timestamp, the source file name, and the checksum computed over the sorted payload. The returned packet structure is:
+
         {
             "meta": {
                 "generated_at_utc": "<ISO 8601 UTC timestamp>",
-                "source_file_name": "<original filename>",
-                "payload_sha256": <SHA-256 of payload>
+                "source_file_name": "<original filename or identifier>",
+                "payload_sha256": "<SHA-256 of sorted payload>"
             },
-            "payload": { ... }  # shallow copy of the provided data
+            "payload": { ... }  # shallow copy of the sorted payload
         }
 
     Args:
-        payload (dict[str, Any]): Dictionary of data to include under the "payload" key. Values will be shallow-copied into the output.
-        source_file (str): Original filename or identifier for the data source.
+        payload (dict[str, Any]): Dictionary of data to include under the "payload" key. Keys must be strings and values must be JSON-serializable. The payload is sorted by key prior to hashing and inclusion in the packet.
+        source_file (str): Original filename or logical identifier for the data source. Stored in the metadata for traceability.
 
     Returns:
-        dict[str, Any]: The JSON-ready object containing the meta and payload data.
+        dict[str, Any]: JSON-ready packet containing metadata and a shallow copy of the sorted payload. Suitable for serialization and integrity validation.
     """
+    # Sort payload
+    sorted_payload = {k: payload[k] for k in sorted(payload.keys())}
     # Assemble metadata
     meta_info = {
         _KEY_UTC: _now_utc_iso(),
         _KEY_SOURCE: str(source_file),
-        _KEY_SHA256: _compute_payload_sha256(payload),
+        _KEY_SHA256: _compute_payload_sha256(sorted_payload),
     }
     # Return JSON-ready structure with shallow copy of data
-    return {_KEY_META: meta_info, _KEY_PAYLOAD: dict(payload)}
+    return {_KEY_META: meta_info, _KEY_PAYLOAD: dict(sorted_payload)}
 
 
 def verify_json_payload_checksum(packet: dict[str, Any]) -> bool:

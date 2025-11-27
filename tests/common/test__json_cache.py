@@ -38,9 +38,9 @@ import src.common._json_cache as jc  # module under test
 TEST_RESOURCE_PREFIX: str = "test_"
 TEST_RESOURCE_FOLDER_PARTS: tuple[str, ...] = ("a", "b",)
 
-TEST_VALID_JSON: dict[str, Any] = {"Char": "A", "String": "ABC123!@#", "List": ["1", "ABC"]}
+TEST_VALID_JSON: dict[str, Any] = {"A_Char": "A", "B_String": "ABC123!@#", "C_List": ["1", "ABC"]}
 TEST_VALID_RESOURCE_NAME: str = "test_resource"
-TEST_VALID_REQ_KEYS: tuple[str, ...] = ("String", "List",)
+TEST_VALID_REQ_KEYS: tuple[str, ...] = ("B_String", "C_List",)
 
 TEST_EMPTY_JSON: dict[str, Any] = {}
 TEST_EMPTY_RESOURCE_NAME: str = "test_empty_resource"
@@ -240,9 +240,9 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
 
         # ACT
         # Mutate the data
-        copy_map["String"] = "MUTATED"
+        copy_map["B_String"] = "MUTATED"
         # Optionally mutate nested list as well
-        copy_map["List"].append("NEW")
+        copy_map["C_List"].append("NEW")
         # Re-fetch from cache to confirm isolation
         fresh = cache.get_data_map_copy()
 
@@ -264,7 +264,7 @@ class TestGetKeys(_Asserts, _TestFixture):
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
                                       TEST_VALID_REQ_KEYS, TEST_RESOURCE_PREFIX)
-        expected_keys = ("Char", "List", "String",)  # Sorted
+        expected_keys = ("A_Char", "B_String", "C_List",)  # Sorted
 
         # ACT
         actual_keys = test_cache.get_keys()
@@ -288,8 +288,8 @@ class TestGetValue(_Asserts, _TestFixture):
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
                                       TEST_VALID_REQ_KEYS, TEST_RESOURCE_PREFIX)
         cases = (
-            (str, "String", "ABC123!@#"),
-            (list, "List", ["1", "ABC"]),
+            (str, "B_String", "ABC123!@#"),
+            (list, "C_List", ["1", "ABC"]),
         )
 
         for data_type, key, expected_value in cases:
@@ -349,7 +349,7 @@ class TestGetValue(_Asserts, _TestFixture):
         with patch.object(utils, "find_root_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS,TEST_RESOURCE_PREFIX)
-        requested_key = "String"
+        requested_key = "B_String"
         expected_error = TypeError.__name__
 
         # ACT

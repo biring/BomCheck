@@ -141,7 +141,7 @@ class TestCreateJsonPacket(unittest.TestCase):
         Should build a JSON packet with meta (timestamp, source, checksum) and shallow copy of payload.
         """
         # ARRANGE
-        payload = {"a": 1, "b": "two"}
+        payload = {"a": 1, "c": True, "b": "two"}
         source_file = "example.csv"
 
         fake_timestamp = "2025-09-06T12:00:00Z"
@@ -173,6 +173,29 @@ class TestCreateJsonPacket(unittest.TestCase):
             self.assertEqual(result[jio._KEY_PAYLOAD], expected_payload)
             self.assertIsNot(result[jio._KEY_PAYLOAD], payload)
 
+    def test_payload_keys_are_sorted_by_key(self):
+        """
+        Should store the payload with keys sorted lexicographically.
+        """
+        # ARRANGE
+        payload = {"z": 1, "b": 2, "a": 3}
+        source_file = "example.csv"
+
+        fake_timestamp = "2025-09-06T12:00:00Z"
+        fake_checksum = "IGNORE_ME_FOR_SORTING_TEST"
+
+        expected_key_order = ["a", "b", "z"]
+
+        with patch("src.utils._json_io._now_utc_iso", return_value=fake_timestamp), \
+             patch("src.utils._json_io._compute_payload_sha256",
+                   return_value=fake_checksum):
+            # ACT
+            result = jio.create_json_packet(payload, source_file)
+
+        # ASSERT – verify keys are sorted in the stored payload
+        actual_key_order = list(result[jio._KEY_PAYLOAD].keys())
+        with self.subTest(Out=actual_key_order, Exp=expected_key_order):
+            self.assertEqual(actual_key_order, expected_key_order)
 
 class TestDictToJsonString(unittest.TestCase):
     """
