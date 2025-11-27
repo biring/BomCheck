@@ -27,14 +27,14 @@ License:
     - Internal Use Only
 
 """
-
+import importlib
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
 
 from tests.fixtures import v3_bom as fx
 from src.fixer import interfaces as fixer
-from src.runtime import interfaces as rt  # for patch
+from src.lookups import interfaces as lookup  # for patch
 
 COMPONENT_TYPE_LOOKUP = {
     "Capacitor": ["Cap", "Capacitor", "Ceramic Capacitor", "Electrolytic Capacitor"],
@@ -48,6 +48,12 @@ class TestV3Bom(unittest.TestCase):
     Tests for `v3_Bom`.
     """
 
+    def setUp(self):
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
+
     def test_valid(self):
         """
         Should keep BOM values unchanged and produce an empty log.
@@ -55,7 +61,7 @@ class TestV3Bom(unittest.TestCase):
         # ARRANGE
         src = fx.BOM_A  # Clean fixture
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_bom, log = fixer.v3_bom(src)
@@ -81,7 +87,7 @@ class TestV3Bom(unittest.TestCase):
             ),
         )
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             bom_out, log = fixer.v3_bom(bom_in)

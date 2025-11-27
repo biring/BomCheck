@@ -20,12 +20,12 @@ Notes:
 License:
     - Internal Use Only
 """
-
+import importlib
 import unittest
 from dataclasses import replace
 from typing import Any, Callable
 from unittest.mock import patch
-from src.runtime import interfaces as rt  # for patch at interface
+from src.lookups import interfaces as lookup  # for patch
 from src.cli import interfaces as cli # for patch at interface
 from src.correction import interfaces as correct # Module under test
 from tests.fixtures import v3_bom as bfx # Fixtures for module test
@@ -744,14 +744,17 @@ class TestInterface(_Asserts):
         # ARRANGE
         fn = correct.component_type_lookup
         row = replace(bfx.ROW_B2_5, component_type="MCU")
-        ignore_list = ("SMD", "DIP")
         lookup_dict = {
             "IC": ["Integrated Circuit", "MCU"],
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
         expected = "IC"
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = fn(row)
@@ -767,14 +770,17 @@ class TestInterface(_Asserts):
         # ARRANGE
         fn = correct.component_type_lookup
         row = replace(bfx.ROW_B2_5, component_type="Silicon Diode")
-        ignore_list = ("SMD", "DIP")
         lookup_dict = {
             "IC": ["Integrated Circuit", "MCU"],
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
         expected = "Silicon Diode"
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = fn(row)

@@ -21,12 +21,13 @@ Notes:
 License:
     - Internal Use Only
 """
+import importlib
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
 from src.common import ChangeLog
 from src.models import interfaces as mdl
-from src.runtime import interfaces as rt  # for patch at interface
+from src.lookups import interfaces as lookup  # for patch
 from src.cli import interfaces as cli  # for patch at interface
 # noinspection PyProtectedMember
 from src.fixer import _v3_bom as fb  # Direct internal import — acceptable in tests
@@ -44,13 +45,20 @@ class TestFixV3Bom(unittest.TestCase):
     Unit test for the `fix_v3_bom` function.
     """
 
+    def setUp(self):
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
+
     def test_valid(self):
         """
         Should NOT modify valid BOM data and return an empty change-log.
         """
         # ARRANGE
         src = bf.BOM_B  # Clean fixture
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_bom, log = fb.fix_v3_bom(src)
@@ -74,7 +82,7 @@ class TestFixV3Bom(unittest.TestCase):
         )
 
         with (
-            patch.object(rt, "get_component_type_data_map") as p_data_map,
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
             patch.object(cli, "prompt_for_string_value") as p_prompt,
             patch.object(cli, "show_info"),
             patch.object(cli, "show_warning"),
@@ -119,6 +127,11 @@ class TestFixHeaderManual(unittest.TestCase):
     """
     Unit test for the `_fix_header_manual` function.
     """
+    def setUp(self):
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
 
     def reset_log(self):
         self.log = ChangeLog()
@@ -162,7 +175,7 @@ class TestFixHeaderManual(unittest.TestCase):
             prompt_response = getattr(bf.HEADER_A, attr_name)
 
             with (
-                patch.object(rt, "get_component_type_data_map") as p_data_map,
+                patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
                 patch.object(cli, "prompt_for_string_value") as p_prompt,
                 patch.object(cli, "show_info"),
                 patch.object(cli, "show_warning"),
@@ -196,7 +209,7 @@ class TestFixHeaderManual(unittest.TestCase):
 
         with (
             patch.object(type(header_in), "__init__") as p_row,
-            patch.object(rt, "get_component_type_data_map") as p_data_map,
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
             patch.object(cli, "prompt_for_string_value") as p_prompt,
             patch.object(cli, "show_info"),
             patch.object(cli, "show_warning"),
@@ -221,6 +234,11 @@ class TestFixHeaderAuto(unittest.TestCase):
     """
     Unit test for the `_fix_header_auto` function.
     """
+    def setUp(self):
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
 
     def reset_log(self):
         self.log = ChangeLog()
@@ -267,7 +285,7 @@ class TestFixHeaderAuto(unittest.TestCase):
             prompt_response = getattr(header_in, attr_name)
 
             with (
-                patch.object(rt, "get_component_type_data_map") as p_data_map,
+                patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
                 patch.object(cli, "prompt_for_string_value") as p_prompt,
                 patch.object(cli, "show_info"),
                 patch.object(cli, "show_warning"),
@@ -330,6 +348,12 @@ class TestFixRowManual(unittest.TestCase):
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
 
+
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
+
     def test_valid(self):
         """
         Should keep row values unchanged and produce no log entries.
@@ -337,7 +361,7 @@ class TestFixRowManual(unittest.TestCase):
         # ARRANGE
         row = bf.ROW_A_1
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_row = fb._fix_row_manual(self.log, row)
@@ -379,7 +403,7 @@ class TestFixRowManual(unittest.TestCase):
             prompt_response = getattr(bf.ROW_A_1, attr_name)
 
             with (
-                patch.object(rt, "get_component_type_data_map") as p_data_map,
+                patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
                 patch.object(cli, "prompt_for_string_value") as p_prompt,
                 patch.object(cli, "show_info"),
                 patch.object(cli, "show_warning"),
@@ -415,7 +439,7 @@ class TestFixRowManual(unittest.TestCase):
 
         with (
             patch.object(type(row), "__init__") as p_row,
-            patch.object(rt, "get_component_type_data_map") as p_data_map,
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
             patch.object(cli, "prompt_for_string_value") as p_prompt,
             patch.object(cli, "show_info"),
             patch.object(cli, "show_warning"),
@@ -446,6 +470,11 @@ class TestFixRowAuto(unittest.TestCase):
         self.log.set_sheet_name("TestSheet")
         self.log.set_section_name("TestSection")
 
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
+
     def test_valid(self):
         """
         Should keep row values unchanged and produce no log entries.
@@ -453,7 +482,7 @@ class TestFixRowAuto(unittest.TestCase):
         # ARRANGE
         row = bf.ROW_A_1
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = COMPONENT_TYPE_LOOKUP
             # ACT
             out_row = fb._fix_row_auto(self.log, row)
@@ -485,7 +514,7 @@ class TestFixRowAuto(unittest.TestCase):
             prompt_response = getattr(bf.ROW_A_1, attr_name)
 
             with (
-                patch.object(rt, "get_component_type_data_map") as p_data_map,
+                patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
                 patch.object(cli, "prompt_for_string_value") as p_prompt,
                 patch.object(cli, "show_info"),
                 patch.object(cli, "show_warning"),

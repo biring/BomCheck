@@ -23,12 +23,13 @@ License:
     - Internal Use Only
 """
 
+import importlib
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
 
 from src.models import interfaces as mdl
-from src.runtime import interfaces as rt  # for patch at interface
+from src.lookups import interfaces as lookup  # for patch
 
 # noinspection PyProtectedMember
 from src.correction import _auto as auto  # Direct internal import — acceptable in tests
@@ -41,20 +42,25 @@ class TestComponentTypeLookup(unittest.TestCase):
     Unit tests for the `component_type_lookup` function.
     """
 
+    def setUp(self):
+        # Reload internal resources to clear any prior cache state
+        importlib.reload(lookup)
+        # Load component type resource
+        lookup.load_cache()
+
     def test_exact_match(self):
         """
         Should return the canonical key when both metrics match a known alias above the threshold.
         """
         # ARRANGE
         row = replace(bfx.ROW_A_1, component_type="SMD Ceramic Capacitor")
-        ignore_list = ("SMD", "DIP")
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
         expected_out = "Capacitor"
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = auto.component_type_lookup(row)
@@ -73,13 +79,12 @@ class TestComponentTypeLookup(unittest.TestCase):
         """
         # ARRANGE
         row = replace(bfx.ROW_A_1, component_type="Unknown Part")
-        ignore_str = ("SMD",)
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = auto.component_type_lookup(row)
@@ -96,13 +101,12 @@ class TestComponentTypeLookup(unittest.TestCase):
         """
         # ARRANGE
         row = replace(bfx.ROW_A_1, component_type="Ceramic Capacitor")
-        ignore_str = ()
         lookup_dict = {
             "Capacitor": ["Ceramic Capacitor"],
             "Resistor": ["Ceramic Capacitor"],  # Duplicate alias to create ambiguity
         }
 
-        with patch.object(rt, "get_component_type_data_map") as p_data_map:
+        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = auto.component_type_lookup(row)

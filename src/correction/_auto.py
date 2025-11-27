@@ -27,7 +27,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 import re
 from src.models import interfaces as mdl
-from src.runtime import interfaces as rt
+from src.lookups import interfaces as lookup
 from src.utils import parse_to_float
 
 # TODO : Reorganize to one shared folder for all rules or make math a utility
@@ -69,7 +69,7 @@ def component_type_lookup(row: mdl.Row) -> tuple[str, str]:
     change_log = ""
 
     ignore_str: tuple[str, ...] = ()  # TODO - Get it from configuration/runtime
-    lookup_dict: dict[str, list[str]] = rt.get_component_type_data_map()
+    lookup_dict: dict[str, list[str]] = lookup.get_component_type_cache().get_data_map_copy()
 
     # ignore strings such as SMD and DIP if found in component type name as they add not value
     str_test = str_in
