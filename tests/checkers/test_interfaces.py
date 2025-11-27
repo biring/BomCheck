@@ -44,11 +44,11 @@ class TestCheckV3Bom(unittest.TestCase):
         bom = bfx.BOM_B
 
         # ACT
-        text_str = checkers.check_v3_bom(bom)
+        issues = checkers.check_v3_bom(bom)
 
         # ASSERT
-        with self.subTest("Error msg length", Out=len(text_str), Exp=0):
-            self.assertEqual(len(text_str), 0)
+        with self.subTest("Number of issues", Out=len(issues), Exp=0):
+            self.assertEqual(len(issues), 0)
 
     def test_invalid_bom(self):
         """
@@ -66,13 +66,13 @@ class TestCheckV3Bom(unittest.TestCase):
         )
 
         # ACT
-        text_str = checkers.check_v3_bom(bom)
+        issues = checkers.check_v3_bom(bom)
 
         # ASSERT
-        with self.subTest("Type", Out=type(text_str).__name__, Exp="str"):
-            self.assertIsInstance(text_str, str)
-        with self.subTest("Error msg length", Out=len(text_str), Exp=">0"):
-            self.assertNotEqual(len(text_str), 0)
+        with self.subTest("Type", Out=type(issues).__name__, Exp=tuple.__name__):
+            self.assertIsInstance(issues, tuple)
+        with self.subTest("Number of issues", Out=len(issues), Exp=">0"):
+            self.assertNotEqual(len(issues), 0)
 
 
 if __name__ == "__main__":

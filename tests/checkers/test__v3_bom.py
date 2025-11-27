@@ -25,12 +25,17 @@ License:
 import unittest
 from dataclasses import replace
 from src.models import interfaces as mdl
+from src.common import ChangeLog as IssueLog
 # noinspection PyProtectedMember
-from src.checkers import _bom as bck
-# noinspection PyProtectedMember
-from src.checkers import _common as cmn
+from src.checkers import _v3_bom as bck
 from tests.fixtures import v3_bom as bfx
 from tests.fixtures import v3_value as vfx
+
+# Constants
+MODULE_NAME = "TestModule"
+FILE_NAME = "TestDataFile"
+SHEET_NAME = "TestSheet"
+SECTION_NAME = "TestSection"
 
 
 class TestCheckRowValue(unittest.TestCase):
@@ -39,11 +44,11 @@ class TestCheckRowValue(unittest.TestCase):
     """
 
     def setUp(self):
-        self.errors = cmn.ErrorLog()
-
-        self.errors.set_file_name("test.xlsx")
-        self.errors.set_sheet_name("Power PCBA")
-        self.errors.set_section_name("Row:3")
+        self.issues = IssueLog()
+        self.issues.set_module_name(MODULE_NAME)
+        self.issues.set_file_name(FILE_NAME)
+        self.issues.set_sheet_name(SHEET_NAME)
+        self.issues.set_section_name(SECTION_NAME)
 
     def test_valid_rows(self):
         """
@@ -55,10 +60,10 @@ class TestCheckRowValue(unittest.TestCase):
 
         for row in rows:
             # ACT
-            bck._check_row_value(self.errors, row)
-            result = len(self.errors)
+            bck._check_row_value(self.issues, row)
+            result = len(self.issues.render())
             # ASSERT
-            with self.subTest("Message count", Out=result, Exp=expected):
+            with self.subTest("Number of issues", Out=result, Exp=expected):
                 self.assertEqual(result, expected)
 
     def test_invalid_row(self):
@@ -82,9 +87,6 @@ class TestCheckRowValue(unittest.TestCase):
             replace(bfx.ROW_A_1, unit_price=vfx.PRICE_BAD[0]),
             replace(bfx.ROW_A_1, sub_total=vfx.PRICE_BAD[0]),
         )
-        expected_file_name = self.errors.file_name
-        expected_sheet_name = self.errors.sheet_name
-        expected_section_name = self.errors.section_name
         expected_errors = (
             mdl.RowFields.ITEM,
             mdl.RowFields.COMPONENT,
@@ -102,28 +104,20 @@ class TestCheckRowValue(unittest.TestCase):
             mdl.RowFields.SUB_TOTAL,
         )
 
-        for row, expected in zip(rows,expected_errors):
+        for row, expected in zip(rows, expected_errors):
             self.setUp()  # reset error logs
 
             # ACT
-            bck._check_row_value(self.errors, row)
-            result = self.errors
+            bck._check_row_value(self.issues, row)
+            issues = self.issues.render()
 
             # ASSERT
-            with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
-                self.assertEqual(result.file_name, expected_file_name)
+            with self.subTest("Number of issues", Out=len(issues), Exp="!=0"):
+                self.assertNotEqual(len(issues), 0)
 
-            with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
-                self.assertEqual(result.sheet_name, expected_sheet_name)
-
-            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
-                self.assertEqual(result.section_name, expected_section_name)
-
-            with self.subTest("Error Length", Out=len(str(result)), Exp="!=0"):
-                self.assertNotEqual(len(str(result)), 0)
-
-            with self.subTest("Error contains", Out=str(result), Exp=expected):
-                self.assertIn(expected, str(result))
+            for issue in issues:
+                with self.subTest("Issue string contains", Out=issue, Exp=expected):
+                    self.assertIn(expected, issue)
 
 
 class TestCheckRowLogic(unittest.TestCase):
@@ -132,11 +126,11 @@ class TestCheckRowLogic(unittest.TestCase):
     """
 
     def setUp(self):
-        self.errors = cmn.ErrorLog()
-
-        self.errors.set_file_name("test.xlsx")
-        self.errors.set_sheet_name("Power PCBA")
-        self.errors.set_section_name("Row:3")
+        self.issues = IssueLog()
+        self.issues.set_module_name(MODULE_NAME)
+        self.issues.set_file_name(FILE_NAME)
+        self.issues.set_sheet_name(SHEET_NAME)
+        self.issues.set_section_name(SECTION_NAME)
 
     def test_valid_rows(self):
         """
@@ -148,10 +142,10 @@ class TestCheckRowLogic(unittest.TestCase):
 
         for row in rows:
             # ACT
-            bck._check_row_logic(self.errors, row)
-            result = len(self.errors)
+            bck._check_row_logic(self.issues, row)
+            result = len(self.issues.render())
             # ASSERT
-            with self.subTest("Message count", Out=result, Exp=expected):
+            with self.subTest("Number of issues", Out=result, Exp=expected):
                 self.assertEqual(result, expected)
 
     def test_invalid_rows(self):
@@ -173,9 +167,6 @@ class TestCheckRowLogic(unittest.TestCase):
             # sub-total is the product of quantity and unit price.
             replace(bfx.ROW_A_1, qty="2", unit_price="0.1", sub_total="3")
         )
-        expected_file_name = self.errors.file_name
-        expected_sheet_name = self.errors.sheet_name
-        expected_section_name = self.errors.section_name
         expected_errors = (
             mdl.RowFields.QTY,
             mdl.RowFields.DESIGNATOR,
@@ -188,25 +179,16 @@ class TestCheckRowLogic(unittest.TestCase):
         for row, expected in zip(rows, expected_errors):
             self.setUp()  # reset error logs
             # ACT
-            bck._check_row_logic(self.errors, row)
-            result = self.errors
+            bck._check_row_logic(self.issues, row)
+            issues = self.issues.render()
 
             # ASSERT
-            with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
-                self.assertEqual(result.file_name, expected_file_name)
+            with self.subTest("Number of issues", Out=len(issues), Exp="!=0"):
+                self.assertNotEqual(len(issues), 0)
 
-            with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
-                self.assertEqual(result.sheet_name, expected_sheet_name)
-
-            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
-                self.assertEqual(result.section_name, expected_section_name)
-
-            with self.subTest("Error Length", Out=len(result._errors), Exp="!=0"):
-                self.assertNotEqual(len(result._errors), 0)
-
-            messages = "".join(error.message for error in result._errors)
-            with self.subTest("Error contains", Out=messages, Exp=expected):
-                self.assertIn(expected, messages)
+            for issue in issues:
+                with self.subTest("Issue string contains", Out=issue, Exp=expected):
+                    self.assertIn(expected, issue)
 
 
 class TestCheckHeaderValue(unittest.TestCase):
@@ -215,11 +197,11 @@ class TestCheckHeaderValue(unittest.TestCase):
     """
 
     def setUp(self):
-        self.errors = cmn.ErrorLog()
-
-        self.errors.set_file_name("test.xlsx")
-        self.errors.set_sheet_name("UI Main PCBA")
-        self.errors.set_section_name("Header")
+        self.issues = IssueLog()
+        self.issues.set_module_name(MODULE_NAME)
+        self.issues.set_file_name(FILE_NAME)
+        self.issues.set_sheet_name(SHEET_NAME)
+        self.issues.set_section_name(SECTION_NAME)
 
     def test_valid_header(self):
         """
@@ -230,10 +212,10 @@ class TestCheckHeaderValue(unittest.TestCase):
         expected = 0  # No errors
 
         # ACT
-        bck._check_header_value(self.errors, header)
-        result = len(self.errors)
+        bck._check_header_value(self.issues, header)
+        result = len(self.issues.render())
         # ASSERT
-        with self.subTest("Message count", Out=result, Exp=expected):
+        with self.subTest("Number of issues", Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
     def test_invalid_header(self):
@@ -242,18 +224,15 @@ class TestCheckHeaderValue(unittest.TestCase):
         """
         # ARRANGE
         headers = (
-            replace(bfx.HEADER_A,model_no=vfx.MODEL_NO_BAD[0]),
-            replace(bfx.HEADER_A,board_name=vfx.BOARD_NAME_BAD[0]),
-            replace(bfx.HEADER_A,manufacturer=vfx.BOARD_SUPPLIER_BAD[0]),
-            replace(bfx.HEADER_A,build_stage=vfx.BUILD_STAGE_BAD[0]),
-            replace(bfx.HEADER_A,date=vfx.BOM_DATE_BAD[0]),
-            replace(bfx.HEADER_A,material_cost=vfx.COST_BAD[0]),
-            replace(bfx.HEADER_A,overhead_cost=vfx.COST_BAD[1]),
-            replace(bfx.HEADER_A,total_cost=vfx.COST_BAD[2]),
+            replace(bfx.HEADER_A, model_no=vfx.MODEL_NO_BAD[0]),
+            replace(bfx.HEADER_A, board_name=vfx.BOARD_NAME_BAD[0]),
+            replace(bfx.HEADER_A, manufacturer=vfx.BOARD_SUPPLIER_BAD[0]),
+            replace(bfx.HEADER_A, build_stage=vfx.BUILD_STAGE_BAD[0]),
+            replace(bfx.HEADER_A, date=vfx.BOM_DATE_BAD[0]),
+            replace(bfx.HEADER_A, material_cost=vfx.COST_BAD[0]),
+            replace(bfx.HEADER_A, overhead_cost=vfx.COST_BAD[1]),
+            replace(bfx.HEADER_A, total_cost=vfx.COST_BAD[2]),
         )
-        expected_file_name = self.errors.file_name
-        expected_sheet_name = self.errors.sheet_name
-        expected_section_name = self.errors.section_name
         expected_errors = (
             mdl.HeaderFields.MODEL_NUMBER,
             mdl.HeaderFields.BOARD_NAME,
@@ -269,40 +248,33 @@ class TestCheckHeaderValue(unittest.TestCase):
             self.setUp()  # reset error logs
 
             # ACT
-            bck._check_header_value(self.errors, header)
-            result = self.errors
+            bck._check_header_value(self.issues, header)
+            issues = self.issues.render()
 
             # ASSERT
-            with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
-                self.assertEqual(result.file_name, expected_file_name)
+            with self.subTest("Number of issues", Out=len(issues), Exp="!=0"):
+                self.assertNotEqual(len(issues), 0)
 
-            with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
-                self.assertEqual(result.sheet_name, expected_sheet_name)
-
-            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
-                self.assertEqual(result.section_name, expected_section_name)
-
-            with self.subTest("Error Length", Out=len(str(result)), Exp="!=0"):
-                self.assertNotEqual(len(str(result)), 0)
-
-            with self.subTest("Error contains", Out=str(result), Exp=expected):
-                self.assertIn(expected, str(result))
+            for issue in issues:
+                with self.subTest("Issue string contains", Out=issue, Exp=expected):
+                    self.assertIn(expected, issue)
 
 
 class TestCheckHeaderLogic(unittest.TestCase):
     """
-    Should return no errors when header cross-field relationships are valid.
+    Unit tests for `_check_header_logic` (cross-field header validations).
     """
 
     def setUp(self):
-        self.errors = cmn.ErrorLog()
-        self.errors.set_file_name("header_logic_test.xlsx")
-        self.errors.set_sheet_name("Motor PCBA")
-        self.errors.set_section_name("Header")
+        self.issues = IssueLog()
+        self.issues.set_module_name(MODULE_NAME)
+        self.issues.set_file_name(FILE_NAME)
+        self.issues.set_sheet_name(SHEET_NAME)
+        self.issues.set_section_name(SECTION_NAME)
 
     def test_valid(self):
         """
-        Should return errors when header violates cross-field cost rules.
+        Should return no errors when header cross-field relationships are valid.
         """
         # ARRANGE
         bom = bfx.BOM_B
@@ -310,10 +282,11 @@ class TestCheckHeaderLogic(unittest.TestCase):
 
         for board in bom.boards:
             # ACT
-            bck._check_header_logic(self.errors, board.header, board.rows)
-            result = len(self.errors)
+            bck._check_header_logic(self.issues, board.header, board.rows)
+            result = len(self.issues.render())
+
             # ASSERT
-            with self.subTest("Message count", Out=result, Exp=expected):
+            with self.subTest("Number of issues", Out=result, Exp=expected):
                 self.assertEqual(result, expected)
 
     def test_invalid(self):
@@ -340,9 +313,6 @@ class TestCheckHeaderLogic(unittest.TestCase):
                 ),
             ),
         )
-        expected_file_name = self.errors.file_name
-        expected_sheet_name = self.errors.sheet_name
-        expected_section_name = self.errors.section_name
         expected_errors = [
             mdl.HeaderFields.MATERIAL_COST,
             mdl.HeaderFields.TOTAL_COST,
@@ -352,25 +322,16 @@ class TestCheckHeaderLogic(unittest.TestCase):
             self.setUp()  # reset error logs
 
             # ACT
-            bck._check_header_logic(self.errors, board.header, board.rows)
-            result = self.errors
+            bck._check_header_logic(self.issues, board.header, board.rows)
+            issues = self.issues.render()
 
             # ASSERT
-            with self.subTest("File Name", Out=result.file_name, Exp=expected_file_name):
-                self.assertEqual(result.file_name, expected_file_name)
+            with self.subTest("Number of issues", Out=len(issues), Exp="!=0"):
+                self.assertNotEqual(len(issues), 0)
 
-            with self.subTest("Sheet Name", Out=result.sheet_name, Exp=expected_sheet_name):
-                self.assertEqual(result.sheet_name, expected_sheet_name)
-
-            with self.subTest("Section Name", Out=result.section_name, Exp=expected_section_name):
-                self.assertEqual(result.section_name, expected_section_name)
-
-            with self.subTest("Error Length", Out=len(result._errors), Exp="!=0"):
-                self.assertNotEqual(len(result._errors), 0)
-
-            messages = "".join(error.message for error in result._errors)
-            with self.subTest("Error contains", Out=messages, Exp=expected):
-                self.assertIn(expected, messages)
+            for issue in issues:
+                with self.subTest("Issue string contains", Out=issue, Exp=expected):
+                    self.assertIn(expected, issue)
 
 
 class TestCheckBom(unittest.TestCase):
@@ -384,14 +345,14 @@ class TestCheckBom(unittest.TestCase):
         """
         # ARRANGE
         bom = bfx.BOM_A
-        expected = ""  # No errors => empty diagnostics
+        expected = 0  # No errors => empty diagnostics
 
         # ACT
-        result = bck.check_bom(bom)
+        issues = bck.check_v3_bom(bom)
+        result = len(issues)
 
         # ASSERT
-        # Coarse-grained check only (aggregation correctness)
-        with self.subTest("Error contains", Out=result, Exp=expected):
+        with self.subTest("Number of issues", Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
     def test_invalid_bom(self):
@@ -415,13 +376,15 @@ class TestCheckBom(unittest.TestCase):
         ]
 
         # ACT
-        result = bck.check_bom(bom)
+        issues = bck.check_v3_bom(bom)
 
         # ASSERT
-        # Check that the two expected header fields are referenced
-        for expected in expected_errors:
-            with self.subTest("Error contains", Out=result, Exp=expected):
-                self.assertIn(expected, result)
+        with self.subTest("Number of issues", Out=len(issues), Exp="!=0"):
+            self.assertNotEqual(len(issues), 0)
+
+        for issue, expected in zip(issues, expected_errors):
+            with self.subTest("Issue string contains", Out=issue, Exp=expected):
+                self.assertIn(expected, issue)
 
 
 if __name__ == "__main__":
