@@ -597,6 +597,63 @@ class TestFolderPath(unittest.TestCase):
             else:
                 self.assertIn(result, ("", None))  # allowed on Windows
 
+    def test_go_up_one_folder_moves_up_one_level(self):
+        """
+        Should move exactly one folder up from a nested path.
+        """
+        # ARRANGE
+        nested = os.path.join(self.temp_dir, "A", "B")
+        os.makedirs(nested, exist_ok=True)
+        expected = os.path.normpath(os.path.join(self.temp_dir, "A"))
+
+        # ACT
+        result = api.go_up_one_folder(nested)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_go_up_one_folder_root_is_stable(self):
+        """
+        Should return the same path when already at filesystem root.
+        """
+        # ARRANGE
+        if os.name == "nt":
+            # Use the drive for the temp tree as root, e.g. 'C:\\'
+            drive, _ = os.path.splitdrive(self.temp_dir)
+            root_path = os.path.normpath(drive + os.sep)
+        else:
+            # POSIX root is '/'
+            root_path = os.path.normpath(os.sep)
+
+        expected = root_path
+
+        # ACT
+        result = api.go_up_one_folder(root_path)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_go_up_one_folder_rejects_non_string_input(self):
+        """
+        Should raise TypeError when called with a non-string input.
+        """
+        # ARRANGE
+        bad_input = 123
+        expected = TypeError.__name__
+
+        # ACT
+        try:
+            api.go_up_one_folder(bad_input)  # type: ignore[arg-type]
+            result = ""
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
 
 class TestJsonIO(unittest.TestCase):
     """

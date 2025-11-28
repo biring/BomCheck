@@ -303,3 +303,24 @@ def _resolve_exe_folder() -> str:
         )
 
     return normalized_exe_folder
+
+def go_up_one_folder(path: str) -> str:
+    """
+    Returns the normalized parent folder of the given path.
+
+    If the path is already at the filesystem root (e.g., 'C:\\' or '/'), the same root path is returned without raising an error.
+
+    Args:
+        path (str): The starting folder path.
+
+    Returns:
+        str: The normalized parent folder path, or the same path if already at root level.
+    """
+    normalized = _normalize_folder_path(path)
+    parent = os.path.dirname(normalized)
+
+    # If moving up doesn't change the path → we are already at root
+    if parent == normalized:
+        return normalized
+
+    return _normalize_folder_path(parent)

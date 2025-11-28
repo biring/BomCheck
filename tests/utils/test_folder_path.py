@@ -37,7 +37,7 @@ import shutil
 import tempfile
 
 # noinspection PyProtectedMember
-import src.utils._folder_path as fp # Direct internal import — acceptable in tests
+import src.utils._folder_path as fp  # Direct internal import — acceptable in tests
 
 
 class TestConstructFolderPath(unittest.TestCase):
@@ -645,6 +645,7 @@ class TestResolveDrive(unittest.TestCase):
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
+
 class TestResolveExeDir(unittest.TestCase):
     """
     Unit test for the `resolve_exe_dir` function in the folder module.
@@ -687,6 +688,88 @@ class TestResolveExeDir(unittest.TestCase):
         finally:
             # CLEANUP
             sys.executable = original_executable
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
+class TestGoUpOneFolder(unittest.TestCase):
+    """
+    Unit tests for the `go_up_one_folder` function in the folder_path module.
+    """
+
+    def test_happy_path(self):
+        """
+        Should return the parent folder when given a nested path.
+        """
+        # ARRANGE
+        start_path = os.path.join(os.sep, "usr", "local", "bin")
+        expected = fp._normalize_folder_path(os.path.join(os.sep, "usr", "local"))
+
+        # ACT
+        result = fp.go_up_one_folder(start_path)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_root_path_stays_at_root(self):
+        """
+        Should return the same path when already at filesystem root.
+        """
+        # ARRANGE
+        if os.name == "nt":
+            # Use the current drive as root, e.g., 'C:\\'
+            drive, _ = os.path.splitdrive(os.getcwd())
+            root_path = fp._normalize_folder_path(drive + os.sep)
+        else:
+            # POSIX root is '/'
+            root_path = fp._normalize_folder_path(os.sep)
+
+        expected = root_path
+
+        # ACT
+        result = fp.go_up_one_folder(root_path)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_normalized(self):
+        """
+        Should normalize the input path before computing the parent.
+        """
+        # ARRANGE
+        raw_path = os.path.join(os.sep, "usr", "local", "bin", "..", ".")
+        if os.name == "nt":
+            # Windows: '\usr\local\bin\..' normalizes to '\usr\local', then go up → '\usr'
+            expected = fp._normalize_folder_path(os.path.join(os.sep, "usr"))
+        else:
+            # POSIX: '/usr/local/bin/..' normalizes to '/usr/local'
+            expected = fp._normalize_folder_path(os.path.join(os.sep, "usr", "local"))
+
+        # ACT
+        result = fp.go_up_one_folder(raw_path)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_raise(self):
+        """
+        Should raise TypeError when given a non-string input.
+        """
+        # ARRANGE
+        bad_input = 12345
+        expected = TypeError.__name__
+
+        # ACT
+        try:
+            fp.go_up_one_folder(bad_input)
+            result = None  # No exception raised
+        except TypeError as e:
+            result = type(e).__name__
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):

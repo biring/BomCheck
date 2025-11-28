@@ -62,6 +62,7 @@ from ._folder_path import (
     find_root_folder,
     is_folder_path,
     list_immediate_sub_folders,
+    go_up_one_folder,
 )
 
 # noinspection PyProtectedMember
@@ -133,6 +134,7 @@ __all__ = [
     "find_root_folder",
     "is_folder_path",
     "list_immediate_sub_folders",
+    "go_up_one_folder",
 
     # json_io
     "create_json_packet",
