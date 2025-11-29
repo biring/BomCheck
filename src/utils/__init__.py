@@ -30,8 +30,16 @@ License:
 from . import _api as _api
 
 # Re-export all curated public symbols into the package namespace
-from ._api import * # noqa: F401,F403
+from ._api import *  # noqa: F401,F403
 
 # Ensure __all__ matches what _api declares as public.
 # This avoids duplication and makes _api the single source of truth.
-__all__ = list(getattr(_api, "__all__", []))
+_api_public = list(getattr(_api, "__all__", []))
+
+# --- public module namespaces ---
+from . import folder_path as folder
+
+# --- Combined public symbols ---
+__all__ = _api_public + [
+    "folder",
+]
