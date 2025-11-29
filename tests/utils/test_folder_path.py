@@ -30,7 +30,9 @@ import os
 import sys
 import shutil
 import tempfile
+from unittest.mock import patch
 
+import src.utils.folder_path as folder
 # noinspection PyProtectedMember
 from src.utils.folder_path import *
 
@@ -576,19 +578,77 @@ class TestResolveExeFolder(unittest.TestCase):
 
 class TestResolveProjectFolder(unittest.TestCase):
     """
-    Unit test for the `resolve_project_folder` function in the folder_path module.
+    Unit tests for the `resolve_project_folder` function in the folder_path module.
     """
 
-    def test_returns_existing_folder(self):
+    def setUp(self) -> None:
         """
-        Should return an existing folder path as the project root.
+        Create a synthetic directory tree (<tmp>/A/B/C/) and a fake module file is placed inside C because the function determines the project folder by walking upward from the module’s __file__ location.
         """
-        # ACT
-        result = resolve_project_folder()
+        # Create temporary root
+        self._tmp = tempfile.mkdtemp(prefix="test_resolve_project_folder")
+
+        # Build directory structure
+        self.A = os.path.join(self._tmp, "A")
+        self.B = os.path.join(self.A, "B")
+        self.C = os.path.join(self.B, "C")
+        os.makedirs(self.C, exist_ok=True)
+
+        # Create synthetic module file inside C
+        self.fake_module_file = os.path.join(self.C, "folder_path.py")
+        with open(self.fake_module_file, "w", encoding="utf-8") as f:
+            f.write("# synthetic module file for testing\n")
+
+    def tearDown(self) -> None:
+        """
+        Clean up temporary structure created for testing.
+        """
+        shutil.rmtree(self._tmp, ignore_errors=True)
+
+    def test_happy_path(self) -> None:
+        """
+        Should return the correct project folder when the source-code folder exists in the directory path.
+        """
+        # ARRANGE
+        source_folder = "B"
+        expected = normalize_folder_path(self.A)
+        with (
+            patch.object(folder, "__file__", self.fake_module_file),
+            patch.object(folder, "_SOURCE_CODE_FOLDER_NAME", source_folder),
+        ):
+
+            # ACT
+            result = resolve_project_folder()
 
         # ASSERT
-        with self.subTest(Out=result, Exp="existing folder path"):
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+        # Ensure output is a valid folder (function’s documented expectation)
+        with self.subTest(Out=is_folder_path(result), Exp=True):
             self.assertTrue(is_folder_path(result))
+
+    def test_raises(self) -> None:
+        """
+        Should raise FileNotFoundError when the source-code folder name does not appear anywhere in the module path.
+        """
+        # ARRANGE
+        expected = FileNotFoundError.__name__
+        with (
+            patch.object(folder, "__file__", self.fake_module_file),
+            patch.object(folder, "_SOURCE_CODE_FOLDER_NAME", "NOT_A_FOLDER"),
+        ):
+
+            # ACT
+            try:
+                _ = resolve_project_folder()
+                actual = ""
+            except Exception as ex:
+                actual = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
 
 
 if __name__ == "__main__":

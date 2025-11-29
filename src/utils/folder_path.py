@@ -281,13 +281,22 @@ def resolve_project_folder() -> str:
 
     # Get the absolute path of the current script's folder
     script_folder = os.path.dirname(__file__)
+    current = script_folder
 
-    # If the script resides in the source code folder, treat its parent as the root
-    while os.path.basename(script_folder) == _SOURCE_CODE_FOLDER_NAME:
-        script_folder = os.path.dirname(script_folder)
+    # Walk upward until we find the _SOURCE_CODE_FOLDER_NAME folder
+    while os.path.basename(current) != _SOURCE_CODE_FOLDER_NAME:
+        parent = os.path.dirname(current)
+        if parent == current:
+            raise FileNotFoundError(
+                f"Could not resolve project root. '{_SOURCE_CODE_FOLDER_NAME}' not found above '{script_folder}'."
+            )
+        current = parent
+
+    # The project root is the parent of `src`
+    project_root = os.path.dirname(current)
 
     # Normalize for consistent cross-platform behavior
-    dev_folder = normalize_folder_path(script_folder)
+    dev_folder = normalize_folder_path(project_root)
 
     # Verify the resolved path exists and is a folder
     if not is_folder_path(dev_folder):
