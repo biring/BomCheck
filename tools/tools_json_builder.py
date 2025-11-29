@@ -98,7 +98,7 @@ def main() -> int:
     Raises:
         None: All exceptions are handled internally and reflected in the returned status code.
     """
-    project_root = utils.find_root_folder()
+    project_root = utils.folder.resolve_project_folder()
 
     overall_success = True
 
@@ -110,14 +110,14 @@ def main() -> int:
         try:
             # Compose full path for the configured JSON target
             file_name = target.file_prefix + target.file_stem + target.file_extension
-            folder_path = utils.construct_folder_path(project_root, target.folder_parts)
+            folder_path = utils.folder.construct_folder_path(project_root, target.folder_parts)
             file_path = utils.build_file_path(folder_path, file_name)
 
             # Verify file name
             utils.assert_filename_with_extension(file_path, utils.JSON_FILE_EXT)
 
             # Verify file folder exists
-            if not utils.is_folder_path(folder_path):
+            if not utils.folder.is_folder_path(folder_path):
                 # Do not auto-create folders; this is a build-time invariant
                 raise RuntimeError(f"File folder missing: {folder_path}. This tool does not create directories.")
 
