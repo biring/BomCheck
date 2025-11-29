@@ -32,6 +32,7 @@ import unittest
 from unittest.mock import patch
 
 import src.utils as util
+import src.utils.folder_path as folder
 
 # noinspection PyProtectedMember
 from src.lookups import _resources as resource  # Module under test
@@ -89,11 +90,11 @@ class TestLoadComponentTypeCache(unittest.TestCase):
         self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_tmp_")
 
         # Mirror the on-disk runtime layout used by production code
-        runtime_dir = util.construct_folder_path(
+        runtime_dir = folder.construct_folder_path(
             self.tmp_project_root,
             constant.FOLDER_PARTS,
         )
-        util.create_folder_if_missing(runtime_dir)
+        folder.create_folder_if_missing(runtime_dir)
 
         # Build resource file paths and names
         resource_filename = (
@@ -128,7 +129,7 @@ class TestLoadComponentTypeCache(unittest.TestCase):
         expected_map = self.TEST_JSON_DATA
 
         # Force JsonCache to resolve its root under the temporary project root
-        with patch.object(util, "find_root_folder") as p_root:
+        with patch.object(folder, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
 
             # ACT
@@ -181,8 +182,10 @@ class TestGetComponentTypeCache(unittest.TestCase):
         # Patch JsonCache so we can control and observe the instance returned
         fake_cache = object()
 
-        with patch.object(resource, "JsonCache") as mock_cache_ctor, \
-                patch.object(util, "find_root_folder") as p_root:
+        with (
+            patch.object(resource, "JsonCache") as mock_cache_ctor,
+            patch.object(folder, "resolve_project_folder") as p_root
+        ):
             # We do not care about disk access here; root folder can be any placeholder
             p_root.return_value = tempfile.mkdtemp(prefix="runtime_tmp_root_")
 
