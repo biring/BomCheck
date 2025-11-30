@@ -27,6 +27,7 @@ License:
 """
 
 # --- public module namespaces ---
+from . import excel_io
 from . import file_path
 from . import folder_path
 from . import json_io
@@ -37,6 +38,7 @@ from . import timestamp
 
 # --- Combined public symbols ---
 __all__ = [
+    "excel_io",
     "file_path",
     "folder_path",
     "json_io",
