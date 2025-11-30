@@ -40,8 +40,9 @@ import unittest
 from unittest.mock import patch
 
 # noinspection PyProtectedMember
-import src.utils.json_io as jio
-import src.utils.timestamp as timestamp
+import src.utils._json_io as jio
+# noinspection PyProtectedMember
+import src.utils._timestamp as timestamp
 
 
 class TestComputePayloadSha256(unittest.TestCase):

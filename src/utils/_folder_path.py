@@ -5,12 +5,12 @@ This module provides reusable, stateless helpers for working with folder paths. 
 
 Example Usage:
     # Preferred usage via package interface:
-    import src.utils.folder_path as folder
+    from src.utils import folder_path
     project_root = folder.resolve_project_folder()
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    from src.utils.folder_path import *
-    parent = go_up_one_folder("C:/Code/BomCheck/src")
+    import src.utils._folder_path as folder_path
+    parent = folder_path.go_up_one_folder("C:/Code/BomCheck/src")
 
 Dependencies:
  - Python >= 3.9

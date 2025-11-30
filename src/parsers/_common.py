@@ -37,10 +37,7 @@ from typing import Final
 
 import pandas as pd
 
-from src.utils.sanitizer import (
-    normalize_to_string,
-    remove_all_whitespace
-)
+from src.utils import sanitizer
 
 # Module constants
 ROW_INDEX_NOT_FOUND: Final = -1  # Valid dataframe row number be will zero or higher. So pick something that is invalid
@@ -67,7 +64,7 @@ def _normalize_identifier(text: object) -> str:
     Returns:
         str: A lowercase string with all whitespace removed.
     """
-    return remove_all_whitespace(normalize_to_string(text)).lower()
+    return sanitizer.remove_all_whitespace(sanitizer.normalize_to_string(text)).lower()
 
 
 def _find_identifier_index(data: list[str], identifier: str) -> int:
@@ -111,8 +108,8 @@ def create_dict_from_row(row: pd.Series) -> dict[str, str]:
     dictionary = {}
 
     for header, cell in row.items():
-        key = normalize_to_string(header)
-        dictionary[key] = normalize_to_string(cell)
+        key = sanitizer.normalize_to_string(header)
+        dictionary[key] = sanitizer.normalize_to_string(cell)
 
     return dictionary
 
@@ -176,7 +173,7 @@ def extract_value_after_identifier(entries: list[str], identifier: str, skip_emp
     for i in range(index + 1, len(entries)):
         value = entries[i]
         if not skip_empty or value:  # skip empty entries
-            return normalize_to_string(value)
+            return sanitizer.normalize_to_string(value)
     # Raise an error when label is found but not value as all labels should have a value
     raise ValueError(f"No value found for label = {identifier}, at index = {index}.")
 
@@ -200,7 +197,7 @@ def extract_cell_value_by_fuzzy_header(row: pd.Series, identifier: str) -> str:
 
     for key, value in row_dict.items():
         if _normalize_identifier(key) == _normalize_identifier(identifier):
-            return normalize_to_string(value)
+            return sanitizer.normalize_to_string(value)
 
     return DEFAULT_EMPTY_CELL_VALUE
 
@@ -349,12 +346,12 @@ def flatten_dataframe(df: pd.DataFrame) -> list[str]:
 
     # Include column headers
     for header in df.columns:
-        flat_list.append(normalize_to_string(header))
+        flat_list.append(sanitizer.normalize_to_string(header))
 
     # Include all cell values
     for _, row in df.iterrows():
         for cell in row:
-            flat_list.append(normalize_to_string(cell))
+            flat_list.append(sanitizer.normalize_to_string(cell))
 
     return flat_list
 

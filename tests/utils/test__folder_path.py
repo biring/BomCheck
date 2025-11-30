@@ -32,14 +32,13 @@ import shutil
 import tempfile
 from unittest.mock import patch
 
-import src.utils.folder_path as folder
 # noinspection PyProtectedMember
-from src.utils.folder_path import *
+import src.utils._folder_path as folder_path
 
 
 class TestConstructFolderPath(unittest.TestCase):
     """
-    Unit test for the `construct_folder_path` function in the `folder_path` module.
+    Unit test for the `folder_path.construct_folder_path` function in the `folder_path` module.
 
     This test ensures that a base path and a sequence of sub folders are properly joined and normalized into a consistent, platform-independent folder path.
     """
@@ -53,10 +52,10 @@ class TestConstructFolderPath(unittest.TestCase):
         subfolders = ("test", "folder")
 
         # Expected output after join and normalization
-        expected = normalize_folder_path(os.path.join("C:/home", "test", "folder"))
+        expected = folder_path.normalize_folder_path(os.path.join("C:/home", "test", "folder"))
 
         # ACT
-        result = construct_folder_path(base_path, subfolders)
+        result = folder_path.construct_folder_path(base_path, subfolders)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -72,11 +71,11 @@ class TestConstructFolderPath(unittest.TestCase):
         subfolders = ("projects", "data")
 
         # Expected output
-        expected = normalize_folder_path(os.path.join(base_path, *subfolders))
+        expected = folder_path.normalize_folder_path(os.path.join(base_path, *subfolders))
 
         # ACT
         # Call the function under test
-        result = construct_folder_path(base_path, subfolders)
+        result = folder_path.construct_folder_path(base_path, subfolders)
 
         # ASSERT
         # Validate results
@@ -91,10 +90,10 @@ class TestConstructFolderPath(unittest.TestCase):
         base_path = "/var/log"
         subfolders = ()
 
-        expected = normalize_folder_path(base_path)
+        expected = folder_path.normalize_folder_path(base_path)
 
         # ACT
-        result = construct_folder_path(base_path, subfolders)
+        result = folder_path.construct_folder_path(base_path, subfolders)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -103,7 +102,7 @@ class TestConstructFolderPath(unittest.TestCase):
 
 class TestCreateFolderIfMissing(unittest.TestCase):
     """
-    Unit test for the `create_folder_if_missing` function in the `folder_path` module.
+    Unit test for the `folder_path.create_folder_if_missing` function in the `folder_path` module.
 
     This test ensures that a folder is created if it does not exist, and that the function returns `True` if the folder already exists.
     """
@@ -137,7 +136,7 @@ class TestCreateFolderIfMissing(unittest.TestCase):
         self.assertFalse(os.path.exists(dir_path))
 
         # ACT
-        result = create_folder_if_missing(dir_path)
+        result = folder_path.create_folder_if_missing(dir_path)
         exists = os.path.exists(dir_path)
 
         # ASSERT
@@ -159,7 +158,7 @@ class TestCreateFolderIfMissing(unittest.TestCase):
         self.assertTrue(os.path.isdir(self.nested_dir))
 
         # ACT
-        result = create_folder_if_missing(self.nested_dir)
+        result = folder_path.create_folder_if_missing(self.nested_dir)
         still_exists = os.path.exists(self.nested_dir)
 
         # ASSERT
@@ -184,7 +183,7 @@ class TestCreateFolderIfMissing(unittest.TestCase):
         # ACT
         # Capture the raised exception type without stopping the test
         try:
-            create_folder_if_missing(invalid_path)
+            folder_path.create_folder_if_missing(invalid_path)
             result = ""  # No exception raised
         except OSError as e:
             result = type(e).__name__
@@ -197,7 +196,7 @@ class TestCreateFolderIfMissing(unittest.TestCase):
 
 class TestGoUpOneFolder(unittest.TestCase):
     """
-    Unit tests for the `go_up_one_folder` function in the folder_path module.
+    Unit tests for the `folder_path.go_up_one_folder` function in the folder_path module.
     """
 
     def test_happy_path(self):
@@ -206,10 +205,10 @@ class TestGoUpOneFolder(unittest.TestCase):
         """
         # ARRANGE
         start_path = os.path.join(os.sep, "usr", "local", "bin")
-        expected = normalize_folder_path(os.path.join(os.sep, "usr", "local"))
+        expected = folder_path.normalize_folder_path(os.path.join(os.sep, "usr", "local"))
 
         # ACT
-        result = go_up_one_folder(start_path)
+        result = folder_path.go_up_one_folder(start_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -223,15 +222,15 @@ class TestGoUpOneFolder(unittest.TestCase):
         if os.name == "nt":
             # Use the current drive as root, e.g., 'C:\\'
             drive, _ = os.path.splitdrive(os.getcwd())
-            root_path = normalize_folder_path(drive + os.sep)
+            root_path = folder_path.normalize_folder_path(drive + os.sep)
         else:
             # POSIX root is '/'
-            root_path = normalize_folder_path(os.sep)
+            root_path = folder_path.normalize_folder_path(os.sep)
 
         expected = root_path
 
         # ACT
-        result = go_up_one_folder(root_path)
+        result = folder_path.go_up_one_folder(root_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -244,10 +243,10 @@ class TestGoUpOneFolder(unittest.TestCase):
         # ARRANGE
         raw_path = os.path.join(os.sep, "usr", "local", "bin", "..", ".")
         # After normalization, parent should be '<sep>usr' on all platforms
-        expected = normalize_folder_path(os.path.join(os.sep, "usr"))
+        expected = folder_path.normalize_folder_path(os.path.join(os.sep, "usr"))
 
         # ACT
-        result = go_up_one_folder(raw_path)
+        result = folder_path.go_up_one_folder(raw_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -263,7 +262,7 @@ class TestGoUpOneFolder(unittest.TestCase):
 
         # ACT
         try:
-            go_up_one_folder(bad_input)  # type: ignore[arg-type]
+            folder_path.go_up_one_folder(bad_input)  # type: ignore[arg-type]
             result = None  # No exception raised
         except TypeError as e:
             result = type(e).__name__
@@ -275,7 +274,7 @@ class TestGoUpOneFolder(unittest.TestCase):
 
 class TestIsFolderPath(unittest.TestCase):
     """
-    Unit test for the `is_folder_path` function in the folder_path module.
+    Unit test for the `folder_path.is_folder_path` function in the folder_path module.
 
     This test ensures that various types of paths (valid folder path, file path, non-existent)
     are correctly evaluated to determine if they are existing folders.
@@ -288,7 +287,7 @@ class TestIsFolderPath(unittest.TestCase):
         # ARRANGE
         with tempfile.TemporaryDirectory() as temp_dir:
             # ACT
-            result = is_folder_path(temp_dir)
+            result = folder_path.is_folder_path(temp_dir)
 
             # ASSERT
             with self.subTest(Out=result, Exp=True):
@@ -305,7 +304,7 @@ class TestIsFolderPath(unittest.TestCase):
                 f.write("test")
 
             # ACT
-            result = is_folder_path(file_path)
+            result = folder_path.is_folder_path(file_path)
 
             # ASSERT
             with self.subTest(Out=result, Exp=False):
@@ -320,7 +319,7 @@ class TestIsFolderPath(unittest.TestCase):
             non_existent = os.path.join(temp_dir, "does_not_exist")
 
             # ACT
-            result = is_folder_path(non_existent)
+            result = folder_path.is_folder_path(non_existent)
 
             # ASSERT
             with self.subTest(Out=result, Exp=False):
@@ -331,7 +330,7 @@ class TestIsFolderPath(unittest.TestCase):
         Should return False when given an empty string as path.
         """
         # ACT
-        result = is_folder_path("")
+        result = folder_path.is_folder_path("")
 
         # ASSERT
         with self.subTest(Out=result, Exp=False):
@@ -340,7 +339,7 @@ class TestIsFolderPath(unittest.TestCase):
 
 class TestListImmediateSubFolders(unittest.TestCase):
     """
-    Unit test for the `list_immediate_sub_folders` function in the folder module.
+    Unit test for the `folder_path.list_immediate_sub_folders` function in the folder module.
 
     This test ensures the function returns the correct set of immediate sub folders,
     and raises appropriate errors for invalid paths.
@@ -373,7 +372,7 @@ class TestListImmediateSubFolders(unittest.TestCase):
         expected = ("subdir1", "subdir2")
 
         # ACT
-        result = list_immediate_sub_folders(self.base_path)
+        result = folder_path.list_immediate_sub_folders(self.base_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -388,7 +387,7 @@ class TestListImmediateSubFolders(unittest.TestCase):
         os.mkdir(empty_dir)
 
         # ACT
-        result = list_immediate_sub_folders(empty_dir)
+        result = folder_path.list_immediate_sub_folders(empty_dir)
 
         # ASSERT
         with self.subTest(Out=result, Exp=()):
@@ -404,7 +403,7 @@ class TestListImmediateSubFolders(unittest.TestCase):
 
         # ACT
         try:
-            list_immediate_sub_folders(file_path)
+            folder_path.list_immediate_sub_folders(file_path)
             result = None  # No exception raised
         except FileNotFoundError as e:
             result = type(e).__name__
@@ -423,7 +422,7 @@ class TestListImmediateSubFolders(unittest.TestCase):
 
         # ACT
         try:
-            list_immediate_sub_folders(non_existent)
+            folder_path.list_immediate_sub_folders(non_existent)
             result = None
         except FileNotFoundError as e:
             result = type(e).__name__
@@ -450,7 +449,7 @@ class TestNormalizeFolderPath(unittest.TestCase):
         expected = os.path.normpath(os.path.expanduser(raw_path))
 
         # ACT
-        result = normalize_folder_path(raw_path)
+        result = folder_path.normalize_folder_path(raw_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -465,7 +464,7 @@ class TestNormalizeFolderPath(unittest.TestCase):
         expected = os.path.normpath("a/c/e")
 
         # ACT
-        result = normalize_folder_path(raw_path)
+        result = folder_path.normalize_folder_path(raw_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -480,7 +479,7 @@ class TestNormalizeFolderPath(unittest.TestCase):
         expected = os.path.normpath(abs_path)
 
         # ACT
-        result = normalize_folder_path(abs_path)
+        result = folder_path.normalize_folder_path(abs_path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -496,7 +495,7 @@ class TestNormalizeFolderPath(unittest.TestCase):
 
         # ACT
         try:
-            normalize_folder_path(bad_input)  # type: ignore[arg-type]
+            folder_path.normalize_folder_path(bad_input)  # type: ignore[arg-type]
             result = None
         except TypeError as e:
             result = type(e).__name__
@@ -516,15 +515,15 @@ class TestResolveDriveLetter(unittest.TestCase):
         Should return the correct normalized drive letter when running on Windows.
         """
         if os.name != "nt":
-            self.skipTest("resolve_drive_letter() is only supported on Windows systems.")
+            self.skipTest("folder_path.resolve_drive_letter() is only supported on Windows systems.")
 
         # ARRANGE
         current_path = os.getcwd()
         expected_drive, _ = os.path.splitdrive(current_path)
-        expected = normalize_folder_path(expected_drive + os.sep)
+        expected = folder_path.normalize_folder_path(expected_drive + os.sep)
 
         # ACT
-        result = resolve_drive_letter()
+        result = folder_path.resolve_drive_letter()
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -541,10 +540,10 @@ class TestResolveExeFolder(unittest.TestCase):
         Should return the folder containing the Python executable as a path.
         """
         # ARRANGE
-        expected = normalize_folder_path(os.path.dirname(sys.executable))
+        expected = folder_path.normalize_folder_path(os.path.dirname(sys.executable))
 
         # ACT
-        result = resolve_exe_folder()
+        result = folder_path.resolve_exe_folder()
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -563,7 +562,7 @@ class TestResolveExeFolder(unittest.TestCase):
 
         # ACT
         try:
-            resolve_exe_folder()
+            folder_path.resolve_exe_folder()
             result = None  # No exception raised
         except FileNotFoundError as e:
             result = type(e).__name__
@@ -611,22 +610,22 @@ class TestResolveProjectFolder(unittest.TestCase):
         """
         # ARRANGE
         source_folder = "B"
-        expected = normalize_folder_path(self.A)
+        expected = folder_path.normalize_folder_path(self.A)
         with (
-            patch.object(folder, "__file__", self.fake_module_file),
-            patch.object(folder, "_SOURCE_CODE_FOLDER_NAME", source_folder),
+            patch.object(folder_path, "__file__", self.fake_module_file),
+            patch.object(folder_path, "_SOURCE_CODE_FOLDER_NAME", source_folder),
         ):
 
             # ACT
-            result = resolve_project_folder()
+            result = folder_path.resolve_project_folder()
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
 
         # Ensure output is a valid folder (function’s documented expectation)
-        with self.subTest(Out=is_folder_path(result), Exp=True):
-            self.assertTrue(is_folder_path(result))
+        with self.subTest(Out=folder_path.is_folder_path(result), Exp=True):
+            self.assertTrue(folder_path.is_folder_path(result))
 
     def test_raises(self) -> None:
         """
@@ -635,13 +634,13 @@ class TestResolveProjectFolder(unittest.TestCase):
         # ARRANGE
         expected = FileNotFoundError.__name__
         with (
-            patch.object(folder, "__file__", self.fake_module_file),
-            patch.object(folder, "_SOURCE_CODE_FOLDER_NAME", "NOT_A_FOLDER"),
+            patch.object(folder_path, "__file__", self.fake_module_file),
+            patch.object(folder_path, "_SOURCE_CODE_FOLDER_NAME", "NOT_A_FOLDER"),
         ):
 
             # ACT
             try:
-                _ = resolve_project_folder()
+                _ = folder_path.resolve_project_folder()
                 actual = ""
             except Exception as ex:
                 actual = type(ex).__name__

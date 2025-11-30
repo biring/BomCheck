@@ -22,14 +22,14 @@ License:
 """
 
 # --- public module namespaces ---
-from . import excel_io
-from . import file_path
-from . import folder_path
-from . import json_io
-from . import parser
-from . import sanitizer
-from . import text_io
-from . import timestamp
+from . import _excel_io as excel_io
+from . import _file_path as file_path
+from . import _folder_path as folder_path
+from . import _json_io as json_io
+from . import _parser as parser
+from . import _sanitizer as sanitizer
+from . import _text_io as text_io
+from . import _timestamp as timestamp
 
 # --- Combined public symbols ---
 __all__ = [

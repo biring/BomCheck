@@ -7,8 +7,8 @@ Example Usage:
     ts = timestamp.now_utc_iso()
 
     # Direct import for internal scripts or tests:
-    from src.utils.timestamp import now_utc_iso
-    ts = now_utc_iso()
+    import src.utils._timestamp as timestamp
+    ts = timestamp.now_utc_iso()
 
 Dependencies:
     - Python >= 3.9

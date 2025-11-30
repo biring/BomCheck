@@ -31,7 +31,7 @@ import tempfile
 import shutil
 
 # noinspection PyProtectedMember
-import src.utils.file_path as fp
+import src.utils._file_path as fp
 
 
 class TestAssertFilenameWithExtension(unittest.TestCase):

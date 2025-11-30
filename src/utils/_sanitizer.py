@@ -10,12 +10,12 @@ These functions are commonly used in BOM parsing, dataframe preprocessing, and a
 
 Example Usage:
     # Preferred usage via public package interface:
-    import src.utils.sanitizer as sanitizer
+    from src.utils import sanitizer
     clean_text = sanitizer.normalize_spaces(raw_text)
 
     # Direct module usage inside the package or in unit tests:
-    from src.utils.sanitizer import remove_all_whitespace
-    compact_text = remove_all_whitespace(raw_text)
+    import src.utils._sanitizer as sanitizer
+    compact_text = sanitizer.remove_all_whitespace(raw_text)
 
 Dependencies:
     - Python >= 3.10

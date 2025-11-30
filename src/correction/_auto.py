@@ -14,7 +14,7 @@ Example Usage:
 Dependencies:
     - Python >= 3.10
     - Standard Library: re
-    - Project Modules: src.models.interfaces, src.utils.parse_to_float, src.approve._common.floats_equal
+    - Project Modules: src.models.interfaces, src.utils.parser.parse_to_float, src.approve._common.floats_equal
 
 Notes:
     - Empty change_log indicates no correction was applied
@@ -28,7 +28,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 import re
 from src.models import interfaces as mdl
 from src.lookups import interfaces as lookup
-from src.utils.parser import parse_to_float
+from src.utils import parser
 
 # TODO : Reorganize to one shared folder for all rules or make math a utility
 from . import _helper as helper
@@ -183,7 +183,7 @@ def material_cost(board: mdl.Board) -> tuple[str, str]:
     # Get float values for base fields
     for row in rows:
         try:
-            sub_total_in = parse_to_float(row.sub_total)
+            sub_total_in = parser.parse_to_float(row.sub_total)
             material_cost_out += sub_total_in
         except ValueError as err:
             raise ValueError(ERR_FLOAT_PARSE.format(
@@ -193,7 +193,7 @@ def material_cost(board: mdl.Board) -> tuple[str, str]:
             )
 
     try:
-        material_cost_in = parse_to_float(header.material_cost)
+        material_cost_in = parser.parse_to_float(header.material_cost)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.HeaderFields.MATERIAL_COST,
@@ -234,7 +234,7 @@ def sub_total(row: mdl.Row) -> tuple[str, str]:
 
     # Get float values for base fields
     try:
-        qty_in = parse_to_float(row.qty)
+        qty_in = parser.parse_to_float(row.qty)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.RowFields.QTY,
@@ -243,7 +243,7 @@ def sub_total(row: mdl.Row) -> tuple[str, str]:
         )
 
     try:
-        unit_price_in = parse_to_float(row.unit_price)
+        unit_price_in = parser.parse_to_float(row.unit_price)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.RowFields.UNIT_PRICE,
@@ -251,7 +251,7 @@ def sub_total(row: mdl.Row) -> tuple[str, str]:
             reason=err)
         )
     try:
-        sub_total_in = parse_to_float(row.sub_total)
+        sub_total_in = parser.parse_to_float(row.sub_total)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.RowFields.SUB_TOTAL,
@@ -294,7 +294,7 @@ def total_cost(header: mdl.Header) -> tuple[str, str]:
 
     # Get float values for base fields
     try:
-        material_cost_in = parse_to_float(header.material_cost)
+        material_cost_in = parser.parse_to_float(header.material_cost)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.HeaderFields.MATERIAL_COST,
@@ -303,7 +303,7 @@ def total_cost(header: mdl.Header) -> tuple[str, str]:
         )
 
     try:
-        overhead_cost_in = parse_to_float(header.overhead_cost)
+        overhead_cost_in = parser.parse_to_float(header.overhead_cost)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.HeaderFields.MATERIAL_COST,
@@ -311,7 +311,7 @@ def total_cost(header: mdl.Header) -> tuple[str, str]:
             reason=err)
         )
     try:
-        total_cost_in = parse_to_float(header.total_cost)
+        total_cost_in = parser.parse_to_float(header.total_cost)
     except ValueError as err:
         raise ValueError(ERR_FLOAT_PARSE.format(
             field=mdl.HeaderFields.MATERIAL_COST,

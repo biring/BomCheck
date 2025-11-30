@@ -5,12 +5,12 @@ This module provides strict parsing helpers and boolean-style "is_*" wrappers fo
 
 Example Usage:
     # Preferred usage via public package interface:
-    import src.utils.parser as parser
+    from src.utils import parser
     if parser.is_integer("42"):
         value =parser.parse_to_integer("42")
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    from src.utils.parser import *
+    import src.utils._parser as parser
     iso_date = parse_to_iso_date_string("6/8/2025")
 
 Dependencies:

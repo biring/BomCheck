@@ -9,11 +9,11 @@ This module provides:
 
 Example Usage:
     # Preferred usage through the public utils namespace:
-    import src.utils.json_io as json_io
+    from src.utils import json_io
     pkt = json_io.create_json_packet({"a": 1}, "example.json")
 
     # Direct module usage in unit tests:
-    from src.utils.json_io import *
+    import src.utils._json_io as json_io
     data = json_string_to_dict('{"x": 5}')
 
 Dependencies:
@@ -45,7 +45,7 @@ __all__ = [
 import hashlib
 import json
 from typing import Any, TypedDict, Final
-from . import timestamp
+from . import _timestamp as timestamp
 
 # CONSTANTS
 JSON_FILE_EXT = ".json"

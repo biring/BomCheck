@@ -48,7 +48,9 @@ License:
 import sys
 from dataclasses import dataclass
 
-import src.utils as utils
+from src.utils import folder_path as folder
+from src.utils import file_path as file
+from src.utils import json_io as json
 from src.lookups import interfaces as lookup
 
 
@@ -81,7 +83,7 @@ class FileLocation:
 SUCCESS: int = 0
 FAILURE: int = -1
 TARGET_JSON_FILES: tuple[FileLocation, ...] = (
-    FileLocation(lookup.FOLDER_PARTS, lookup.JSON_PREFIX, lookup.COMPONENT_TYPE_FILE_NAME, utils.json_io.JSON_FILE_EXT),
+    FileLocation(lookup.FOLDER_PARTS, lookup.JSON_PREFIX, lookup.COMPONENT_TYPE_FILE_NAME, json.JSON_FILE_EXT),
 )
 
 
@@ -98,7 +100,7 @@ def main() -> int:
     Raises:
         None: All exceptions are handled internally and reflected in the returned status code.
     """
-    project_root = utils.folder.resolve_project_folder()
+    project_root = folder.resolve_project_folder()
 
     overall_success = True
 
@@ -110,28 +112,28 @@ def main() -> int:
         try:
             # Compose full path for the configured JSON target
             file_name = target.file_prefix + target.file_stem + target.file_extension
-            folder_path = utils.folder.construct_folder_path(project_root, target.folder_parts)
-            file_path = utils.build_file_path(folder_path, file_name)
+            folder_path = folder.construct_folder_path(project_root, target.folder_parts)
+            file_path = file.build_file_path(folder_path, file_name)
 
             # Verify file name
-            utils.assert_filename_with_extension(file_path, utils.json_io.JSON_FILE_EXT)
+            file.assert_filename_with_extension(file_path, json.JSON_FILE_EXT)
 
             # Verify file folder exists
-            if not utils.folder.is_folder_path(folder_path):
+            if not folder.is_folder_path(folder_path):
                 # Do not auto-create folders; this is a build-time invariant
                 raise RuntimeError(f"File folder missing: {folder_path}. This tool does not create directories.")
 
             # Verify source file exists
-            if not utils.is_existing_file_path(file_path):
+            if not file.is_existing_file_path(file_path):
                 # Source JSON must already exist; builder is not a generator of initial content
                 raise FileNotFoundError(f"Source file missing: {file_path}. Create source file to process.")
 
             # Try to load existing package; skip regeneration when checksum matches
             payload_map = None
             try:
-                json_package = utils.json_io.load_json_file(file_path)
-                payload_map = utils.json_io.extract_payload(json_package)
-                if utils.json_io.verify_json_payload_checksum(json_package):
+                json_package = json.load_json_file(file_path)
+                payload_map = json.extract_payload(json_package)
+                if json.verify_json_payload_checksum(json_package):
                     print(f"- - ⏭️ Skipping {target.file_stem}. No change detected.")
                     continue
             except FileNotFoundError:
@@ -145,9 +147,9 @@ def main() -> int:
                 raise RuntimeError(f"JSON invalid at {file_path}. {type(ex).__name__}: {ex}")
 
             # Persist the new JSON package with metadata and checksum
-            payload = utils.json_io.create_json_packet(payload_map, file_name)
+            payload = json.create_json_packet(payload_map, file_name)
             try:
-                utils.json_io.save_json_file(file_path, payload, indent_spaces=4)
+                json.save_json_file(file_path, payload, indent_spaces=4)
                 print(f"- - ✅ Updated {target.file_stem}.")
             except Exception as ex:
                 raise RuntimeError(f"JSON write failed at {file_path}. {type(ex).__name__}: {ex}")

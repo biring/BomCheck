@@ -26,7 +26,8 @@ import re
 import unittest
 from datetime import datetime, timezone
 
-import src.utils.timestamp as timestamp
+# noinspection PyProtectedMember
+import src.utils._timestamp as timestamp
 
 
 class TestNowUtcIso(unittest.TestCase):

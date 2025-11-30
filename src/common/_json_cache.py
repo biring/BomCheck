@@ -42,8 +42,8 @@ import copy
 from typing import Any, TypeVar, Type
 
 import src.utils as utils
-import src.utils.folder_path as folder
-import src.utils.json_io as json_io
+from src.utils import folder_path
+from src.utils import json_io
 
 T = TypeVar("T")  # dictionary value type
 
@@ -70,8 +70,8 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
     target_filename = resource_prefix + resource_name + utils.json_io.JSON_FILE_EXT
 
     # Locate directory relative to the project root.
-    project_root = folder.resolve_project_folder()
-    runtime_folder = folder.construct_folder_path(project_root, resource_folder_parts)
+    project_root = folder_path.resolve_project_folder()
+    runtime_folder = folder_path.construct_folder_path(project_root, resource_folder_parts)
 
     # Enumerate JSON files present in the directory.
     available_filenames = utils.file_path.get_files_in_directory(runtime_folder, [utils.json_io.JSON_FILE_EXT])

@@ -13,7 +13,7 @@ Example Usage:
     sheets = excel_io.read_excel_file("input.xlsx")
 
     # Direct module usage (acceptable in unit tests or internal scripts):
-    import src.utils.excel_io as excel_io
+    import src.utils._excel_io as excel_io
     excel_io.write_frame_to_excel("out.xlsx", df)
 
 Dependencies:

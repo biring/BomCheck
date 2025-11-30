@@ -30,8 +30,8 @@ from unittest.mock import patch
 from src import utils
 from src.common import ChangeLog, JsonCache
 
-import src.utils.folder_path as folder
-import src.utils.json_io as json_io
+from src.utils import folder_path
+from src.utils import json_io
 
 
 class TestChangeLog(unittest.TestCase):
@@ -106,7 +106,7 @@ class TestJsonCacheInterface(unittest.TestCase):
         self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_api_tmp_")
 
         # Mirror the on-disk runtime layout used by production code
-        self.runtime_dir = folder.construct_folder_path(
+        self.runtime_dir = folder_path.construct_folder_path(
             self.tmp_project_root,
             self.TEST_RESOURCE_FOLDER_PARTS,
         )
@@ -130,7 +130,7 @@ class TestJsonCacheInterface(unittest.TestCase):
 
         # Patch `find_root_folder` so runtime resolution points at our temp root
         self._root_patcher = patch.object(
-            folder,
+            folder_path,
             "resolve_project_folder",
             return_value=self.tmp_project_root,
         )

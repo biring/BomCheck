@@ -13,8 +13,8 @@ Example Usage:
     text = text_io.load_text_file("notes.txt")
 
     # Direct module usage in unit tests:
-    import src.utils.text_io as tio
-    content = tio.load_text_file("sample.txt")
+    import src.utils._text_io as text_io
+    content = text_io.load_text_file("sample.txt")
 
 Dependencies:
     - Python >= 3.9

@@ -5,12 +5,12 @@ This module provides reusable, stateless helpers for working with file paths. It
 
 Example Usage:
     # Preferred usage via public package interface:
-    import src.utils.file_path as file_path
+    from src.utils import file_path
     files = file_path.get_files_in_directory("configs", extensions=[".json"])
 
     # Direct module usage (acceptable in tests or internal scripts):
-    from src.utils.file_path import *
-    assert_filename_with_extension("data/input.txt", ".txt")
+    import src.utils._file_path as file_path
+    file_path.assert_filename_with_extension("data/input.txt", ".txt")
 
 Dependencies:
  - Python >= 3.10
