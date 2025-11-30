@@ -28,7 +28,7 @@ License:
 
 # --- public module namespaces ---
 from . import file_path
-from . import folder_path as folder
+from . import folder_path
 from . import json_io
 from . import parser
 from . import sanitizer
@@ -38,7 +38,7 @@ from . import timestamp
 # --- Combined public symbols ---
 __all__ = [
     "file_path",
-    "folder",
+    "folder_path",
     "json_io",
     "parser",
     "sanitizer",
