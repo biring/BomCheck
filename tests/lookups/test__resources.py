@@ -103,7 +103,7 @@ class TestLoadComponentTypeCache(unittest.TestCase):
                 + constant.COMPONENT_TYPE_FILE_NAME
                 + util.json_io.JSON_FILE_EXT
         )
-        resource_path = util.build_file_path(runtime_dir, resource_filename)
+        resource_path = util.file_path.build_file_path(runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
         resource_packet = json_io.create_json_packet(

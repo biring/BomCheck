@@ -3,25 +3,18 @@ Utility functions for safe and minimal file path operations.
 
 This module provides reusable, stateless helpers for working with file paths. It is designed for use across application layers, especially where low-level file operations are needed without business logic coupling.
 
-Main Capabilities:
-    - Join and normalize file paths
-    - Check if a path exists and is a file
-    - Escape backslashes for safe display/logging
-    - Validate file for Windows compatibility
-    - List files in a directory with optional extension filtering
-
 Example Usage:
-    # Preferred usage via package interface:
-    # Not exposed publicly; this is an internal module.
+    # Preferred usage via public package interface:
+    import src.utils.file_path as file_path
+    files = file_path.get_files_in_directory("configs", extensions=[".json"])
 
-    # Direct module usage (acceptable for tests or internal scripts):
-    import src.utils._file_path as fp
-    if fp.is_existing_file("config/settings.yaml"):
-        print("Valid config file found.")
+    # Direct module usage (acceptable in tests or internal scripts):
+    from src.utils.file_path import *
+    assert_filename_with_extension("data/input.txt", ".txt")
 
 Dependencies:
-    - Python >= 3.10
-    - Standard Library: os, typing
+ - Python >= 3.10
+ - Standard Library: os, pathlib, typing
 
 Notes:
     - This module assumes caller responsibility for input validation and higher-level error handling.
@@ -32,16 +25,18 @@ License:
  - Internal Use Only
 """
 
-__all__ = []  # Internal-only; not part of public API
+__all__ = [
+    "assert_filename_with_extension",
+    "build_file_path",
+    "escape_backslashes",
+    "get_files_in_directory",
+    "is_existing_file_path",
+    "is_valid_file_path",
+]
 
 import os
 from pathlib import Path
 from typing import Optional
-
-# MODULE CONSTANTS
-TEXT_FILE_TYPE = ".txt"
-EXCEL_FILE_TYPE = ".xlsx"
-JSON_FILE_EXT = ".json"
 
 
 def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:

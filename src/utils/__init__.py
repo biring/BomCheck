@@ -26,17 +26,8 @@ License:
  - Internal Use Only
 """
 
-# Import the internal API collector (as a module object)
-from . import _api as _api
-
-# Re-export all curated public symbols into the package namespace
-from ._api import *  # noqa: F401,F403
-
-# Ensure __all__ matches what _api declares as public.
-# This avoids duplication and makes _api the single source of truth.
-_api_public = list(getattr(_api, "__all__", []))
-
 # --- public module namespaces ---
+from . import file_path
 from . import folder_path as folder
 from . import json_io
 from . import parser
@@ -45,7 +36,8 @@ from . import text_io
 from . import timestamp
 
 # --- Combined public symbols ---
-__all__ = _api_public + [
+__all__ = [
+    "file_path",
     "folder",
     "json_io",
     "parser",
