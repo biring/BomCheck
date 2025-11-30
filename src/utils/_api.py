@@ -75,12 +75,6 @@ from ._sanitizer import (
     remove_all_whitespace,
 )
 
-# noinspection PyProtectedMember
-from ._text_io import (
-    load_text_file,
-    save_text_file,
-)
-
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
     # console
@@ -104,7 +98,6 @@ __all__ = [
     "is_existing_file_path",
     "is_valid_file_path",
 
-
     # parser
     "is_float",
     "is_integer",
@@ -122,7 +115,4 @@ __all__ = [
     "normalize_to_string",
     "remove_all_whitespace",
 
-    # text_io
-    "load_text_file",
-    "save_text_file",
 ]

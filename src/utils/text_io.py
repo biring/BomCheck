@@ -1,19 +1,20 @@
 """
-Simple utilities for reading and writing UTF-8 encoded text files.
+Public utilities for reading and writing UTF-8 encoded text files.
 
-This module provides safe, minimal wrappers around Python's built-in file I/O for common text file operations. It ensures:
-    - Explicit UTF-8 encoding for consistent cross-platform behavior
-    - Contextual error messages to simplify debugging
-    - Safe file handling using context managers
+This module provides minimal, safe wrappers around Python's file I/O:
+ - Read entire text files into strings
+ - Write text content to disk with explicit UTF-8 encoding
+ - Surface clearer error messages while preserving underlying exceptions
 
 Example Usage:
-    # Preferred usage via package interface:
-    # Not exposed publicly; this is an internal module.
+    # Preferred usage through the public utils namespace:
+    from src.utils import text_io
+    text_io.save_text_file("notes.txt", "Hello World")
+    text = text_io.load_text_file("notes.txt")
 
-    # Direct module usage (acceptable for internal scripts and tests):
-    import src.utils._text_io as text_io
-    text_io.save_text_file("log.txt", "Logging info")
-    print(text_io.load_text_file("log.txt"))
+    # Direct module usage in unit tests:
+    import src.utils.text_io as tio
+    content = tio.load_text_file("sample.txt")
 
 Dependencies:
     - Python >= 3.9
@@ -27,6 +28,11 @@ Notes:
 License:
  - Internal Use Only
 """
+
+__all__ = [
+    "load_text_file",
+    "save_text_file",
+]
 
 
 def save_text_file(file_path: str, text_content: str) -> None:

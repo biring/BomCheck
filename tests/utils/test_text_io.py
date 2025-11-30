@@ -37,7 +37,7 @@ import tempfile
 import unittest
 
 # noinspection PyProtectedMember
-import src.utils._text_io as text_io
+import src.utils.text_io as text_io
 
 
 class TestSaveTextFile(unittest.TestCase):
