@@ -31,6 +31,7 @@ from typing import Any
 from unittest.mock import patch
 import src.utils as utils
 import src.utils.folder_path as folder
+import src.utils.json_io as json_io
 
 # noinspection PyProtectedMember
 import src.common._json_cache as jc  # module under test
@@ -99,10 +100,10 @@ class _TestFixture(unittest.TestCase):
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
-        resource_packet = utils.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
+        resource_packet = json_io.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
 
         # Persist the packet where Cache.load() will look for it
-        utils.save_json_file(resource_path, resource_packet)
+        json_io.save_json_file(resource_path, resource_packet)
 
     def tearDown(self):
         """
@@ -121,10 +122,10 @@ class _TestFixture(unittest.TestCase):
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
-        resource_packet = utils.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
+        resource_packet = json_io.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
 
         # Persist the packet where Cache.load() will look for it
-        utils.save_json_file(resource_path, resource_packet)
+        json_io.save_json_file(resource_path, resource_packet)
 
     def _empty_json(self):
         """
@@ -135,10 +136,10 @@ class _TestFixture(unittest.TestCase):
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
-        resource_packet = utils.create_json_packet(TEST_EMPTY_JSON, source_file=resource_filename)
+        resource_packet = json_io.create_json_packet(TEST_EMPTY_JSON, source_file=resource_filename)
 
         # Persist the packet where Cache.load() will look for it
-        utils.save_json_file(resource_path, resource_packet)
+        json_io.save_json_file(resource_path, resource_packet)
 
 
 class TestJsonCache(_Asserts, _TestFixture):
@@ -494,8 +495,8 @@ class TestLoadRuntimeJson(_Asserts):
         """
         # ARRANGE
         payload = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        packet = utils.create_json_packet(payload, source_file=self.filename)
-        utils.save_json_file(self.filepath, packet)
+        packet = json_io.create_json_packet(payload, source_file=self.filename)
+        json_io.save_json_file(self.filepath, packet)
         expected = payload
 
         # ACT
@@ -527,11 +528,11 @@ class TestLoadRuntimeJson(_Asserts):
         """
         # ARRANGE
         payload = {"APP_NAME": "MyApp", "WELCOME": "Hello"}
-        packet = utils.create_json_packet(payload, source_file=self.filename)
-        utils.save_json_file(self.filepath, packet)
+        packet = json_io.create_json_packet(payload, source_file=self.filename)
+        json_io.save_json_file(self.filepath, packet)
         expected = ValueError.__name__
 
-        with patch.object(utils, "verify_json_payload_checksum") as p_checksum_ok:
+        with patch.object(json_io, "verify_json_payload_checksum") as p_checksum_ok:
             p_checksum_ok.return_value = False
 
             # ACT
@@ -550,8 +551,8 @@ class TestLoadRuntimeJson(_Asserts):
         """
         # ARRANGE
         payload = {}  # empty
-        packet_data = utils.create_json_packet(payload, source_file=self.filename)
-        utils.save_json_file(self.filepath, packet_data)
+        packet_data = json_io.create_json_packet(payload, source_file=self.filename)
+        json_io.save_json_file(self.filepath, packet_data)
 
         expected = ValueError.__name__
 

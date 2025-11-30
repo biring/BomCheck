@@ -55,17 +55,6 @@ from ._file_path import (
 )
 
 # noinspection PyProtectedMember
-from ._json_io import (
-    create_json_packet,
-    dict_to_json_string,
-    extract_payload,
-    json_string_to_dict,
-    load_json_file,
-    save_json_file,
-    verify_json_payload_checksum,
-)
-
-# noinspection PyProtectedMember
 from ._parser import (
     is_float,
     is_integer,
@@ -115,14 +104,6 @@ __all__ = [
     "is_existing_file_path",
     "is_valid_file_path",
 
-    # json_io
-    "create_json_packet",
-    "dict_to_json_string",
-    "extract_payload",
-    "json_string_to_dict",
-    "load_json_file",
-    "save_json_file",
-    "verify_json_payload_checksum",
 
     # parser
     "is_float",

@@ -33,6 +33,7 @@ from unittest.mock import patch
 
 import src.utils as util
 import src.utils.folder_path as folder
+import src.utils.json_io as json_io
 
 # noinspection PyProtectedMember
 from src.lookups import _resources as resource  # Module under test
@@ -105,13 +106,13 @@ class TestLoadComponentTypeCache(unittest.TestCase):
         resource_path = util.build_file_path(runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
-        resource_packet = util.create_json_packet(
+        resource_packet = json_io.create_json_packet(
             self.TEST_JSON_DATA,
             source_file=resource_filename,
         )
 
         # Persist the packet where JsonCache will look for it
-        util.save_json_file(resource_path, resource_packet)
+        json_io.save_json_file(resource_path, resource_packet)
 
     def tearDown(self):
         """

@@ -43,6 +43,7 @@ from typing import Any, TypeVar, Type
 
 import src.utils as utils
 import src.utils.folder_path as folder
+import src.utils.json_io as json_io
 
 T = TypeVar("T")  # dictionary value type
 
@@ -101,14 +102,14 @@ def _load_json_resource(resource_name: str, resource_path: str) -> dict[str, Any
         ValueError: If checksum validation fails or the payload mapping is empty.
     """
     # Load the JSON package
-    json_package = utils.load_json_file(resource_path)
+    json_package = json_io.load_json_file(resource_path)
 
     # Verify integrity of the payload via checksum in meta
-    if not utils.verify_json_payload_checksum(json_package):
+    if not json_io.verify_json_payload_checksum(json_package):
         raise ValueError(f"Checksum verification failed for JSON resource '{resource_name}' at '{resource_path}'.")
 
     # Extract the payload (shallow copy)
-    payload = utils.extract_payload(json_package)
+    payload = json_io.extract_payload(json_package)
 
     # Make sure data is not empty
     if not payload:

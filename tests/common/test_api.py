@@ -31,6 +31,7 @@ from src import utils
 from src.common import ChangeLog, JsonCache
 
 import src.utils.folder_path as folder
+import src.utils.json_io as json_io
 
 
 class TestChangeLog(unittest.TestCase):
@@ -119,13 +120,13 @@ class TestJsonCacheInterface(unittest.TestCase):
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap payload in the standard packet envelope expected by the loader
-        packet = utils.create_json_packet(
+        packet = json_io.create_json_packet(
             self.TEST_JSON_PAYLOAD,
             source_file=resource_filename,
         )
 
         # Persist packet where JsonCache will look for it
-        utils.save_json_file(resource_path, packet)
+        json_io.save_json_file(resource_path, packet)
 
         # Patch `find_root_folder` so runtime resolution points at our temp root
         self._root_patcher = patch.object(

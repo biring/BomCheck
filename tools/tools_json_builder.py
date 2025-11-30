@@ -129,9 +129,9 @@ def main() -> int:
             # Try to load existing package; skip regeneration when checksum matches
             payload_map = None
             try:
-                json_package = utils.load_json_file(file_path)
-                payload_map = utils.extract_payload(json_package)
-                if utils.verify_json_payload_checksum(json_package):
+                json_package = utils.json_io.load_json_file(file_path)
+                payload_map = utils.json_io.extract_payload(json_package)
+                if utils.json_io.verify_json_payload_checksum(json_package):
                     print(f"- - ⏭️ Skipping {target.file_stem}. No change detected.")
                     continue
             except FileNotFoundError:
@@ -145,9 +145,9 @@ def main() -> int:
                 raise RuntimeError(f"JSON invalid at {file_path}. {type(ex).__name__}: {ex}")
 
             # Persist the new JSON package with metadata and checksum
-            payload = utils.create_json_packet(payload_map, file_name)
+            payload = utils.json_io.create_json_packet(payload_map, file_name)
             try:
-                utils.save_json_file(file_path, payload, indent_spaces=4)
+                utils.json_io.save_json_file(file_path, payload, indent_spaces=4)
                 print(f"- - ✅ Updated {target.file_stem}.")
             except Exception as ex:
                 raise RuntimeError(f"JSON write failed at {file_path}. {type(ex).__name__}: {ex}")

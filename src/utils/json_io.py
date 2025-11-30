@@ -1,35 +1,45 @@
 """
-Internal utilities for JSON serialization, file reading/writing, and building integrity-checked JSON packets.
+Public utilities for JSON serialization, file load/save operations, and constructing integrity-checked JSON packets.
 
-Provides helpers to:
- - Convert dicts to/from JSON strings
- - Load and save JSON files
- - Build packets with UTC metadata and deterministic SHA-256 checksums
+This module provides:
+ - Conversion between dicts and JSON strings
+ - Safe loading and saving of JSON files
+ - Deterministic SHA-256 checksums for payload integrity
+ - Packet builders that embed UTC metadata, source file names, and payload hashes
 
 Example Usage:
-    # Preferred usage via internal package interface:
-    # Not exposed publicly; this is an internal module.
+    # Preferred usage through the public utils namespace:
+    import src.utils.json_io as json_io
+    pkt = json_io.create_json_packet({"a": 1}, "example.json")
 
     # Direct module usage in unit tests:
-    import src.utils._json_io as jio
-    text = jio.dict_to_json_string({"x": 1})
+    from src.utils.json_io import *
+    data = json_string_to_dict('{"x": 5}')
 
 Dependencies:
-    - Python >= 3.10
-    - Standard Library: json, hashlib, typing
-    - Internal: src.utils.timestamp
+ - Python >= 3.10
+ - Standard Library: json, hashlib, typing
+ - Internal: src.utils.timestamp
 
 Notes:
-    - Payload keys must be strings; values must be JSON-serializable.
-    - Payload ordering is sorted to ensure stable SHA-256 generation.
-    - Functions wrap low-level exceptions in RuntimeError for clearer diagnostics.
-    - Intended for use inside the utils layer; not part of the public API surface.
+ - Payload keys must be strings and JSON-serializable.
+ - Payloads are sorted lexicographically before hashing for stable SHA-256 generation.
+ - File operations wrap underlying exceptions in RuntimeError for clearer diagnostics.
+ - Designed as a public-facing utility in the `utils` package.
 
 License:
-    - Internal Use Only
+ - Internal Use Only
 """
+__all__ = [
+    "create_json_packet",
+    "dict_to_json_string",
+    "extract_payload",
+    "json_string_to_dict",
+    "load_json_file",
+    "save_json_file",
+    "verify_json_payload_checksum",
+]
 
-__all__ = []  # Internal-only; not part of public API.
 
 import hashlib
 import json
