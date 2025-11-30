@@ -1,60 +1,40 @@
 """
-Utility functions for serializing and deserializing JSON data, reading/writing JSON files, and parsing strict key–value text formats.
+Internal utilities for JSON serialization, file reading/writing, and building integrity-checked JSON packets.
 
-This module includes helpers to:
-    - Conversion between dicts (string keys) ↔ JSON strings (`dict_to_json_string`, `json_string_to_dict`)
-    - Reading/writing JSON files (`load_json_file`, `save_json_file`)
-    - JSON packet structure helpers with metadata and deterministic SHA-256 checksums
-    - Parse strict `"Key" = "Value"` text formats with optional list values
-
-Typical uses include:
-    - Centralized JSON I/O for configuration, small datasets, and test fixtures
-    - Creating self-validating JSON objects with metadata and checksums
-    - Parsing deterministic key–value text formats for configuration import
+Provides helpers to:
+ - Convert dicts to/from JSON strings
+ - Load and save JSON files
+ - Build packets with UTC metadata and deterministic SHA-256 checksums
 
 Example Usage:
-    # Preferred usage via package interface:
+    # Preferred usage via internal package interface:
     # Not exposed publicly; this is an internal module.
 
-    # Direct module usage (acceptable in unit tests or internal scripts only):
+    # Direct module usage in unit tests:
     import src.utils._json_io as jio
-    text = jio.dict_to_json_string({"name": "bob"}, indent_spaces=None)
+    text = jio.dict_to_json_string({"x": 1})
 
 Dependencies:
-    - Python >= 3.10  (`dict[str, Any]` typing)
-    - Standard Library: json, re, datetime, typing
+    - Python >= 3.10
+    - Standard Library: json, hashlib, typing
+    - Internal: src.utils.timestamp
 
 Notes:
-    - Keys are assumed to be strings; values must be JSON-serializable.
-    - Files are read/written as UTF-8; `ensure_ascii=False` preserves Unicode characters.
-    - Functions raise `RuntimeError` with wrapped original exceptions for clear diagnostics.
-    - Packet checksums are computed over sorted key–value pairs.
-    - Strict parser rejects duplicate keys and malformed lines; supports comments prefixed with `#`.
-    - Designed for deterministic serialization and integrity verification within the utils package.
-    - Intended for internal use within the `utils` package to centralize JSON I/O.
+    - Payload keys must be strings; values must be JSON-serializable.
+    - Payload ordering is sorted to ensure stable SHA-256 generation.
+    - Functions wrap low-level exceptions in RuntimeError for clearer diagnostics.
+    - Intended for use inside the utils layer; not part of the public API surface.
 
 License:
- - Internal Use Only
+    - Internal Use Only
 """
+
+__all__ = []  # Internal-only; not part of public API.
+
 import hashlib
 import json
-import re
 from typing import Any, TypedDict, Final
-
 from . import timestamp
-
-LINE_KEY_VALUE_RE = re.compile(
-    r'^\s*'  # Optional leading whitespace
-    r'"([^"]+)"'  # "key" — one or more non-quote characters inside quotes
-    r'\s*=\s*'  # Optional spaces around '='
-    r'(?:'  # Non-capturing group for either form of value
-    r'"([^"]*)"'  # Case 1: "value" — zero or more non-quote characters inside quotes
-    r'|'  # OR
-    r'\[\s*([^\]]*?)\s*\]'  # Case 2: [ ... ] — list of values inside square brackets (no nested brackets)
-    r')'  # End non-capturing group
-    r'\s*$'  # Optional trailing whitespace
-)
-LIST_ITEM_RE = re.compile(r'"([^"\\]*(?:\\.[^"\\]*)*)"')
 
 
 # JSON PACKET META DATA SCHEMA
@@ -77,77 +57,6 @@ class JsonPkt(TypedDict):
 
 _KEY_META: Final[str] = list(JsonPkt.__annotations__.keys())[0]
 _KEY_PAYLOAD: Final[str] = list(JsonPkt.__annotations__.keys())[1]
-
-
-def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, Any]:
-    """
-    Parse a quoted key–value configuration text into a dictionary.
-
-    Each non-empty, non-comment line must match the exact form `"Key" = "Value"` or `"Key" = ["Value1", "Value2", ...]`. Lines beginning with `#` are ignored, and trailing comments introduced by `#` are stripped before validation. Invalid lines are skipped with a WARNING log entry. Duplicate keys terminate parsing with an exception.
-
-    Args:
-        source_path (str): Logical name or file path used only for diagnostics in logs/errors.
-        text (str): Entire input content to parse.
-
-    Returns:
-        dict[str, Any]: keys map to either str (for "Key" = "Value") or list[str] (for "Key" = ["A", "B"]).
-
-    Raises:
-        RuntimeError: If the same key appears more than once in the input.
-    """
-    result: dict[str, str | list[str]] = {}
-
-    for line_no, raw_line in enumerate(text.splitlines(), start=1):
-        # Ignore empty lines exactly (after trimming whitespace).
-        if raw_line.strip() == '':
-            continue
-
-        # Ignore lines that begin with '#' (no leading whitespace allowed by spec).
-        if raw_line.startswith('#'):
-            continue
-
-        # Strip trailing comments and surrounding whitespace.
-        content = raw_line.split('#', 1)[0].strip()
-        if content == '':
-            # Line reduced to nothing after removing a trailing comment.
-            continue
-
-        # Validate strict `"Key" = "Value"` format.
-        match = LINE_KEY_VALUE_RE.match(content)
-        if not match:
-            # Non-conforming lines are not accepted; warn and skip
-            print(
-                f"Invalid key-value format at {source_path}:{line_no}; ignoring line: {raw_line!r}")
-            continue
-
-        # Extract key/value from regex groups (1 = key, 2 = single value, 3 = list of values).
-        key = match.group(1)
-        value = None
-
-        # Case 1: Standard quoted value ("Key" = "Value")
-        if match.group(2) is not None:
-            value = match.group(2)
-
-        # Case 2: List-style value ("Key" = ["A", "B", "C"])
-        elif match.group(3) is not None:
-            raw_items = match.group(3)
-            # Extract only properly quoted items; supports escaped quotes and commas inside items
-            items = [m.group(1).encode("utf-8").decode("unicode_escape")
-                     for m in LIST_ITEM_RE.finditer(raw_items)]
-            value = items
-
-        else:
-            # Neither group matched; ignore this line safely
-            print(f"Invalid value at {source_path}:{line_no}; ignoring line: {raw_line!r}")
-            continue
-
-        # Enforce unique keys.
-        if key in result:
-            raise RuntimeError(f"Duplicate key '{key}' in {source_path} at line {line_no}.")
-
-        result[key] = value
-
-    return result
 
 
 def _compute_payload_sha256(payload: dict[str, Any]) -> str:

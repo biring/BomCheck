@@ -621,27 +621,6 @@ class TestJsonIO(unittest.TestCase):
         if os.path.isdir(self.tmpdir):
             os.rmdir(self.tmpdir)
 
-    def test_parse_strict_key_value_to_dict(self):
-        """
-        Should parse strict `"Key" = "Value"` lines, ignore comments/blank lines, and yield dict.
-        """
-        # ARRANGE
-        src = "cfg.txt"
-        text = (
-            '"A" = "1"\n'
-            '   # comment\n'
-            '"B"="2"  # trailing\n'
-        )
-        expected = {"A": "1", "B": "2"}
-
-        # ACT
-        with patch("builtins.print"):  # suppress warning prints for invalid lines (if any)
-            result = api.parse_strict_key_value_to_dict(src, text)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
     def test_verify_json_payload_checksum(self):
         """
         Should return True for matching checksum and False when payload changes.

@@ -61,7 +61,6 @@ from ._json_io import (
     extract_payload,
     json_string_to_dict,
     load_json_file,
-    parse_strict_key_value_to_dict,
     save_json_file,
     verify_json_payload_checksum,
 )
@@ -122,7 +121,6 @@ __all__ = [
     "extract_payload",
     "json_string_to_dict",
     "load_json_file",
-    "parse_strict_key_value_to_dict",
     "save_json_file",
     "verify_json_payload_checksum",
 
