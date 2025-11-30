@@ -34,6 +34,7 @@ License:
 """
 
 __all__ = [
+    "EXCEL_FILE_TYPE",
     "map_excel_sheets_to_string_dataframes",
     "read_excel_file",
     "sanitize_sheet_name_for_excel",
@@ -44,6 +45,9 @@ __all__ = [
 import re
 
 import pandas as pd
+
+# CONSTANTS
+EXCEL_FILE_TYPE = ".xlsx"
 
 # REGULAR EXPRESSIONS
 EXCEL_NAME_CONSTRAINTS = re.compile(r'[:\\/?*\[\]]')

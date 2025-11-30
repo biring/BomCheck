@@ -67,14 +67,14 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
         FileNotFoundError: If the runtime folder cannot be inspected or the target resource file does not exist.
     """
     # Build canonical resource filename with prefix and JSON extension.
-    target_filename = resource_prefix + resource_name + utils.JSON_FILE_EXT
+    target_filename = resource_prefix + resource_name + utils.json_io.JSON_FILE_EXT
 
     # Locate directory relative to the project root.
     project_root = folder.resolve_project_folder()
     runtime_folder = folder.construct_folder_path(project_root, resource_folder_parts)
 
     # Enumerate JSON files present in the directory.
-    available_filenames = utils.get_files_in_directory(runtime_folder, [utils.JSON_FILE_EXT])
+    available_filenames = utils.get_files_in_directory(runtime_folder, [utils.json_io.JSON_FILE_EXT])
 
     # Validate presence of the requested resource file
     if target_filename not in available_filenames:

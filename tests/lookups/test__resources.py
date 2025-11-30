@@ -101,7 +101,7 @@ class TestLoadComponentTypeCache(unittest.TestCase):
         resource_filename = (
                 constant.JSON_PREFIX
                 + constant.COMPONENT_TYPE_FILE_NAME
-                + util.JSON_FILE_EXT
+                + util.json_io.JSON_FILE_EXT
         )
         resource_path = util.build_file_path(runtime_dir, resource_filename)
 

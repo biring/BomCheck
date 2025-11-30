@@ -30,9 +30,13 @@ License:
 """
 
 __all__ = [
+    "TEXT_FILE_TYPE",
     "load_text_file",
     "save_text_file",
 ]
+
+# CONSTANTS
+TEXT_FILE_TYPE = ".txt"
 
 
 def save_text_file(file_path: str, text_content: str) -> None:

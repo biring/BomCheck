@@ -115,7 +115,7 @@ class TestJsonCacheInterface(unittest.TestCase):
         # Build resource filename and path
         self.resource_name = "settings"
         resource_filename = (
-                self.TEST_RESOURCE_PREFIX + self.resource_name + utils.JSON_FILE_EXT
+                self.TEST_RESOURCE_PREFIX + self.resource_name + utils.json_io.JSON_FILE_EXT
         )
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 

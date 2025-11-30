@@ -30,9 +30,6 @@ License:
 
 # noinspection PyProtectedMember
 from ._file_path import (
-    TEXT_FILE_TYPE,
-    EXCEL_FILE_TYPE,
-    JSON_FILE_EXT,
     assert_filename_with_extension,
     build_file_path,
     escape_backslashes,
@@ -43,11 +40,7 @@ from ._file_path import (
 
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
-
     # file_path
-    "TEXT_FILE_TYPE",
-    "EXCEL_FILE_TYPE",
-    "JSON_FILE_EXT",
     "assert_filename_with_extension",
     "build_file_path",
     "escape_backslashes",

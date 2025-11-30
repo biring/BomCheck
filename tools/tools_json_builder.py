@@ -81,7 +81,7 @@ class FileLocation:
 SUCCESS: int = 0
 FAILURE: int = -1
 TARGET_JSON_FILES: tuple[FileLocation, ...] = (
-    FileLocation(lookup.FOLDER_PARTS, lookup.JSON_PREFIX, lookup.COMPONENT_TYPE_FILE_NAME, utils.JSON_FILE_EXT),
+    FileLocation(lookup.FOLDER_PARTS, lookup.JSON_PREFIX, lookup.COMPONENT_TYPE_FILE_NAME, utils.json_io.JSON_FILE_EXT),
 )
 
 
@@ -114,7 +114,7 @@ def main() -> int:
             file_path = utils.build_file_path(folder_path, file_name)
 
             # Verify file name
-            utils.assert_filename_with_extension(file_path, utils.JSON_FILE_EXT)
+            utils.assert_filename_with_extension(file_path, utils.json_io.JSON_FILE_EXT)
 
             # Verify file folder exists
             if not utils.folder.is_folder_path(folder_path):

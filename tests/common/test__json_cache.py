@@ -96,7 +96,7 @@ class _TestFixture(unittest.TestCase):
         os.makedirs(self.runtime_dir, exist_ok=True)
 
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.JSON_FILE_EXT
+        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -118,7 +118,7 @@ class _TestFixture(unittest.TestCase):
         """
 
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.JSON_FILE_EXT
+        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -132,7 +132,7 @@ class _TestFixture(unittest.TestCase):
         Create an empty JSON resource packet.
         """
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_EMPTY_RESOURCE_NAME + utils.JSON_FILE_EXT
+        resource_filename = TEST_RESOURCE_PREFIX + TEST_EMPTY_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -472,14 +472,14 @@ class TestLoadRuntimeJson(_Asserts):
 
         # Patch the path resolver to always return a file within our temp directory.
         def _resolver(resource_name: str):
-            filename = resource_name + utils.JSON_FILE_EXT
+            filename = resource_name + utils.json_io.JSON_FILE_EXT
             return os.path.join(self.tmpdir, filename)
 
         jc._resolve_json_resource_path = _resolver  # simple, library-free patch
 
         # Convenience: name for our resource (e.g., "_info")
         self.resource = "_test_resource"
-        self.filename = self.resource + utils.JSON_FILE_EXT
+        self.filename = self.resource + utils.json_io.JSON_FILE_EXT
         self.filepath = os.path.join(self.tmpdir, self.filename)
 
     def tearDown(self):
@@ -595,7 +595,7 @@ class TestResolveJsonFilePath(_Asserts):
         """
         # ARRANGE
         resource = "test_resource"
-        filename = TEST_RESOURCE_PREFIX + resource + utils.JSON_FILE_EXT
+        filename = TEST_RESOURCE_PREFIX + resource + utils.json_io.JSON_FILE_EXT
         expected_path = os.path.join(self.tmp_runtime, filename)
 
         with open(expected_path, "w", encoding="utf-8") as f:

@@ -31,6 +31,7 @@ License:
  - Internal Use Only
 """
 __all__ = [
+    "JSON_FILE_EXT",
     "create_json_packet",
     "dict_to_json_string",
     "extract_payload",
@@ -46,6 +47,8 @@ import json
 from typing import Any, TypedDict, Final
 from . import timestamp
 
+# CONSTANTS
+JSON_FILE_EXT = ".json"
 
 # JSON PACKET META DATA SCHEMA
 class JsonMeta(TypedDict):
