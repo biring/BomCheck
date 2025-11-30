@@ -1,26 +1,21 @@
 """
 Public initializer for the `utils` package.
 
-This module re-exports the curated public API of `utils` so that consumers can access functionality through a flat, stable interface:
+This module exposes the primary `src.utils` namespace and re-exports key utility submodules as a flat, stable entry point.
 
 Example Usage:
     # Preferred usage via package import:
-    import src.utils as utils
-    clean = utils.remove_all_whitespace(raw_string)
-
-Capabilities:
-    - Re-export all public functions and classes defined in `_api.py`.
-    - Centralize the list of exported symbols via a single `__all__`.
-    - Ensure consumers do not depend on private/internal modules.
+    from src.utils import excel_io
+    df_map = excel_io.map_excel_sheets_to_string_dataframes(path)
 
 Dependencies:
     - Python >= 3.9
     - Standard Library only
 
 Notes:
-    - `_api.py` is the single source of truth for public symbols.
-    - Keeps package imports flat and avoids leaking internal module structure.
-    - Consumers should always import through `src.utils` rather than `_api`.
+    - Intended as the public entry point for the `utils` package.
+    - Submodules listed in `__all__` are part of the supported surface area.
+    - Internal layout of the `src.utils` package may change without affecting this facade.
 
 License:
  - Internal Use Only
