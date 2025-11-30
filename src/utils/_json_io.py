@@ -39,8 +39,9 @@ License:
 import hashlib
 import json
 import re
-from datetime import datetime, timezone
 from typing import Any, TypedDict, Final
+
+from . import timestamp
 
 LINE_KEY_VALUE_RE = re.compile(
     r'^\s*'  # Optional leading whitespace
@@ -149,23 +150,6 @@ def parse_strict_key_value_to_dict(source_path: str, text: str) -> dict[str, Any
     return result
 
 
-def _now_utc_iso() -> str:
-    """
-    Get the current UTC time in ISO 8601 format with a 'Z' suffix.
-
-    The output is accurate to the second (microseconds are removed) and uses the 'Z' suffix to indicate UTC, instead of an explicit offset.
-
-    Returns:
-        str: Current UTC timestamp in the form 'YYYY-MM-DDTHH:MM:SSZ'.
-    """
-    return (
-        datetime.now(timezone.utc)  # Get current time in UTC
-        .replace(microsecond=0)  # Remove microseconds for second precision
-        .isoformat()  # Convert to ISO 8601
-        .replace("+00:00", "Z")  # Replace '+00:00' with 'Z' for UTC
-    )
-
-
 def _compute_payload_sha256(payload: dict[str, Any]) -> str:
     """
     Compute a deterministic SHA-256 for a dictionary's contents.
@@ -223,7 +207,7 @@ def create_json_packet(payload: dict[str, Any], source_file: str) -> dict[str, A
     sorted_payload = {k: payload[k] for k in sorted(payload.keys())}
     # Assemble metadata
     meta_info = {
-        _KEY_UTC: _now_utc_iso(),
+        _KEY_UTC: timestamp.now_utc_iso(),
         _KEY_SOURCE: str(source_file),
         _KEY_SHA256: _compute_payload_sha256(sorted_payload),
     }
