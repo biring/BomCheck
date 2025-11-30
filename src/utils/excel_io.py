@@ -1,35 +1,45 @@
 """
-Utilities for reading/writing Excel workbooks with predictable string typing and safe sheet naming.
+Utilities for reading and writing Excel workbooks with consistent string typing and safe worksheet naming.
 
-This module provides helpers to:
-     - Read all worksheets from an `.xlsx` into DataFrames with every cell as `str` and blanks as ""
-     - Write a single DataFrame to an Excel file (no index), using the `openpyxl` engine
-     - Write multiple DataFrames to one workbook, skipping empty frames and sanitizing sheet names
-     - Sanitize worksheet names to satisfy Excel constraints (invalid chars removed, length <= 31)
+This module supports:
+ - Loading all worksheets from a `.xlsx` file into string-typed pandas DataFrames
+ - Writing a DataFrame to an Excel file without an index
+ - Writing multiple DataFrames into a single workbook with sanitized sheet names
+ - Enforcing Excel naming constraints (invalid characters removed, max length 31)
 
 Example Usage:
-    # Preferred usage via package interface:
-    # Not exposed publicly; this is an internal module.
+    # Preferred usage via public package interface:
+    from src.utils import excel_io
+    sheets = excel_io.read_excel_file("input.xlsx")
 
-    # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.utils._excel_io as excel_io
-    df = excel_io.read_from_excel_file("book.xlsx")
+    # Direct module usage (acceptable in unit tests or internal scripts):
+    import src.utils.excel_io as excel_io
+    excel_io.write_frame_to_excel("out.xlsx", df)
 
 Dependencies:
-    - Python >= 3.9
-    - External: pandas (tested with pandas >= 2.x), openpyxl
-    - Standard Library: re
+ - Python >= 3.9
+ - Standard Library: re
+ - External Packages: pandas (>= 2.x), openpyxl
 
 Notes:
-     - All reads coerce cells to `str` and preserve blanks as empty strings (`na_filter=False`).
-     - Workbooks are opened via context managers to ensure file handles close cleanly on Windows.
-     - `write_sheets_to_excel` skips empty DataFrames; if all are empty, it raises `ValueError`.
-     - Sheet names are sanitized to remove [: \\ / ? * [ ]] and truncated to 31 chars; pass a falsy name to let pandas assign a default.
-     - Public functions are intended for internal use within the `utils` package to keep serialization behavior consistent across layers.
+ - All cells are coerced to strings; blanks are preserved as "".
+ - Sheet reading is isolated per-worksheet for clearer debugging and error context.
+ - Sheet names are sanitized to satisfy Excel constraints before writing.
+ - Empty DataFrames are not written; writing an empty sheet raises ValueError.
+ - Designed for use across BOM parsing, export utilities, and intermediate report generation.
+ - Workbooks are opened via context managers to ensure file handles close cleanly on Windows.
 
 License:
  - Internal Use Only
 """
+
+__all__ = [
+    "map_excel_sheets_to_string_dataframes",
+    "read_excel_file",
+    "sanitize_sheet_name_for_excel",
+    "write_sheets_to_excel",
+    "write_frame_to_excel",
+]
 
 import re
 

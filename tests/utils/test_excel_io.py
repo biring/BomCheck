@@ -47,7 +47,7 @@ import unittest
 import pandas as pd
 
 # noinspection PyProtectedMember
-import src.utils._excel_io as excel_io
+import src.utils.excel_io as excel_io
 
 
 class TestMapExcelSheetsToStringDataFrames(unittest.TestCase):
