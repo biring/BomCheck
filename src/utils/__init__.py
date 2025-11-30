@@ -38,8 +38,10 @@ _api_public = list(getattr(_api, "__all__", []))
 
 # --- public module namespaces ---
 from . import folder_path as folder
+from . import timestamp
 
 # --- Combined public symbols ---
 __all__ = _api_public + [
     "folder",
+    "timestamp",
 ]
