@@ -30,29 +30,6 @@ from unittest.mock import patch
 import src.utils._api as api
 
 
-class TestConsole(unittest.TestCase):
-    """
-    Unit tests for the public API functions in the `utils._console` module.
-    """
-
-    def test_prompt_string_input(self):
-        """
-        Should run API function
-        """
-        # ARRANGE
-        expected = "45"
-
-        # Patch the API-level symbol, since we're testing the public API
-        with patch("src.utils._api.prompt_string_input", return_value=expected) as mock_input:
-            # ACT
-            result = api.prompt_string_input("", "", "")
-
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-                mock_input.assert_called_once_with("", "", "")
-
-
 class TestFilePath(unittest.TestCase):
     """
     Unit tests for the public API functions in the `utils._file_path` module.

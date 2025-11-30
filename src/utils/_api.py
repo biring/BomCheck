@@ -27,10 +27,6 @@ License:
 
 # Import implementation symbols from internal modules
 
-# noinspection PyProtectedMember
-from ._console import (
-    prompt_string_input,
-)
 
 # noinspection PyProtectedMember
 from ._file_path import (
@@ -68,8 +64,6 @@ from ._sanitizer import (
 
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
-    # console
-    "prompt_string_input",
 
     # file_path
     "TEXT_FILE_TYPE",
