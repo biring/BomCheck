@@ -28,7 +28,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 import re
 from src.models import interfaces as mdl
 from src.lookups import interfaces as lookup
-from src.utils import parse_to_float
+from src.utils.parser import parse_to_float
 
 # TODO : Reorganize to one shared folder for all rules or make math a utility
 from . import _helper as helper

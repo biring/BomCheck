@@ -23,7 +23,7 @@ Dependencies:
 
 Notes:
     - Fail-fast: raises ValueError with clear, field-referenced messages.
-    - Skip-on-invalid: if a base field cannot be parsed by `src.utils.parse_to_*`, the check is skipped.
+    - Skip-on-invalid: if a base field cannot be parsed by `src.utils.parser.parse_to_*`, the check is skipped.
     - Equality: uses `src.rules.approve._common.floats_equal` for monetary products/sums; provide normalized inputs.
     - Designators: simple comma-split; upstream normalization (trim, dedupe) is expected.
     - Scope: internal-only validators used by the BOM approval/review pipeline.
@@ -67,7 +67,7 @@ def quantity_zero(row: model.Row) -> None:
     """
     # Validate cell values
     try:
-        qty = utils.parse_to_float(row.qty)
+        qty = utils.parser.parse_to_float(row.qty)
     except ValueError:
         # Skip validation if base fields are invalid
         return
@@ -103,7 +103,7 @@ def designator_required(row: model.Row) -> None:
     """
     # Validate cell values
     try:
-        qty = utils.parse_to_integer(row.qty)
+        qty = utils.parser.parse_to_integer(row.qty)
     except ValueError:
         # Skip validation if base fields are invalid
         return
@@ -140,7 +140,7 @@ def designator_count(row: model.Row) -> None:
     """
     # Validate cell values
     try:
-        integer_qty = utils.parse_to_integer(row.qty)
+        integer_qty = utils.parser.parse_to_integer(row.qty)
         designators = [d.strip() for d in row.designator.split(",") if d.strip()]
         designator_count = len(designators)
 
@@ -181,8 +181,8 @@ def unit_price_specified(row: model.Row):
     """
     # Validate cell values
     try:
-        qty = utils.parse_to_float(row.qty)
-        unit_price = utils.parse_to_float(row.unit_price)
+        qty = utils.parser.parse_to_float(row.qty)
+        unit_price = utils.parser.parse_to_float(row.unit_price)
     except ValueError:
         # Skip validation if base fields are invalid
         return
@@ -219,8 +219,8 @@ def subtotal_zero(row: model.Row):
     """
     # Validate cell values
     try:
-        qty = utils.parse_to_float(row.qty)
-        sub_total = utils.parse_to_float(row.sub_total)
+        qty = utils.parser.parse_to_float(row.qty)
+        sub_total = utils.parser.parse_to_float(row.sub_total)
     except ValueError:
         # Skip validation if base fields are invalid
         return
@@ -257,9 +257,9 @@ def sub_total_calculation(row: model.Row) -> None:
     """
     # Validate cell values
     try:
-        qty = utils.parse_to_float(row.qty)
-        unit_price = utils.parse_to_float(row.unit_price)
-        sub_total = utils.parse_to_float(row.sub_total)
+        qty = utils.parser.parse_to_float(row.qty)
+        unit_price = utils.parser.parse_to_float(row.unit_price)
+        sub_total = utils.parser.parse_to_float(row.sub_total)
     except ValueError:
         # Skip validation if base fields are invalid
         return
@@ -301,7 +301,7 @@ def material_cost_calculation(rows: list[model.Row], header: model.Header) -> No
     parsed: bool = False
     for row in rows:
         try:
-            sub_total = utils.parse_to_float(row.sub_total)
+            sub_total = utils.parser.parse_to_float(row.sub_total)
             aggregate_sub_totals += sub_total
             parsed = True
         except ValueError:
@@ -312,7 +312,7 @@ def material_cost_calculation(rows: list[model.Row], header: model.Header) -> No
 
     # Validate cell value
     try:
-        material_cost = utils.parse_to_float(header.material_cost)
+        material_cost = utils.parser.parse_to_float(header.material_cost)
     except ValueError:
         return  # Skip logic validation if cell validation fails
 
@@ -347,9 +347,9 @@ def total_cost_calculation(header: model.Header) -> None:
     """
     # Validate cell values
     try:
-        material_cost = utils.parse_to_float(header.material_cost)
-        overhead_cost = utils.parse_to_float(header.overhead_cost)
-        total_cost = utils.parse_to_float(header.total_cost)
+        material_cost = utils.parser.parse_to_float(header.material_cost)
+        overhead_cost = utils.parser.parse_to_float(header.overhead_cost)
+        total_cost = utils.parser.parse_to_float(header.total_cost)
     except ValueError:
         # Skip validation if base fields are invalid
         return

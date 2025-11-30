@@ -24,7 +24,7 @@ License:
 import unittest
 
 # noinspection PyProtectedMember
-import src.utils._parser as parser
+import src.utils.parser as parser
 
 
 class TestIsValidDateString(unittest.TestCase):

@@ -81,6 +81,6 @@ def integer_input(prompt) -> int:
         try:
             user_input = string_input(prompt)
             # numeric validation
-            return utils.parse_to_integer(user_input)
+            return utils.parser.parse_to_integer(user_input)
         except ValueError:
             show.warning(_ERR_INTEGER_INPUT)

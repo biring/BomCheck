@@ -41,20 +41,6 @@ from ._file_path import (
     is_valid_file_path,
 )
 
-# noinspection PyProtectedMember
-from ._parser import (
-    is_float,
-    is_integer,
-    is_non_empty_string,
-    is_strict_empty_string,
-    is_valid_date_string,
-    parse_to_empty_string,
-    parse_to_float,
-    parse_to_integer,
-    parse_to_iso_date_string,
-    parse_to_non_empty_string,
-)
-
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
 
@@ -68,17 +54,4 @@ __all__ = [
     "get_files_in_directory",
     "is_existing_file_path",
     "is_valid_file_path",
-
-    # parser
-    "is_float",
-    "is_integer",
-    "is_non_empty_string",
-    "is_strict_empty_string",
-    "is_valid_date_string",
-    "parse_to_empty_string",
-    "parse_to_float",
-    "parse_to_integer",
-    "parse_to_iso_date_string",
-    "parse_to_non_empty_string",
-
 ]
