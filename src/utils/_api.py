@@ -55,13 +55,6 @@ from ._parser import (
     parse_to_non_empty_string,
 )
 
-# noinspection PyProtectedMember
-from ._sanitizer import (
-    normalize_spaces,
-    normalize_to_string,
-    remove_all_whitespace,
-)
-
 # Define exactly what is public. __all__ is the single source of truth for the public API.
 __all__ = [
 
@@ -87,10 +80,5 @@ __all__ = [
     "parse_to_integer",
     "parse_to_iso_date_string",
     "parse_to_non_empty_string",
-
-    # sanitizer
-    "normalize_spaces",
-    "normalize_to_string",
-    "remove_all_whitespace",
 
 ]

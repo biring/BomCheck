@@ -37,7 +37,7 @@ from typing import Final
 
 import pandas as pd
 
-from src.utils import (
+from src.utils.sanitizer import (
     normalize_to_string,
     remove_all_whitespace
 )

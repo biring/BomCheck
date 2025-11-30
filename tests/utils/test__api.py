@@ -371,56 +371,5 @@ class TestParser(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-class TestSanitizer(unittest.TestCase):
-    """
-    Unit tests for the public API functions in the `utils._sanitizer` module.
-    """
-
-    def test_normalize_spaces(self):
-        """
-        Should run API function
-        """
-        # ARRANGE
-        input_str = " A  B "
-        expected = "A B"
-
-        # ACT
-        result = api.normalize_spaces(input_str)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_normalize_to_string(self):
-        """
-        Should run API function
-        """
-        # ARRANGE
-        input_int = 123
-        expected = "123"
-
-        # ACT
-        result = api.normalize_to_string(input_int)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_remove_all_whitespaces(self):
-        """
-        Should run API function
-        """
-        # ARRANGE
-        input_str = "A B\tC\nD\rE\fF\vG"
-        expected = "ABCDEFG"
-
-        # ACT
-        result = api.remove_all_whitespace(input_str)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-
 if __name__ == "__main__":
     unittest.main()

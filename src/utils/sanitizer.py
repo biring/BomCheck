@@ -1,31 +1,40 @@
 """
 Utility functions for sanitizing and normalizing text inputs.
 
-These are commonly used in data cleansing pipelines, file parsers, or any user-generated text input processing.
+This module provides helpers to:
+ - Normalize arbitrary values to safe strings (handling None, NaN, and pandas NA/NaT)
+ - Collapse and trim redundant ASCII spaces in user- or file-derived text
+ - Remove all Unicode whitespace characters for strict comparison, key generation, or compact storage
+
+These functions are commonly used in BOM parsing, dataframe preprocessing, and any user-generated or file-sourced text input pipelines.
 
 Example Usage:
     # Preferred usage via public package interface:
-    # Not exposed publicly; this is an internal module.
+    import src.utils.sanitizer as sanitizer
+    clean_text = sanitizer.normalize_spaces(raw_text)
 
-    # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.utils._sanitizer as sanitizer
-    clean_text = sanitizer.remove_all_whitespace(raw_text)
+    # Direct module usage inside the package or in unit tests:
+    from src.utils.sanitizer import remove_all_whitespace
+    compact_text = remove_all_whitespace(raw_text)
 
 Dependencies:
-    - Python >= 3.9
-    - Standard Library: re, string
+    - Python >= 3.10
+    - Standard Library: re
 
 Notes:
-    - This module is intended for internal use within the `utils` package.
-    - Public functions should be imported via `src.utils` where possible to preserve API boundaries.
-    - Designed for use in BOM parsing and other text preprocessing utilities.
-    - Keeps separation of concerns between structure parsing and text cleanup.
+    - Functions are side-effect free and operate purely on and return string values.
+    - normalize_to_string should be used as a first step when ingesting mixed or nullable values (e.g., from pandas Series or DataFrames) before further sanitization.
+    - Intended for reuse across parsers, validators, and I/O helpers to keep text normalization behavior consistent throughout the codebase.
 
 License:
  - Internal Use Only
 """
 
-__all__ = []  # Internal-only; not part of public API
+__all__ = [
+    "normalize_spaces",
+    "normalize_to_string",
+    "remove_all_whitespace",
+]
 
 import re
 import pandas as pd

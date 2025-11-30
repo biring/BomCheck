@@ -26,7 +26,7 @@ import pandas as pd
 
 
 # noinspection PyProtectedMember
-import src.utils._sanitizer as sanitizer
+import src.utils.sanitizer as sanitizer
 
 
 class TestTextSanitizer(unittest.TestCase):
