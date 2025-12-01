@@ -3,13 +3,12 @@ Unit tests for file system utility functions.
 
 This test suite validates the behavior of functions in `src.utils._file_path` related to file path construction, string escaping, file presence checks, and directory listing.
 
-
 Example Usage:
-    # Run unittest discovery from project root:
-    python -m unittest tests.utils.test__file_path
+    # Preferred usage from project root:
+    python -m unittest tests/utils/test__file_path.py
 
-    # Run individual class:
-    python -m unittest tests.utils.test__file_path.TestBuildFilePath
+    # Run all tests via discovery:
+    python -m unittest discover -s tests
 
 Dependencies:
     - Python >= 3.9
@@ -32,6 +31,121 @@ import shutil
 
 # noinspection PyProtectedMember
 import src.utils._file_path as fp
+
+
+class TestAssertFilePath(unittest.TestCase):
+    """
+    Unit tests for the `assert_file_path` function.
+
+    These tests verify that the function:
+      - Accepts existing regular files without raising.
+      - Raises ValueError for directories and non-existent paths.
+      - Raises TypeError when the input is not a string.
+    """
+
+    def setUp(self):
+        """
+        Create temporary filesystem entries for test isolation.
+        """
+        # ARRANGE
+        # Create a real temporary file
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
+        self.temp_file_path = self.temp_file.name
+        self.temp_file.close()
+
+        # Create a temporary directory
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_dir_path = self.temp_dir.name
+
+        # A non-existent path inside the temp directory
+        self.missing_path = os.path.join(self.temp_dir_path, "missing_file.txt")
+
+    def tearDown(self):
+        """
+        Clean up created resources after tests.
+        """
+        # ARRANGE / CLEANUP
+        if os.path.exists(self.temp_file_path):
+            os.unlink(self.temp_file_path)
+        self.temp_dir.cleanup()
+
+    def test_happy_path(self):
+        """
+        Should pass silently when given a valid existing regular file path.
+        """
+        # ARRANGE
+        path = self.temp_file_path
+        expected = None  # No exception raised
+
+        try:
+            # ACT
+            fp.assert_file_path(path)
+            result = None
+        except Exception as e:
+            # Capture unexpected exception type
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_raise_for_directory_path_raises(self):
+        """
+        Should raise error when given a directory path instead of a file.
+        """
+        # ARRANGE
+        path = self.temp_dir_path
+        expected = ValueError.__name__
+
+        try:
+            # ACT
+            fp.assert_file_path(path)
+            result = None  # Should not reach here
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_raise_for_invalid_type(self):
+        """
+        Should raise error when file_path is not a string.
+        """
+        # ARRANGE
+        test_cases = [None, 123, 3.14, ["file.txt"], {"path": "file.txt"}]
+        expected = TypeError.__name__
+
+        for input_value in test_cases:
+            try:
+                # ACT
+                fp.assert_file_path(input_value)  # type: ignore[arg-type]
+                result = None  # Should not reach here
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_raise_for_nonexistent_path(self):
+        """
+        Should raise error when the path does not exist.
+        """
+        # ARRANGE
+        path = self.missing_path
+        expected = ValueError.__name__
+
+        try:
+            # ACT
+            fp.assert_file_path(path)
+            result = None  # Should not reach here
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
 
 
 class TestAssertFilenameWithExtension(unittest.TestCase):
@@ -404,97 +518,6 @@ class TestGetFilesInFolder(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
-class TestIsFilePath(unittest.TestCase):
-    """
-    Unit test for the `is_file_path` function in the file utility module.
-
-    This test verifies that the function correctly identifies existing regular files,
-    rejects directories and non-existent paths, and raises TypeError for invalid input types.
-    """
-
-    def setUp(self):
-        """
-        Create temporary files and directories for test isolation.
-        """
-        # Create a real temp file
-        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
-        self.temp_file_path = self.temp_file.name
-        self.temp_file.close()
-
-        # Create a temporary directory
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.temp_dir_path = self.temp_dir.name
-
-    def tearDown(self):
-        """
-        Clean up created resources after tests.
-        """
-        if os.path.exists(self.temp_file_path):
-            os.unlink(self.temp_file_path)
-        self.temp_dir.cleanup()
-
-    def test_existing_file(self):
-        """
-        Should return True for a valid file.
-        """
-        # ARRANGE
-        path = self.temp_file_path
-        expected = True
-
-        # ACT
-        result = fp.is_file_path(path)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_existing_directory(self):
-        """
-        Should return False for a directory path.
-        """
-        # ARRANGE
-        path = self.temp_dir_path
-        expected = False
-
-        # ACT
-        result = fp.is_file_path(path)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_nonexistent_path(self):
-        """
-        Should return False for a path that does not exist.
-        """
-        # ARRANGE
-        path = os.path.join(self.temp_dir_path, "nonexistent.txt")
-        expected = False
-
-        # ACT
-        result = fp.is_file_path(path)
-
-        # ASSERT
-        with self.subTest(Out=result, Exp=expected):
-            self.assertEqual(result, expected)
-
-    def test_invalid_type_input(self):
-        """
-        Should raise error if file_path is not a string.
-        """
-        test_cases = [None, 123, 3.14, ["file.txt"], {"path": "file.txt"}]
-        expected = TypeError.__name__
-
-        for input_value in test_cases:
-            try:
-                fp.is_file_path(input_value)  # type: ignore[arg-type]
-                result = None  # Should not reach here
-            except Exception as e:
-                result = type(e).__name__
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-
-
 class TestIsValidWindowsFilePath(unittest.TestCase):
     """
     Unit test for the `is_valid_windows_file_path` function in the file utility module.
@@ -579,6 +602,7 @@ class TestIsValidWindowsFilePath(unittest.TestCase):
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertFalse(result)
+
 
 class TestNormalizeFilePath(unittest.TestCase):
     """

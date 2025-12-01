@@ -26,16 +26,15 @@ License:
 """
 
 __all__ = [
+    "assert_file_path",
     "assert_filename_with_extension",
     "construct_file_path",
     "escape_backslashes",
     "get_files_in_folder",
-    "is_file_path",
     "is_valid_windows_file_path",
     "normalize_file_path",
 ]
 
-import os
 from pathlib import Path
 from typing import Optional
 
@@ -78,6 +77,36 @@ def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:
             f"Failed file name and extension check '{file_path}'\n"
             f"{type(err).__name__} - {err}"
         ) from err
+
+
+import os
+
+
+def assert_file_path(file_path: str) -> None:
+    """
+    Validate that the provided path exists and is a regular file.
+
+    This function confirms that the given filesystem path:
+    1. Is a string
+    2. Exists
+    3. Points to a regular file (not a directory, symlink, or special type)
+
+    Args:
+        file_path (str): Path to validate.
+
+    Raises:
+        TypeError: If file_path is not a string.
+        ValueError: If the path does not exist or is not a regular file.
+    """
+    if not isinstance(file_path, str):
+        raise TypeError(f"File path '{file_path}' must be a string.")
+
+    # Check if the given path exists and refers to a regular file (not a folder or symlink)
+    if not os.path.isfile(file_path):
+        raise ValueError(
+            f"File path '{file_path}' must exist and be a regular file "
+            f"(not a folder, symbolic link, or special file type)."
+        )
 
 
 def construct_file_path(folder: str, file: str) -> str:
@@ -179,28 +208,6 @@ def get_files_in_folder(folder_path: str, extensions: Optional[list[str]] = None
     return tuple(matched_files)
 
 
-def is_file_path(file_path: str) -> bool:
-    """
-    Determines if a given file path exists and is a regular file.
-
-    This function checks whether the specified filesystem path exists and refers to a regular file (not a folder, symbolic link, or special file type).
-
-    Args:
-        file_path (str): The absolute or relative path to check.
-
-    Returns:
-        bool: True if the path exists and is a regular file, False otherwise.
-
-    Raises:
-        TypeError: If file_path is not a string.
-    """
-    if not isinstance(file_path, str):
-        raise TypeError("file_path must be a string.")
-
-    # Check if the given path exists and refers to a regular file (not a folder or symlink)
-    return os.path.isfile(file_path)
-
-
 def is_valid_windows_file_path(name: str) -> bool:
     """
     Checks whether a given file path name contains only safe characters on Windows.
@@ -227,6 +234,7 @@ def is_valid_windows_file_path(name: str) -> bool:
         return False
 
     return True
+
 
 def normalize_file_path(raw_path: str) -> str:
     """
