@@ -116,7 +116,7 @@ def main() -> int:
             file_path = file.construct_file_path(folder_path, file_name)
 
             # Verify file name
-            file.assert_filename_with_extension(file_path, json.JSON_FILE_EXT)
+            file.assert_file_name(file_path, (json.JSON_FILE_EXT,))
 
             # Verify file folder exists
             if not folder.is_folder_path(folder_path):
@@ -124,9 +124,7 @@ def main() -> int:
                 raise RuntimeError(f"File folder missing: {folder_path}. This tool does not create directories.")
 
             # Verify source file exists
-            if not file.is_file_path(file_path):
-                # Source JSON must already exist; builder is not a generator of initial content
-                raise FileNotFoundError(f"Source file missing: {file_path}. Create source file to process.")
+            file.assert_file_path(file_path)
 
             # Try to load existing package; skip regeneration when checksum matches
             payload_map = None

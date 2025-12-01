@@ -33,6 +33,153 @@ import shutil
 import src.utils._file_path as fp
 
 
+class TestAssertFileName(unittest.TestCase):
+    """
+    Unit tests for the `assert_file_name` function.
+    """
+
+    def test_happy_path(self):
+        """
+        Should pass silently when filename has one dot and extension is in the allowed tuple.
+        """
+        # ARRANGE
+        test_cases = [
+            ("report.txt", (".txt",)),
+            ("data.json", (".json",)),
+            ("archive.xlsx", (".xlsx",)),
+            ("data.ini", (".txt", ".ini")),
+        ]
+        expected = None  # No error raised
+
+        for file_path, extensions in test_cases:
+            try:
+                # ACT
+                fp.assert_file_name(file_path, extensions)
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(File=file_path, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_raise_for_dot_count(self):
+        """
+        Should raise error when filename has no dot or more than one dot.
+        """
+        # ARRANGE
+        test_cases = [
+            ("filetxt", (".txt",)),  # No dot
+            ("my.file.txt", (".txt",)),  # Multiple dots
+        ]
+        expected = ValueError.__name__
+
+        for file_path, extensions in test_cases:
+            try:
+                # ACT
+                fp.assert_file_name(file_path, extensions)
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(File=file_path, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_raise_for_empty_extensions(self):
+        """
+        Should raise error when `extensions` is an empty tuple.
+        """
+        # ARRANGE
+        file_path = "file.txt"
+        extensions: tuple[str, ...] = ()
+        expected = ValueError.__name__
+
+        try:
+            # ACT
+            fp.assert_file_name(file_path, extensions)
+            result = None
+        except Exception as e:
+            result = type(e).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_raise_for_invalid_extensions(self):
+        """
+        Should raise TypeError when `extensions` is not a tuple of strings.
+        """
+        # ARRANGE
+        test_cases = [
+            ("file.txt", ".txt"),  # not a tuple
+            ("file.txt", 123),  # not a tuple
+            ("file.txt", None),  # not a tuple
+            ("file.txt", -67.98),  # not a tuple
+            ("file.txt", [".txt"]),  # list, not tuple
+            ("file.txt", (".txt", 123)),  # tuple, but contains non-string
+        ]
+        expected = TypeError.__name__
+
+        for file_path, extensions in test_cases:
+            try:
+                # ACT
+                fp.assert_file_name(file_path, extensions)  # type: ignore[arg-type]
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(Ext=extensions, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_raise_for_invalid_file_path(self):
+        """
+        Should raise error when `file_path` is not a path-like string.
+        """
+        # ARRANGE
+        test_cases = [123, None, 45.6, ["my.file.txt"]]
+        extensions = (".txt",)
+        expected = TypeError.__name__
+
+        for file_path in test_cases:
+            try:
+                # ACT
+                fp.assert_file_name(file_path, extensions)  # type: ignore[arg-type]
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(File=file_path, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_raise_for_no_extension_match(self):
+        """
+        Should raise error when extension does not match any allowed extension (case-sensitive).
+        """
+        # ARRANGE
+        test_cases = [
+            ("file.txt", (".csv",)),  # wrong extension
+            ("data.XLSX", (".xlsx",)),  # case mismatch should fail
+            ("confid.jSon", (".json",)),  # case mismatch should fail
+            ("image.jpeg", (".jpg",)),  # different extension
+        ]
+        expected = ValueError.__name__
+
+        for file_path, extensions in test_cases:
+            try:
+                # ACT
+                fp.assert_file_name(file_path, extensions)
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            # ASSERT
+            with self.subTest(File=file_path, Ext=extensions, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+
 class TestAssertFilePath(unittest.TestCase):
     """
     Unit tests for the `assert_file_path` function.
@@ -146,116 +293,6 @@ class TestAssertFilePath(unittest.TestCase):
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
             self.assertEqual(result, expected)
-
-
-class TestAssertFilenameWithExtension(unittest.TestCase):
-    """
-    Unit test for the `assert_filename_with_extension` function.
-
-    This test ensures that:
-      1) Filenames with exactly one dot and correct extension pass validation.
-      2) Filenames with no dot, multiple dots, or incorrect extension raise ValueError.
-      3) Extension check is case-insensitive.
-    """
-
-    def test_valid_names(self):
-        """
-        Should pass silently when the filename contains one dot and matches the expected extension.
-        """
-        # ARRANGE
-        test_cases = [
-            ("report.txt", ".txt"),
-            ("data.json", ".json"),
-            ("archive.xlsx", ".xlsx"),
-        ]
-        expected = None  # No error raised
-
-        for file_path, expected_ext in test_cases:
-            try:
-                # ACT
-                fp.assert_filename_with_extension(file_path, expected_ext)
-                result = None
-            except Exception as e:
-                result = type(e).__name__
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-
-    def test_invalid_input(self):
-        """
-        Should raise error when input is not a string.
-        """
-        # ARRANGE
-        test_cases = [
-            (123, ".txt"),
-            (None, ".txt"),
-            (45.6, ".txt"),
-            (["my.file.txt"], ".txt"),
-            ("file.txt", 123),
-            ("file.txt", None),
-            ("file.txt", -67.98),
-            ("file.txt", [".txt"]),
-
-        ]
-        expected = RuntimeError.__name__
-
-        for file_path, expected_ext in test_cases:
-            try:
-                # ACT
-                fp.assert_filename_with_extension(file_path, expected_ext)
-                result = None
-            except Exception as e:
-                result = type(e).__name__
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-
-    def test_invalid_dot_count(self):
-        """
-        Should raise error when filename has no dot or more than one dot.
-        """
-        # ARRANGE
-        test_cases = [
-            ("filetxt", ".txt"),  # No dot
-            ("my.file.txt", ".txt"),  # Multiple dots
-        ]
-        expected = RuntimeError.__name__
-
-        for file_path, expected_ext in test_cases:
-            try:
-                # ACT
-                fp.assert_filename_with_extension(file_path, expected_ext)
-                result = None
-            except Exception as e:
-                result = type(e).__name__
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
-
-    def test_invalid_extension(self):
-        """
-        Should raise error when the extension does not match the expected one.
-        """
-        # ARRANGE
-        test_cases = [
-            ("file.txt", ".csv"),
-            ("data.XLSX", ".xlsx"),
-            ("confid.jSon", ".json"),
-            ("image.jpeg", ".jpg")
-
-        ]
-        expected = RuntimeError.__name__
-
-        for file_path, expected_ext in test_cases:
-            try:
-                # ACT
-                fp.assert_filename_with_extension(file_path, expected_ext)
-                result = None
-            except Exception as e:
-                result = type(e).__name__
-            # ASSERT
-            with self.subTest(Out=result, Exp=expected):
-                self.assertEqual(result, expected)
 
 
 class TestConstructFilePath(unittest.TestCase):

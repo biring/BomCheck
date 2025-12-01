@@ -6,11 +6,11 @@ This module provides reusable, stateless helpers for working with file paths. It
 Example Usage:
     # Preferred usage via public package interface:
     from src.utils import file_path
-    files = file_path.get_files_in_directory("configs", extensions=[".json"])
+    files = file_path.get_files_in_folder("configs", extensions=[".json"])
 
     # Direct module usage (acceptable in tests or internal scripts):
     import src.utils._file_path as file_path
-    file_path.assert_filename_with_extension("data/input.txt", ".txt")
+    file_path.assert_file_name("data/input.txt", (".txt",))
 
 Dependencies:
  - Python >= 3.10
@@ -26,8 +26,8 @@ License:
 """
 
 __all__ = [
+    "assert_file_name",
     "assert_file_path",
-    "assert_filename_with_extension",
     "construct_file_path",
     "escape_backslashes",
     "get_files_in_folder",
@@ -35,51 +35,50 @@ __all__ = [
     "normalize_file_path",
 ]
 
+import os
 from pathlib import Path
 from typing import Optional
 
 
-def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:
+def assert_file_name(file_path: str, extensions: tuple[str, ...]) -> None:
     """
-    Ensures that a file's name has exactly one dot and matches the required extension.
+    Ensures that a file's name has an extension that matches one of the required extensions.
 
     This function validates that the filename portion of the provided path:
-      - Contains exactly one dot, separating the name and extension.
-      - Has an extension that exactly matches the specified `expected_ext`
+        - Contains exactly one dot, separating the base name and extension.
+        - Has an extension that matches one of the allowed `extensions`.
 
     Args:
         file_path (str): Absolute or relative path to the file.
-        expected_ext (str): Required file extension including the leading dot (e.g., ".txt").
+        extensions (tuple[str, ...]): Allowed extensions including leading dots (e.g., (".txt", ".xlsx")).
 
     Returns:
         None: This function only validates the filename and raises exceptions for violations.
 
     Raises:
-        ValueError: If validation cannot be completed due to errors
+        TypeError: If `extensions` is not a tuple of strings.
+        ValueError: If `extensions` is empty, or if the file extension does not match any of the allowed `extensions`.
     """
-    try:
-        path_obj = Path(file_path)  # Convert string path to a Path object for easy name/suffix access
-        file_name = path_obj.name  # Extract just the filename (without directories)
-        file_ext = path_obj.suffix  # Extract the extension
+    # Validate input type early
+    if not isinstance(extensions, tuple) or not all(isinstance(ext, str) for ext in extensions):
+        raise TypeError(f"Extensions '{extensions}' must be a tuple of strings.")
 
-        # Check that the filename contains exactly one dot
-        if file_name.count(".") != 1:
-            raise ValueError(f"Invalid filename '{file_name}': must contain exactly one dot.")
+    # Extensions must be provided
+    if not extensions:
+        raise ValueError(f"Extensions '{extensions}' must be provided.")
 
-        # Validate the file extension matches the expected one (case-sensitive)
-        if file_ext != expected_ext:
-            raise ValueError(
-                f"Invalid extension for '{file_name}': expected '{expected_ext}', got '{file_ext}'."
-            )
-    except Exception as err:
-        # Wrap and raise a RuntimeError with the original exception details
-        raise RuntimeError(
-            f"Failed file name and extension check '{file_path}'\n"
-            f"{type(err).__name__} - {err}"
-        ) from err
+    path_obj = Path(file_path)  # Convert string path to a Path object for easy name/suffix access
+    file_name = path_obj.name  # Extract just the filename (without directories)
+    file_ext = path_obj.suffix  # Extract the extension
 
+    # Check that the filename contains exactly one dot
+    if file_name.count(".") != 1:
+        raise ValueError(f"Invalid filename '{file_name}': must contain exactly one dot.")
 
-import os
+    # Validate the file extension matches one of the allowed ones (case-sensitive)
+    if file_ext not in extensions:
+        allowed_ext = ", ".join(extensions)
+        raise ValueError(f"Invalid extension for '{file_name}': expected one of ({allowed_ext}), got {file_ext}.")
 
 
 def assert_file_path(file_path: str) -> None:
