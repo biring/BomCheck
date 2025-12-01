@@ -113,7 +113,7 @@ def main() -> int:
             # Compose full path for the configured JSON target
             file_name = target.file_prefix + target.file_stem + target.file_extension
             folder_path = folder.construct_folder_path(project_root, target.folder_parts)
-            file_path = file.build_file_path(folder_path, file_name)
+            file_path = file.construct_file_path(folder_path, file_name)
 
             # Verify file name
             file.assert_filename_with_extension(file_path, json.JSON_FILE_EXT)
@@ -124,7 +124,7 @@ def main() -> int:
                 raise RuntimeError(f"File folder missing: {folder_path}. This tool does not create directories.")
 
             # Verify source file exists
-            if not file.is_existing_file_path(file_path):
+            if not file.is_file_path(file_path):
                 # Source JSON must already exist; builder is not a generator of initial content
                 raise FileNotFoundError(f"Source file missing: {file_path}. Create source file to process.")
 

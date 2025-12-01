@@ -69,7 +69,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
 
     def test_invalid_input(self):
         """
-        Should raise TypeError when input is not a string.
+        Should raise error when input is not a string.
         """
         # ARRANGE
         test_cases = [
@@ -98,7 +98,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
 
     def test_invalid_dot_count(self):
         """
-        Should raise ValueError when filename has no dot or more than one dot.
+        Should raise error when filename has no dot or more than one dot.
         """
         # ARRANGE
         test_cases = [
@@ -120,7 +120,7 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
 
     def test_invalid_extension(self):
         """
-        Should raise ValueError when the extension does not match the expected one.
+        Should raise error when the extension does not match the expected one.
         """
         # ARRANGE
         test_cases = [
@@ -144,12 +144,11 @@ class TestAssertFilenameWithExtension(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-class TestBuildFilePath(unittest.TestCase):
+class TestConstructFilePath(unittest.TestCase):
     """
-    Unit test for the `build_file_path` function in the file utility module.
+    Unit test for the `construct_file_path` function in the file utility module.
 
-    This test validates that the function correctly joins directory and file names
-    into a full path, handles leading/trailing whitespace, and raises errors for invalid input.
+    This test validates that the function correctly joins directory and file names into a full path, handles leading/trailing whitespace, and raises errors for invalid input.
     """
 
     def test_valid_path_joining(self):
@@ -162,7 +161,7 @@ class TestBuildFilePath(unittest.TestCase):
         expected = os.path.join("C:\\Users\\Test", "document.txt")
 
         # ACT
-        result = fp.build_file_path(folder, file)
+        result = fp.construct_file_path(folder, file)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -170,7 +169,7 @@ class TestBuildFilePath(unittest.TestCase):
 
     def test_invalid_empty_folder(self):
         """
-        Should raise ValueError if folder is an empty string.
+        Should raise error if folder is an empty string.
         """
         # ARRANGE
         folder = "     "
@@ -179,7 +178,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         # ACT
         try:
-            fp.build_file_path(folder, file)
+            fp.construct_file_path(folder, file)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -190,7 +189,7 @@ class TestBuildFilePath(unittest.TestCase):
 
     def test_invalid_empty_file(self):
         """
-        Should raise ValueError if file name is an empty string.
+        Should raise error if file name is an empty string.
         """
         # ARRANGE
         folder = "/tmp"
@@ -199,7 +198,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         # ACT
         try:
-            fp.build_file_path(folder, file)
+            fp.construct_file_path(folder, file)
             result = None
         except Exception as e:
             result = type(e).__name__
@@ -210,7 +209,7 @@ class TestBuildFilePath(unittest.TestCase):
 
     def test_invalid_non_string_inputs(self):
         """
-        Should raise ValueError if inputs are not strings.
+        Should raise error if inputs are not strings.
         """
         test_cases = [
             (None, "file.txt"),
@@ -222,7 +221,7 @@ class TestBuildFilePath(unittest.TestCase):
 
         for folder, file in test_cases:
             try:
-                fp.build_file_path(folder, file)
+                fp.construct_file_path(folder, file)
                 result = None
             except Exception as e:
                 result = type(e).__name__
@@ -235,8 +234,7 @@ class TestEscapeBackslashes(unittest.TestCase):
     """
     Unit test for the `escape_backslashes` function in the file utility module.
 
-    This test ensures that backslashes in file paths are correctly escaped for display or logging,
-    and that the function raises TypeError when given invalid input types.
+    This test ensures that backslashes in file paths are correctly escaped for display or logging, and that the function raises TypeError when given invalid input types.
     """
 
     def test_escaped_backslashes(self):
@@ -276,7 +274,7 @@ class TestEscapeBackslashes(unittest.TestCase):
 
     def test_invalid_type(self):
         """
-        Should raise TypeError for non-string input types.
+        Should raise error for non-string input types.
         """
         test_cases = [None, 123, 3.14, ["C:\\file.txt"], {"path": "C:\\file.txt"}]
         expected = TypeError.__name__
@@ -291,13 +289,11 @@ class TestEscapeBackslashes(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-class TestGetFilesInDirectory(unittest.TestCase):
+class TestGetFilesInFolder(unittest.TestCase):
     """
-    Unit tests for the `get_files_in_directory` function.
+    Unit tests for the `get_files_in_folder` function.
 
-    These tests verify that the function correctly lists files in a directory,
-    applies extension-based filtering, and raises appropriate exceptions for
-    invalid paths or access errors.
+    These tests verify that the function correctly lists files in a directory, applies extension-based filtering, and raises appropriate exceptions for invalid paths or access errors.
     """
 
     def setUp(self):
@@ -334,7 +330,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(self.files)
 
         # ACT
-        result = sorted(fp.get_files_in_directory(self.test_dir))
+        result = sorted(fp.get_files_in_folder(self.test_dir))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -349,7 +345,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(["file1.txt", "file3.TXT"])
 
         # ACT
-        result = sorted(fp.get_files_in_directory(self.test_dir, extensions))
+        result = sorted(fp.get_files_in_folder(self.test_dir, extensions))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -363,7 +359,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
         expected = sorted(self.files)
 
         # ACT
-        result = sorted(fp.get_files_in_directory(self.test_dir, []))
+        result = sorted(fp.get_files_in_folder(self.test_dir, []))
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -371,7 +367,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
     def test_nonexistent_directory_raises(self):
         """
-        Should raise FileNotFoundError when directory does not exist.
+        Should raise error when directory does not exist.
         """
         # ARRANGE
         bad_path = os.path.join(self.test_dir, "does_not_exist")
@@ -379,7 +375,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
         # ACT
         try:
-            fp.get_files_in_directory(bad_path)
+            fp.get_files_in_folder(bad_path)
             result = None  # Should not reach here
         except Exception as e:
             result = type(e).__name__
@@ -390,7 +386,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
     def test_path_is_not_a_directory(self):
         """
-        Should raise NotADirectoryError when path is not a directory.
+        Should raise error when path is not a directory.
         """
         # ARRANGE
         file_path = os.path.join(self.test_dir, "file1.txt")
@@ -398,7 +394,7 @@ class TestGetFilesInDirectory(unittest.TestCase):
 
         # ACT
         try:
-            fp.get_files_in_directory(file_path)
+            fp.get_files_in_folder(file_path)
             result = None  # Should not reach here
         except Exception as e:
             result = type(e).__name__
@@ -408,9 +404,9 @@ class TestGetFilesInDirectory(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
-class TestIsExistingFile(unittest.TestCase):
+class TestIsFilePath(unittest.TestCase):
     """
-    Unit test for the `is_existing_file` function in the file utility module.
+    Unit test for the `is_file_path` function in the file utility module.
 
     This test verifies that the function correctly identifies existing regular files,
     rejects directories and non-existent paths, and raises TypeError for invalid input types.
@@ -446,7 +442,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = True
 
         # ACT
-        result = fp.is_existing_file_path(path)
+        result = fp.is_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -461,7 +457,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = False
 
         # ACT
-        result = fp.is_existing_file_path(path)
+        result = fp.is_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -476,7 +472,7 @@ class TestIsExistingFile(unittest.TestCase):
         expected = False
 
         # ACT
-        result = fp.is_existing_file_path(path)
+        result = fp.is_file_path(path)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -484,14 +480,14 @@ class TestIsExistingFile(unittest.TestCase):
 
     def test_invalid_type_input(self):
         """
-        Should raise TypeError if file_path is not a string.
+        Should raise error if file_path is not a string.
         """
         test_cases = [None, 123, 3.14, ["file.txt"], {"path": "file.txt"}]
         expected = TypeError.__name__
 
         for input_value in test_cases:
             try:
-                fp.is_existing_file_path(input_value)  # type: ignore[arg-type]
+                fp.is_file_path(input_value)  # type: ignore[arg-type]
                 result = None  # Should not reach here
             except Exception as e:
                 result = type(e).__name__
@@ -499,9 +495,9 @@ class TestIsExistingFile(unittest.TestCase):
                 self.assertEqual(result, expected)
 
 
-class TestIsValidFilePath(unittest.TestCase):
+class TestIsValidWindowsFilePath(unittest.TestCase):
     """
-    Unit test for the `is_valid_file_path` function in the file utility module.
+    Unit test for the `is_valid_windows_file_path` function in the file utility module.
 
     This test verifies that file names are correctly validated against Windows
     naming rules, including reserved characters and platform-specific logic.
@@ -517,7 +513,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = fp.is_valid_file_path(name)  # type: ignore[arg-type]
+            result = fp.is_valid_windows_file_path(name)  # type: ignore[arg-type]
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -532,7 +528,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = fp.is_valid_file_path(name)  # type: ignore[arg-type]
+            result = fp.is_valid_windows_file_path(name)  # type: ignore[arg-type]
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertEqual(result, expected)
@@ -552,7 +548,7 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = fp.is_valid_file_path(name)
+            result = fp.is_valid_windows_file_path(name)
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 if os.name == "nt":
@@ -579,10 +575,76 @@ class TestIsValidFilePath(unittest.TestCase):
 
         for name in test_cases:
             # ACT
-            result = fp.is_valid_file_path(name)
+            result = fp.is_valid_windows_file_path(name)
             # ASSERT
             with self.subTest(Out=result, Exp=expected):
                 self.assertFalse(result)
+
+class TestNormalizeFilePath(unittest.TestCase):
+    """
+    Unit tests for the `normalize_file_path` function.
+
+    These tests verify that the function:
+      - Strips leading/trailing whitespace.
+      - Normalizes path separators in a platform-appropriate way.
+      - Raises TypeError when the input is not a string.
+    """
+
+    def test_normalizes_whitespace_and_separators(self):
+        """
+        Should strip whitespace and normalize slashes/backslashes.
+        """
+        # ARRANGE
+        raw_path = "  folder\\subdir//file.txt  "
+        # Expected: platform-normalized version of the same logical path
+        expected = os.path.normpath("folder/subdir/file.txt")
+
+        # ACT
+        result = fp.normalize_file_path(raw_path)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_preserves_relative_vs_absolute_semantics(self):
+        """
+        Should not force absolute paths; relative stays relative, absolute stays absolute.
+        """
+        # ARRANGE
+        relative_path = "data/input/file.csv"
+        absolute_path = os.path.join(os.getcwd(), "data", "output", "file.csv")
+
+        expected_relative = os.path.normpath(relative_path)
+        expected_absolute = os.path.normpath(absolute_path)
+
+        # ACT
+        result_relative = fp.normalize_file_path(relative_path)
+        result_absolute = fp.normalize_file_path(absolute_path)
+
+        # ASSERT
+        with self.subTest(Path=result_relative, Exp=expected_relative):
+            self.assertEqual(result_relative, expected_relative)
+
+        with self.subTest(Path=result_absolute, Exp=expected_absolute):
+            self.assertEqual(result_absolute, expected_absolute)
+
+    def test_invalid_type_raises_type_error(self):
+        """
+        Should raise error when input is not a string.
+        """
+        # ARRANGE
+        test_cases = [None, 123, 3.14, ["path"], {"p": "x"}]
+        expected = TypeError.__name__
+
+        for raw in test_cases:
+            try:
+                fp.normalize_file_path(raw)  # type: ignore[arg-type]
+                result = None
+            except Exception as e:
+                result = type(e).__name__
+
+            with self.subTest(Input=raw, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

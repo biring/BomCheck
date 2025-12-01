@@ -74,7 +74,7 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
     runtime_folder = folder_path.construct_folder_path(project_root, resource_folder_parts)
 
     # Enumerate JSON files present in the directory.
-    available_filenames = utils.file_path.get_files_in_directory(runtime_folder, [utils.json_io.JSON_FILE_EXT])
+    available_filenames = utils.file_path.get_files_in_folder(runtime_folder, [utils.json_io.JSON_FILE_EXT])
 
     # Validate presence of the requested resource file
     if target_filename not in available_filenames:
@@ -82,7 +82,7 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
             f"JSON resource file '{target_filename}' was not found in runtime folder '{runtime_folder}'.")
 
     # Construct and return the absolute file path
-    return utils.file_path.build_file_path(runtime_folder, target_filename)
+    return utils.file_path.construct_file_path(runtime_folder, target_filename)
 
 
 def _load_json_resource(resource_name: str, resource_path: str) -> dict[str, Any]:

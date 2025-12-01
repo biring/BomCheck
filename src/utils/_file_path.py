@@ -27,11 +27,12 @@ License:
 
 __all__ = [
     "assert_filename_with_extension",
-    "build_file_path",
+    "construct_file_path",
     "escape_backslashes",
-    "get_files_in_directory",
-    "is_existing_file_path",
-    "is_valid_file_path",
+    "get_files_in_folder",
+    "is_file_path",
+    "is_valid_windows_file_path",
+    "normalize_file_path",
 ]
 
 import os
@@ -46,7 +47,6 @@ def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:
     This function validates that the filename portion of the provided path:
       - Contains exactly one dot, separating the name and extension.
       - Has an extension that exactly matches the specified `expected_ext`
-        (comparison is case-sensitive).
 
     Args:
         file_path (str): Absolute or relative path to the file.
@@ -56,7 +56,7 @@ def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:
         None: This function only validates the filename and raises exceptions for violations.
 
     Raises:
-        RuntimeError: If validation cannot be completed due to errors
+        ValueError: If validation cannot be completed due to errors
     """
     try:
         path_obj = Path(file_path)  # Convert string path to a Path object for easy name/suffix access
@@ -80,14 +80,14 @@ def assert_filename_with_extension(file_path: str, expected_ext: str) -> None:
         ) from err
 
 
-def build_file_path(folder: str, file: str) -> str:
+def construct_file_path(folder: str, file: str) -> str:
     """
     Joins a folder path and file name into a full file system path.
 
     Strips leading/trailing whitespace from both inputs and combines them using the appropriate OS-specific separator.
 
     Args:
-        folder (str): The directory portion of the path.
+        folder (str): The folder portion of the path.
         file (str): The file name or relative file path to append.
 
     Returns:
@@ -102,7 +102,9 @@ def build_file_path(folder: str, file: str) -> str:
         raise ValueError("The file name must be a non-empty string.")
 
     # Validate inputs and strip whitespace before joining paths
-    return os.path.join(folder.strip(), file.strip())
+    full_path = os.path.join(folder.strip(), file.strip())
+
+    return normalize_file_path(full_path)
 
 
 def escape_backslashes(file_path: str) -> str:
@@ -129,39 +131,39 @@ def escape_backslashes(file_path: str) -> str:
     return file_path.replace("\\", "\\\\")
 
 
-def get_files_in_directory(dir_path: str, extensions: Optional[list[str]] = None) -> tuple[str, ...]:
+def get_files_in_folder(folder_path: str, extensions: Optional[list[str]] = None) -> tuple[str, ...]:
     """
-    Lists immediate files in a directory, optionally filtering by extension.
+    Lists immediate files in a folder, optionally filtering by extension.
 
-    Scans the given directory and returns all non-directory files found at the top level. If `extensions` are provided, only files matching those extensions are included (case-insensitive).
+    Scans the given folder and returns all non-folder files found at the top level. If `extensions` are provided, only files matching those extensions are included (case-insensitive).
 
     Args:
-        dir_path (str): The directory path to scan for files.
+        folder_path (str): The folder path to scan for files.
         extensions (Optional[list[str]]): List of file extensions to filter by (e.g., ['.txt', '.csv']). If None or empty, all files are returned.
 
     Returns:
-        tuple[str, ...]: Names of files directly inside the directory, optionally filtered.
+        tuple[str, ...]: Names of files directly inside the folder, optionally filtered.
 
     Raises:
-        FileNotFoundError: If the specified directory does not exist.
-        NotADirectoryError: If the given path is not a directory.
-        PermissionError: If access to the directory is denied.
+        FileNotFoundError: If the specified folder does not exist.
+        NotADirectoryError: If the given path is not a folder.
+        PermissionError: If access to the folder is denied.
     """
-    if not os.path.exists(dir_path):
-        raise FileNotFoundError(f"The directory '{dir_path}' does not exist.")
-    if not os.path.isdir(dir_path):
-        raise NotADirectoryError(f"The path '{dir_path}' is not a directory.")
+    if not os.path.exists(folder_path):
+        raise FileNotFoundError(f"The folder '{folder_path}' does not exist.")
+    if not os.path.isdir(folder_path):
+        raise NotADirectoryError(f"The path '{folder_path}' is not a folder.")
 
-    # List all entries in the directory
+    # List all entries in the folder
     try:
-        dir_entries = os.listdir(dir_path)
+        dir_entries = os.listdir(folder_path)
     except PermissionError as e:
-        raise PermissionError(f"Permission denied for directory '{dir_path}'.") from e
+        raise PermissionError(f"Permission denied for folder '{folder_path}'.") from e
 
     # Filter to include only files (ignore subdirectories)
     immediate_files = [
         entry for entry in dir_entries
-        if os.path.isfile(os.path.join(dir_path, entry))
+        if os.path.isfile(os.path.join(folder_path, entry))
     ]
 
     # If extensions are specified, filter files by matching extensions
@@ -177,11 +179,11 @@ def get_files_in_directory(dir_path: str, extensions: Optional[list[str]] = None
     return tuple(matched_files)
 
 
-def is_existing_file_path(file_path: str) -> bool:
+def is_file_path(file_path: str) -> bool:
     """
     Determines if a given file path exists and is a regular file.
 
-    This function checks whether the specified filesystem path exists and refers to a regular file (not a directory, symbolic link, or special file type).
+    This function checks whether the specified filesystem path exists and refers to a regular file (not a folder, symbolic link, or special file type).
 
     Args:
         file_path (str): The absolute or relative path to check.
@@ -195,11 +197,11 @@ def is_existing_file_path(file_path: str) -> bool:
     if not isinstance(file_path, str):
         raise TypeError("file_path must be a string.")
 
-    # Check if the given path exists and refers to a regular file (not a directory or symlink)
+    # Check if the given path exists and refers to a regular file (not a folder or symlink)
     return os.path.isfile(file_path)
 
 
-def is_valid_file_path(name: str) -> bool:
+def is_valid_windows_file_path(name: str) -> bool:
     """
     Checks whether a given file path name contains only safe characters on Windows.
 
@@ -225,3 +227,26 @@ def is_valid_file_path(name: str) -> bool:
         return False
 
     return True
+
+def normalize_file_path(raw_path: str) -> str:
+    """
+    Normalize a file path by stripping whitespace and resolving redundant separators, while preserving whether the path is relative or absolute.
+
+    Args:
+        raw_path (str): Any file path to normalize.
+
+    Returns:
+        str: Normalized file path with OS-native separators.
+
+    Raises:
+        TypeError: If path is not a string.
+    """
+    if not isinstance(raw_path, str):
+        raise TypeError("Path must be a string.")
+
+    # Trim leading/trailing whitespace
+    cleaned = raw_path.strip()
+
+    # Normalize separators and remove redundant components,
+    # but keep relative/absolute semantics as-is.
+    return os.path.normpath(cleaned)
