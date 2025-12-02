@@ -194,6 +194,67 @@ class TestCreateFolderIfMissing(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
+class TestGetTempFolder(unittest.TestCase):
+    """
+    Unit test for the `get_temp_folder` function.
+
+    Verifies that it returns a normalized full path composed of <system_temp_dir>/<BomCheckTemp> without performing any filesystem creation.
+    """
+
+    def test_returns_normalized_temp_path(self):
+        """
+        Should return a normalized full temp folder path inside the system temp directory.
+        """
+        # ARRANGE
+        system_temp = tempfile.gettempdir()
+        expected = folder_path.normalize_folder_path(
+            os.path.join(system_temp, folder_path._TEMP_FOLDER_NAME)
+        )
+
+        # ACT
+        result = folder_path.get_temp_folder()
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_uses_system_temp_dir(self):
+        """
+        Should correctly use the OS-level temp directory as the base path.
+        """
+        # ARRANGE
+        fake_temp_dir = "/fake/system/temp"
+        expected = folder_path.normalize_folder_path(
+            os.path.join(fake_temp_dir, folder_path._TEMP_FOLDER_NAME)
+        )
+
+        # ACT
+        with patch("tempfile.gettempdir", return_value=fake_temp_dir):
+            result = folder_path.get_temp_folder()
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_normalization_applied(self):
+        """
+        Should normalize redundant slashes in the returned path.
+        """
+        # ARRANGE
+        fake_temp_dir = "/tmp///"
+        expected = folder_path.normalize_folder_path(
+            os.path.join(fake_temp_dir, folder_path._TEMP_FOLDER_NAME)
+        )
+
+        # ACT
+        with patch("tempfile.gettempdir", return_value=fake_temp_dir):
+            result = folder_path.get_temp_folder()
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 class TestGoUpOneFolder(unittest.TestCase):
     """
     Unit tests for the `folder_path.go_up_one_folder` function in the folder_path module.
@@ -615,7 +676,6 @@ class TestResolveProjectFolder(unittest.TestCase):
             patch.object(folder_path, "__file__", self.fake_module_file),
             patch.object(folder_path, "_SOURCE_CODE_FOLDER_NAME", source_folder),
         ):
-
             # ACT
             result = folder_path.resolve_project_folder()
 

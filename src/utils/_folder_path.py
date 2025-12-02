@@ -14,7 +14,7 @@ Example Usage:
 
 Dependencies:
  - Python >= 3.9
- - Standard Library: os, sys, typing
+ - Standard Library: os, sys, tempfile, typing
 
 Notes:
  - All helpers are stateless and side-effect free except for `create_folder_if_missing`, which touches the filesystem.
@@ -28,6 +28,7 @@ License:
 __all__ = [
     "construct_folder_path",
     "create_folder_if_missing",
+    "get_temp_folder",
     "go_up_one_folder",
     "is_folder_path",
     "list_immediate_sub_folders",
@@ -39,10 +40,12 @@ __all__ = [
 
 import os
 import sys
+import tempfile
 from typing import Final
 
 # CONSTANTS
 _SOURCE_CODE_FOLDER_NAME: Final[str] = 'src'
+_TEMP_FOLDER_NAME: Final[str] = 'BomCheckTemp'
 
 
 def construct_folder_path(base_path: str, subfolders: tuple[str, ...]) -> str:
@@ -106,6 +109,27 @@ def create_folder_if_missing(folder_path: str) -> bool:
         )
 
     return True
+
+
+def get_temp_folder() -> str:
+    """
+    Return the normalized full path to the application's temp folder.
+
+    This function builds (but does not create) a full path inside the system temp directory, using the application's designated temp subfolder name. No filesystem operations are performed.
+
+    Returns:
+        str: Normalized path to the application's temp folder.
+    """
+    # OS temp folder
+    base_temp = tempfile.gettempdir()
+
+    # Append your application-specific folder
+    raw_temp_path = construct_folder_path(base_temp, (_TEMP_FOLDER_NAME,))
+
+    # Normalize for consistency
+    temp_folder = normalize_folder_path(raw_temp_path)
+
+    return temp_folder
 
 
 def go_up_one_folder(path: str) -> str:
