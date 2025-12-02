@@ -3,8 +3,7 @@
 ## Core Principles
 
 - **Layered Modularity** — Each stage performs a single, bounded responsibility with clearly defined inputs and outputs.
-- **Composable Pipelines** — Controllers orchestrate interchangeable stages; new workflows can combine or skip modules as
-needed.
+- **Composable Pipelines** — Controllers orchestrate interchangeable stages; new workflows can combine or skip modules as needed.
 - **Traceability by Design** — Every transformation produces a warning, error, or change-log record.
 - **Strict Type Boundaries** — Each model defines a typed data contract between stages.
 - **Separation of Rules & Flow** — Verification and normalization rules live in dedicated engines, decoupled from orchestration logic.
@@ -23,6 +22,10 @@ This document describes the internal architecture and data-processing pipeline f
 
 - Presents available workflows (interactive or CLI-based).
 - Allows the user to select a **Workflow**.
+
+### Cli
+
+- Command line user interface. 
 
 ### Workflow
 
@@ -53,7 +56,7 @@ This document describes the internal architecture and data-processing pipeline f
 - Define strict type and field contracts.
 - Serve as the foundation for validation, transformation, and export.
 
-### Checker
+### Checkers
 
 - Performs **non-blocking diagnostics** on parsed data.
 - Detects missing headers, invalid text, or inconsistent structures.
@@ -67,14 +70,14 @@ This document describes the internal architecture and data-processing pipeline f
 - Focused on completeness, structure, and early quality indicators.
 - Emits warnings for anomalies rather than raising exceptions.
 
-### Cleaner
+### Cleaners
 
 - Performs **type coercion and normalization**.
 - Converts strings to typed values, trims whitespace, and standardizes text and units.
 - Produces a **change log** documenting all applied transformations.
-- Internally uses the **`coerce`** normalization engine.
+- Internally uses the **`correction`** normalization engine.
 
-### Coerce
+### Correction
 
 - **Normalization Engine**
 - Manages field-level conversions and text normalization.
@@ -83,15 +86,15 @@ This document describes the internal architecture and data-processing pipeline f
 
 ### Fixer
 
-- Applies **rule-based automatic corrections** after cleaning.
+- Applies **rule-based corrections** after cleaning.
 - Resolves mismatched units, vendor aliasing, or arithmetic inconsistencies.
 - Supports manual review for unresolved issues.
 - Extends the cumulative **change log**.
-- Internally uses the **`correct`** auto-correction engine.
+- Internally uses the **`correction`** correction engine.
 
 ### Correction
 
-- **Auto-Correction Engine**
+- **Correction Engine**
 - Encapsulates fix logic, heuristics, and lookup dictionaries.
 - Normalizes vendor names (e.g., “AVX Corporation” → “AVX”) and corrects known data issues.
 - Logs each correction with its rule source and reason.
@@ -99,9 +102,9 @@ This document describes the internal architecture and data-processing pipeline f
 ### Verifier
 
 - Executes **blocking verification rules** to ensure all data meets defined requirements.
-- Validates schema completeness, data integrity, and inter-field consistency. 
-- Raises **errors** for any rule violations. 
-- Serves as the **final quality gate** before export. 
+- Validates schema completeness, data integrity, and inter-field consistency.
+- Raises **errors** for any rule violations.
+- Serves as the **final quality gate** before export.
 - Internally uses the **`approve`** verification engine.
 
 ### Approve
@@ -118,29 +121,45 @@ This document describes the internal architecture and data-processing pipeline f
 - Normalizes schema versions, aligns field names, and merges variants.
 - Produces the `CanonicalModel` used for export or database integration.
 
+### Transformer
+
+- Converts the CanonicalModel into structured data for export.
+- Applies export-schema rules that define sheet names, column sets, and column ordering.
+- Flattens structured canonical fields into clear, column-oriented layouts suitable for Excel, CSV, or other tabular outputs.
+- Ensures strict type alignment between canonical fields and their tabular representations.
+- Produces writer-ready data that the Exporter can serialize without embedding domain logic.
+
 ### Exporter
 
-- Serializes the canonical model into desired formats: Excel, CSV, JSON, DB schema, or REST API payload.
+- Serializes data into desired formats: Excel, CSV, JSON, DB schema, or REST API payload.
 - Handles output version tagging, structure, and formatting consistency.
 - Ensures safe file I/O and destination compatibility.
 
-### Runtime
+### Settings
 
-- Centralized repository for **read-only constants** and runtime configuration.
+- Centralized repository for constants.
 - Loaded at startup or on demand.
-- Provides validated keys, UI messages, and global settings.
+- Provides configuration data, UI messages, and global settings.
+
+### Lookups
+
+- JSON based read only lookup tables.
+- These tables are used for data coercion/correction/normalization/transformation.
+- Read-only, JSON-based lookup tables used across the system.
+- These tables provide controlled reference data for: Coercion, Correction, Normalization and Transformation
+- They ensure consistent, deterministic handling of input values and help maintain data integrity throughout parsing and verification stages.
 
 ### Utilities
 
 - Reusable system tools shared across modules:
-    - `console` – CLI interaction utilities
-    - `excel_io` – format-specific file I/O handlers
-    - `file_path` – file path helper
-    - `folder_path` – folder path helpers
-    - `json_io` – format-specific file I/O handlers
-    - `parser` – low-level parsing and type-safety helpers
-    - `sanitizer` – text cleaning and normalization
-    - `text_io` – format-specific file I/O handlers
+    - `excel_io` – Format-specific Excel file I/O utilities.
+    - `file_path` – Helper functions for safe and consistent file-path handling.
+    - `folder_path` – Helper functions for locating, validating, and managing folder paths.
+    - `json_io` – Format-specific JSON file I/O utilities.
+    - `parser` – Low-level parsing, type-safety utilities, and primitive extraction helpers.
+    - `sanitizer` – Text-cleaning and normalization utilities.
+    - `text_io` – Format-specific text-file I/O utilities.
+    - `timestamp.py` – date and time related helper functions.
 
 ---
 
@@ -151,16 +170,18 @@ Input File
    ↓
 Importer [Excel → DataFrame]
    ↓
-Parser [DataFrame → raw]
+Parser [DataFrame → RawModel]
    ↓
-Checker [raw → warnings] ← uses review.*
+Checker [RawModel → Warnings] ← uses review.*
    ↓
-Cleaner [raw → clean + change_log] ← uses coerce.*
+Cleaner [RawModel → CleanModel + change_log] ← uses coerce.*
    ↓
-Fixer [clean → clean + change_log] ← uses correction.*
+Fixer [CleanModel → CleanModel + change_log] ← uses correction.*
    ↓
-Verifier [clean → errors] ← uses approve.*
+Verifier [CleanModel → errors] ← uses approve.*
    ↓
-Mapper [clean → canonical]
+Transformer [CleanModel → CanonicalModel]
    ↓
-Exporter [CanonicalModel → Excel]
+Mapper [CanonicalModel → DataFrame]
+   ↓
+Exporter [DataFrame → Excel]
