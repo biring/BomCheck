@@ -31,7 +31,6 @@ License:
 
 # noinspection PyProtectedMember
 from ._constants import (
-    JSON_PREFIX,
     FOLDER_PARTS,
     COMPONENT_TYPE_FILE_NAME,
 )
@@ -44,7 +43,6 @@ from ._resources import (
 
 __all__ = [
     # Constants
-    JSON_PREFIX,
     FOLDER_PARTS,
     COMPONENT_TYPE_FILE_NAME,
     # All resource loader

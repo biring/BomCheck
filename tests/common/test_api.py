@@ -87,7 +87,6 @@ class TestJsonCacheInterface(unittest.TestCase):
     Error paths (missing keys, type mismatches, etc.) are validated in the internal unit tests and are not re-tested here.
     """
 
-    TEST_RESOURCE_PREFIX: str = "_"
     TEST_RESOURCE_FOLDER_PARTS: tuple[str, ...] = ("a", "b")
 
     TEST_JSON_PAYLOAD: dict[str, Any] = {
@@ -114,9 +113,7 @@ class TestJsonCacheInterface(unittest.TestCase):
 
         # Build resource filename and path
         self.resource_name = "settings"
-        resource_filename = (
-                self.TEST_RESOURCE_PREFIX + self.resource_name + utils.json_io.JSON_FILE_EXT
-        )
+        resource_filename = self.resource_name + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap payload in the standard packet envelope expected by the loader
@@ -158,7 +155,6 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
-            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
 
         # ACT
@@ -177,7 +173,6 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
-            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
         expected_keys = tuple(sorted(self.TEST_JSON_PAYLOAD.keys()))
 
@@ -198,7 +193,6 @@ class TestJsonCacheInterface(unittest.TestCase):
             resource_name=self.resource_name,
             resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
-            resource_prefix=self.TEST_RESOURCE_PREFIX,
         )
 
         cases = (

@@ -27,6 +27,5 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 from typing import Final
 
 # MODULE CONSTANTS
-JSON_PREFIX: Final[str] = "_"
 FOLDER_PARTS: Final[tuple[str, ...]] = ("src", "lookups",)
-COMPONENT_TYPE_FILE_NAME: Final[str] = "component_type"  # Name of the JSON resource file (without prefix and extension)
+COMPONENT_TYPE_FILE_NAME: Final[str] = "_component_type"  # Name of the JSON resource file (without prefix and extension)

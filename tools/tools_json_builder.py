@@ -63,7 +63,6 @@ class FileLocation:
 
     Args:
         folder_parts (tuple[str, ...]): Folder path segments under the project root.
-        file_prefix (str): Naming prefix applied before the file stem.
         file_stem (str): Core filename without prefix or extension.
         file_extension (str): File extension including the leading dot.
 
@@ -74,7 +73,6 @@ class FileLocation:
         None
     """
     folder_parts: tuple[str, ...]
-    file_prefix: str
     file_stem: str
     file_extension: str
 
@@ -83,7 +81,7 @@ class FileLocation:
 SUCCESS: int = 0
 FAILURE: int = -1
 TARGET_JSON_FILES: tuple[FileLocation, ...] = (
-    FileLocation(lookup.FOLDER_PARTS, lookup.JSON_PREFIX, lookup.COMPONENT_TYPE_FILE_NAME, json.JSON_FILE_EXT),
+    FileLocation(lookup.FOLDER_PARTS, lookup.COMPONENT_TYPE_FILE_NAME, json.JSON_FILE_EXT),
 )
 
 
@@ -111,7 +109,7 @@ def main() -> int:
         print(f"- - 🧪 Processing {target.file_stem}")
         try:
             # Compose full path for the configured JSON target
-            file_name = target.file_prefix + target.file_stem + target.file_extension
+            file_name = target.file_stem + target.file_extension
             folder_path = folder.construct_folder_path(project_root, target.folder_parts)
             file_path = file.construct_file_path(folder_path, file_name)
 

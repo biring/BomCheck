@@ -37,7 +37,6 @@ from src.utils import json_io
 import src.common._json_cache as jc  # module under test
 
 # MODULE_CONSTANTS
-TEST_RESOURCE_PREFIX: str = "test_"
 TEST_RESOURCE_FOLDER_PARTS: tuple[str, ...] = ("a", "b",)
 
 TEST_VALID_JSON: dict[str, Any] = {"A_Char": "A", "B_String": "ABC123!@#", "C_List": ["1", "ABC"]}
@@ -96,7 +95,7 @@ class _TestFixture(unittest.TestCase):
         os.makedirs(self.runtime_dir, exist_ok=True)
 
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
+        resource_filename = TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -118,7 +117,7 @@ class _TestFixture(unittest.TestCase):
         """
 
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
+        resource_filename = TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -132,7 +131,7 @@ class _TestFixture(unittest.TestCase):
         Create an empty JSON resource packet.
         """
         # Build resource file paths and names
-        resource_filename = TEST_RESOURCE_PREFIX + TEST_EMPTY_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
+        resource_filename = TEST_EMPTY_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
         resource_path = os.path.join(self.runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
@@ -163,7 +162,6 @@ class TestJsonCache(_Asserts, _TestFixture):
                     TEST_EMPTY_RESOURCE_NAME,
                     TEST_RESOURCE_FOLDER_PARTS,
                     TEST_EMPTY_REQ_KEYS,
-                    TEST_RESOURCE_PREFIX
                 )
             actual_error = ""
         except Exception as e:
@@ -188,7 +186,6 @@ class TestJsonCache(_Asserts, _TestFixture):
                     TEST_EMPTY_RESOURCE_NAME,
                     TEST_RESOURCE_FOLDER_PARTS,
                     TEST_EMPTY_REQ_KEYS,
-                    TEST_RESOURCE_PREFIX
                 )
                 actual_error = ""
             except Exception as e:
@@ -214,7 +211,6 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
                 TEST_VALID_RESOURCE_NAME,
                 TEST_RESOURCE_FOLDER_PARTS,
                 TEST_VALID_REQ_KEYS,
-                TEST_RESOURCE_PREFIX
             )
         expected_map = TEST_VALID_JSON
 
@@ -236,7 +232,6 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
                 TEST_VALID_RESOURCE_NAME,
                 TEST_RESOURCE_FOLDER_PARTS,
                 TEST_VALID_REQ_KEYS,
-                TEST_RESOURCE_PREFIX
             )
         copy_map = cache.get_data_map_copy()
 
@@ -265,7 +260,7 @@ class TestGetKeys(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS, TEST_RESOURCE_PREFIX)
+                                      TEST_VALID_REQ_KEYS,)
         expected_keys = ("A_Char", "B_String", "C_List",)  # Sorted
 
         # ACT
@@ -288,7 +283,7 @@ class TestGetValue(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS, TEST_RESOURCE_PREFIX)
+                                      TEST_VALID_REQ_KEYS,)
         cases = (
             (str, "B_String", "ABC123!@#"),
             (list, "C_List", ["1", "ABC"]),
@@ -308,7 +303,7 @@ class TestGetValue(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS, TEST_RESOURCE_PREFIX)
+                                      TEST_VALID_REQ_KEYS,)
         requested_key = "MissingKeyName"
         expected_error = KeyError.__name__
 
@@ -329,7 +324,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS,TEST_RESOURCE_PREFIX)
+            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
         requested_key = 123
         expected_error = TypeError.__name__
 
@@ -350,7 +345,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS,TEST_RESOURCE_PREFIX)
+            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
         requested_key = "B_String"
         expected_error = TypeError.__name__
 
@@ -595,7 +590,7 @@ class TestResolveJsonFilePath(_Asserts):
         """
         # ARRANGE
         resource = "test_resource"
-        filename = TEST_RESOURCE_PREFIX + resource + utils.json_io.JSON_FILE_EXT
+        filename = resource + utils.json_io.JSON_FILE_EXT
         expected_path = os.path.join(self.tmp_runtime, filename)
 
         with open(expected_path, "w", encoding="utf-8") as f:
@@ -606,7 +601,7 @@ class TestResolveJsonFilePath(_Asserts):
             p_root.return_value = self.tmp_root
 
             # ACT
-            result = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS,TEST_RESOURCE_PREFIX)
+            result = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected_path)
@@ -624,7 +619,7 @@ class TestResolveJsonFilePath(_Asserts):
             # path project root to temp
             with patch.object(folder_path, "resolve_project_folder") as p_root:
                 p_root.return_value = self.tmp_root
-                _ = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS,TEST_RESOURCE_PREFIX)
+                _ = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__

@@ -48,8 +48,7 @@ from src.utils import json_io
 T = TypeVar("T")  # dictionary value type
 
 
-def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple[str, ...],
-                                resource_prefix: str) -> str:
+def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple[str, ...]) -> str:
     """
     Resolve the absolute path to a shared JSON runtime resource.
 
@@ -58,7 +57,6 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
     Args:
         resource_name (str): Logical resource name without prefix or extension (for example, "settings" or "log_msg").
         resource_folder_parts (tuple[str, ...]): Folder path segments under the project root that contain the JSON resources.
-        resource_prefix (str): Filename prefix added before the logical resource name.
 
     Returns:
         str: Absolute filesystem path to the JSON resource file.
@@ -67,7 +65,7 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
         FileNotFoundError: If the runtime folder cannot be inspected or the target resource file does not exist.
     """
     # Build canonical resource filename with prefix and JSON extension.
-    target_filename = resource_prefix + resource_name + utils.json_io.JSON_FILE_EXT
+    target_filename = resource_name + utils.json_io.JSON_FILE_EXT
 
     # Locate directory relative to the project root.
     project_root = folder_path.resolve_project_folder()
@@ -156,7 +154,6 @@ class JsonCache:
             resource_name: str,
             resource_folder_parts: tuple[str, ...],
             required_keys: tuple[str, ...],
-            resource_prefix: str,
     ) -> None:
         """
         Initialize a cache for a JSON runtime resource.
@@ -167,7 +164,6 @@ class JsonCache:
             resource_name (str): Logical file stem without prefix or extension (for example, "log_msg").
             resource_folder_parts (tuple[str, ...]): Folder path segments under the project root where the resource resides.
             required_keys (tuple[str, ...]): Keys that must be present in the resource payload.
-            resource_prefix (str): Filename prefix added before the logical resource name.
 
         Returns:
             None: The cache is initialized in place when construction succeeds.
@@ -182,7 +178,7 @@ class JsonCache:
 
         try:
             # Resolve the JSON file path
-            resource_file_path = _resolve_json_resource_path(resource_name, resource_folder_parts, resource_prefix)
+            resource_file_path = _resolve_json_resource_path(resource_name, resource_folder_parts)
 
             # Load JSON and extract data
             data = _load_json_resource(resource_name, resource_file_path)

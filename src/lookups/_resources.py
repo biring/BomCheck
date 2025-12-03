@@ -79,7 +79,6 @@ def _load_component_type_cache() -> None:
             resource_name=constant.COMPONENT_TYPE_FILE_NAME,
             resource_folder_parts=constant.FOLDER_PARTS,
             required_keys=component_type.REQUIRED_KEYS,
-            resource_prefix=constant.JSON_PREFIX,
         )
     except Exception as err:
         # All underlying exceptions are wrapped in RuntimeError for uniformity.
