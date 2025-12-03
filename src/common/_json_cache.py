@@ -41,8 +41,8 @@ __all__ = []  # Internal-only; not part of the public API.
 import copy
 from typing import Any, TypeVar, Type
 
-import src.utils as utils
 from src.utils import folder_path
+from src.utils import file_path
 from src.utils import json_io
 
 T = TypeVar("T")  # dictionary value type
@@ -65,14 +65,14 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
         FileNotFoundError: If the runtime folder cannot be inspected or the target resource file does not exist.
     """
     # Build canonical resource filename with prefix and JSON extension.
-    target_filename = resource_name + utils.json_io.JSON_FILE_EXT
+    target_filename = resource_name + json_io.JSON_FILE_EXT
 
     # Locate directory relative to the project root.
     project_root = folder_path.resolve_project_folder()
     runtime_folder = folder_path.construct_folder_path(project_root, resource_folder_parts)
 
     # Enumerate JSON files present in the directory.
-    available_filenames = utils.file_path.get_files_in_folder(runtime_folder, [utils.json_io.JSON_FILE_EXT])
+    available_filenames = file_path.get_files_in_folder(runtime_folder, [json_io.JSON_FILE_EXT])
 
     # Validate presence of the requested resource file
     if target_filename not in available_filenames:
@@ -80,7 +80,7 @@ def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple
             f"JSON resource file '{target_filename}' was not found in runtime folder '{runtime_folder}'.")
 
     # Construct and return the absolute file path
-    return utils.file_path.construct_file_path(runtime_folder, target_filename)
+    return file_path.construct_file_path(runtime_folder, target_filename)
 
 
 def _load_json_resource(resource_name: str, resource_path: str) -> dict[str, Any]:
