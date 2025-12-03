@@ -29,7 +29,6 @@ import tempfile
 import unittest
 from typing import Any
 from unittest.mock import patch
-import src.utils as utils
 from src.utils import folder_path
 from src.utils import json_io
 
@@ -91,12 +90,12 @@ class _TestFixture(unittest.TestCase):
         self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_tmp_")
 
         # Mirror the on-disk runtime layout used by production code
-        self.runtime_dir = folder_path.construct_folder_path(self.tmp_project_root, TEST_RESOURCE_FOLDER_PARTS)
-        os.makedirs(self.runtime_dir, exist_ok=True)
+        self.cache_folder = folder_path.construct_folder_path(self.tmp_project_root, TEST_RESOURCE_FOLDER_PARTS)
+        os.makedirs(self.cache_folder, exist_ok=True)
 
         # Build resource file paths and names
-        resource_filename = TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
-        resource_path = os.path.join(self.runtime_dir, resource_filename)
+        resource_filename = TEST_VALID_RESOURCE_NAME + json_io.JSON_FILE_EXT
+        resource_path = os.path.join(self.cache_folder, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
         resource_packet = json_io.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
@@ -117,8 +116,8 @@ class _TestFixture(unittest.TestCase):
         """
 
         # Build resource file paths and names
-        resource_filename = TEST_VALID_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
-        resource_path = os.path.join(self.runtime_dir, resource_filename)
+        resource_filename = TEST_VALID_RESOURCE_NAME + json_io.JSON_FILE_EXT
+        resource_path = os.path.join(self.cache_folder, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
         resource_packet = json_io.create_json_packet(TEST_VALID_JSON, source_file=resource_filename)
@@ -131,8 +130,8 @@ class _TestFixture(unittest.TestCase):
         Create an empty JSON resource packet.
         """
         # Build resource file paths and names
-        resource_filename = TEST_EMPTY_RESOURCE_NAME + utils.json_io.JSON_FILE_EXT
-        resource_path = os.path.join(self.runtime_dir, resource_filename)
+        resource_filename = TEST_EMPTY_RESOURCE_NAME + json_io.JSON_FILE_EXT
+        resource_path = os.path.join(self.cache_folder, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader
         resource_packet = json_io.create_json_packet(TEST_EMPTY_JSON, source_file=resource_filename)
@@ -159,8 +158,8 @@ class TestJsonCache(_Asserts, _TestFixture):
             with patch.object(folder_path, "resolve_project_folder") as p_root:
                 p_root.return_value = self.tmp_project_root
                 _ = jc.JsonCache(
+                    self.cache_folder,
                     TEST_EMPTY_RESOURCE_NAME,
-                    TEST_RESOURCE_FOLDER_PARTS,
                     TEST_EMPTY_REQ_KEYS,
                 )
             actual_error = ""
@@ -182,9 +181,9 @@ class TestJsonCache(_Asserts, _TestFixture):
             p_root.return_value = self.tmp_project_root
             try:
                 _ = jc.JsonCache(
+                    self.cache_folder,
                     TEST_EMPTY_RESOURCE_NAME,
-                    TEST_RESOURCE_FOLDER_PARTS,
-                    TEST_EMPTY_REQ_KEYS,
+                    TEST_VALID_REQ_KEYS,
                 )
                 actual_error = ""
             except Exception as e:
@@ -300,8 +299,8 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             test_cache = jc.JsonCache(
+                self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
-                TEST_RESOURCE_FOLDER_PARTS,
                 TEST_VALID_REQ_KEYS,
             )
         expected_map = TEST_VALID_JSON
@@ -321,8 +320,8 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             cache = jc.JsonCache(
+                self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
-                TEST_RESOURCE_FOLDER_PARTS,
                 TEST_VALID_REQ_KEYS,
             )
         copy_map = cache.get_data_map_copy()
@@ -351,7 +350,11 @@ class TestGetKeys(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
+            test_cache = jc.JsonCache(
+                self.cache_folder,
+                TEST_VALID_RESOURCE_NAME,
+                TEST_VALID_REQ_KEYS,
+            )
         expected_keys = ("A_Char", "B_String", "C_List",)  # Sorted
 
         # ACT
@@ -373,7 +376,11 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
+            test_cache = jc.JsonCache(
+                self.cache_folder,
+                TEST_VALID_RESOURCE_NAME,
+                TEST_VALID_REQ_KEYS,
+            )
         cases = (
             (str, "B_String", "ABC123!@#"),
             (list, "C_List", ["1", "ABC"]),
@@ -392,7 +399,11 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
+            test_cache = jc.JsonCache(
+                self.cache_folder,
+                TEST_VALID_RESOURCE_NAME,
+                TEST_VALID_REQ_KEYS,
+            )
         requested_key = "MissingKeyName"
         expected_error = KeyError.__name__
 
@@ -413,7 +424,11 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
+            test_cache = jc.JsonCache(
+                self.cache_folder,
+                TEST_VALID_RESOURCE_NAME,
+                TEST_VALID_REQ_KEYS,
+            )
         requested_key = 123
         expected_error = TypeError.__name__
 
@@ -434,7 +449,11 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
+            test_cache = jc.JsonCache(
+                self.cache_folder,
+                TEST_VALID_RESOURCE_NAME,
+                TEST_VALID_REQ_KEYS,
+            )
         requested_key = "B_String"
         expected_error = TypeError.__name__
 
@@ -556,14 +575,14 @@ class TestLoadRuntimeJson(_Asserts):
 
         # Patch the path resolver to always return a file within our temp directory.
         def _resolver(resource_name: str):
-            filename = resource_name + utils.json_io.JSON_FILE_EXT
+            filename = resource_name + json_io.JSON_FILE_EXT
             return os.path.join(self.tmpdir, filename)
 
         jc._resolve_json_resource_path = _resolver  # simple, library-free patch
 
         # Convenience: name for our resource (e.g., "_info")
         self.resource = "_test_resource"
-        self.filename = self.resource + utils.json_io.JSON_FILE_EXT
+        self.filename = self.resource + json_io.JSON_FILE_EXT
         self.filepath = os.path.join(self.tmpdir, self.filename)
 
     def tearDown(self):
@@ -664,8 +683,8 @@ class TestResolveJsonFilePath(_Asserts):
         self.tmp_root = tempfile.mkdtemp(prefix="runtime_tmp_")
 
         # Create folders inside temp root
-        self.tmp_runtime = os.path.join(self.tmp_root, TEST_RESOURCE_FOLDER_PARTS[0], TEST_RESOURCE_FOLDER_PARTS[1])
-        os.makedirs(self.tmp_runtime, exist_ok=True)
+        self.cache_folder = folder_path.construct_folder_path(self.tmp_root, TEST_RESOURCE_FOLDER_PARTS)
+        os.makedirs(self.cache_folder, exist_ok=True)
 
     def tearDown(self):
         """
@@ -679,8 +698,8 @@ class TestResolveJsonFilePath(_Asserts):
         """
         # ARRANGE
         resource = "test_resource"
-        filename = resource + utils.json_io.JSON_FILE_EXT
-        expected_path = os.path.join(self.tmp_runtime, filename)
+        filename = resource + json_io.JSON_FILE_EXT
+        expected_path = os.path.join(self.cache_folder, filename)
 
         with open(expected_path, "w", encoding="utf-8") as f:
             f.write('{"meta": {}, "data": {}}')
@@ -690,7 +709,7 @@ class TestResolveJsonFilePath(_Asserts):
             p_root.return_value = self.tmp_root
 
             # ACT
-            result = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS)
+            result = jc._resolve_json_resource_path(self.cache_folder, resource)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected_path)
@@ -708,7 +727,7 @@ class TestResolveJsonFilePath(_Asserts):
             # path project root to temp
             with patch.object(folder_path, "resolve_project_folder") as p_root:
                 p_root.return_value = self.tmp_root
-                _ = jc._resolve_json_resource_path(resource, TEST_RESOURCE_FOLDER_PARTS)
+                _ = jc._resolve_json_resource_path(self.cache_folder, resource)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__

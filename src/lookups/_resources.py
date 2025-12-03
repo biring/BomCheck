@@ -31,6 +31,7 @@ __all__ = []  # Internal-only; not part of public API.
 from typing import Final
 
 from src.common import JsonCache
+from src.utils import folder_path
 from . import _component_type as component_type
 
 # MODULE CONSTANTS
@@ -40,17 +41,18 @@ COMPONENT_TYPE_FILE_NAME: Final[str] = "_component_type"  # Name of the JSON res
 
 def load_cache() -> None:
     """
-    This function initializes all lookup resource caches once at startup by invoking each registered resource loader.
+    Initialize all lookup resource caches.
+
+    This function invokes each registered loader to construct and validate the module-level JsonCache instances required by the lookup subsystem.
 
     Args:
 
     Returns:
-        None: All configured mapping caches are initialized on success.
+        None: All configured caches are initialized on success.
 
     Raises:
-        RuntimeError: If any underlying resource loader fails to construct or validate its JsonCache instance.
+        RuntimeError: If any underlying loader fails to build or validate its JsonCache instance.
     """
-
     # Initialize all settings cache; add new loaders here as new settings modules are introduced.
     _load_component_type_cache()
 
@@ -65,47 +67,51 @@ _component_type_cache: JsonCache | None = None  # Cache instance for storing com
 
 def _load_component_type_cache() -> None:
     """
-    Build and cache the component-type settings JsonCache.
+    Build and cache the component-type JsonCache.
 
-    This function constructs a JsonCache for the component-type JSON resource, validates required keys, and stores the instance in the module-level cache variable.
+    Loads the component-type JSON resource, validates required keys, and stores the resulting JsonCache instance in the module-level cache variable for reuse.
 
     Args:
 
     Returns:
-        None: The module-level component-type cache variable is updated on success.
+        None: The module-level cache is updated on success.
 
     Raises:
-        RuntimeError: If JsonCache construction, file access, or validation fails for the component-type resource.
+        RuntimeError: If the JsonCache fails to load, validate, or if the resource file cannot be accessed.
     """
     global _component_type_cache  # Require to rebind or modify the module variable
+
+    # Resolve the absolute path to the lookup resource folder.
+    project_root = folder_path.resolve_project_folder()
+    lookup_folder_path = folder_path.construct_folder_path(project_root, FOLDER_PARTS)
+
     # Build the component_type JsonCache and store it in the shared module-level cache.
     try:
         _component_type_cache = JsonCache(
+            resource_folder=lookup_folder_path,
             resource_name=COMPONENT_TYPE_FILE_NAME,
-            resource_folder_parts=FOLDER_PARTS,
             required_keys=component_type.REQUIRED_KEYS,
         )
     except Exception as err:
-        # All underlying exceptions are wrapped in RuntimeError for uniformity.
+        # Wrap any underlying failure to provide uniform error reporting.
         raise RuntimeError(
-            f"Failed to load '{COMPONENT_TYPE_FILE_NAME}' settings cache."
-            f"\n{type(err).__name__}: {str(err)}"
+            f"Failed to load '{COMPONENT_TYPE_FILE_NAME}' settings cache. \n{str(err)}"
         ) from err
 
 
 def get_component_type_cache() -> JsonCache:
     """
-    Return the initialized component-type settings cache.
+    Return the initialized component-type JsonCache.
 
-    This accessor provides read-only access to the shared JsonCache instance for component-type settings and enforces that initialization has occurred.
+    Ensures that the corresponding cache was successfully initialized by load_cache() before returning the stored instance.
 
     Args:
 
     Returns:
-        JsonCache: The initialized JsonCache instance containing component-type settings data.
+        JsonCache: The initialized cache for the component-type resource.
 
-Raises:
-    RuntimeError: If the component-type cache has not been initialized via load_cache().
+    Raises:
+        RuntimeError: If the component-type cache has not been initialized.
     """
     if _component_type_cache is None:
         raise RuntimeError(

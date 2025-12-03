@@ -105,16 +105,16 @@ class TestJsonCacheInterface(unittest.TestCase):
         self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_api_tmp_")
 
         # Mirror the on-disk runtime layout used by production code
-        self.runtime_dir = folder_path.construct_folder_path(
+        self.cache_folder = folder_path.construct_folder_path(
             self.tmp_project_root,
             self.TEST_RESOURCE_FOLDER_PARTS,
         )
-        os.makedirs(self.runtime_dir, exist_ok=True)
+        os.makedirs(self.cache_folder, exist_ok=True)
 
         # Build resource filename and path
         self.resource_name = "settings"
         resource_filename = self.resource_name + utils.json_io.JSON_FILE_EXT
-        resource_path = os.path.join(self.runtime_dir, resource_filename)
+        resource_path = os.path.join(self.cache_folder, resource_filename)
 
         # Wrap payload in the standard packet envelope expected by the loader
         packet = json_io.create_json_packet(
@@ -152,8 +152,8 @@ class TestJsonCacheInterface(unittest.TestCase):
         """
         # ARRANGE
         cache = JsonCache(
+            resource_folder=self.cache_folder,
             resource_name=self.resource_name,
-            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
         )
 
@@ -170,8 +170,8 @@ class TestJsonCacheInterface(unittest.TestCase):
         """
         # ARRANGE
         cache = JsonCache(
+            resource_folder=self.cache_folder,
             resource_name=self.resource_name,
-            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
         )
         expected_keys = tuple(sorted(self.TEST_JSON_PAYLOAD.keys()))
@@ -190,8 +190,8 @@ class TestJsonCacheInterface(unittest.TestCase):
         """
         # ARRANGE
         cache = JsonCache(
+            resource_folder=self.cache_folder,
             resource_name=self.resource_name,
-            resource_folder_parts=self.TEST_RESOURCE_FOLDER_PARTS,
             required_keys=self.required_keys,
         )
 

@@ -7,8 +7,8 @@ Example Usage:
     # Preferred usage via package interface:
     from src.common import JsonCache
     cache = JsonCache(
+        resource_folder="C://runtime/config",
         resource_name="settings",
-        resource_folder_parts=("runtime", "config"),
         required_keys=("app_version", "log_level"),
     )
     log_level = cache.get_value("log_level", str)
@@ -16,8 +16,8 @@ Example Usage:
     # Direct internal usage (tests or internal tooling only):
     from src.common._json_cache import JsonCache
     cache = JsonCache(
+        resource_folder="D://runtime/messages",
         resource_name="log_msg",
-        resource_folder_parts=("runtime", "messages"),
         required_keys=("E001",),
     )
     message = cache.get_value("E001", str)
@@ -41,46 +41,41 @@ __all__ = []  # Internal-only; not part of the public API.
 import copy
 from typing import Any, TypeVar, Type
 
-from src.utils import folder_path
 from src.utils import file_path
 from src.utils import json_io
 
 T = TypeVar("T")  # dictionary value type
 
 
-def _resolve_json_resource_path(resource_name: str, resource_folder_parts: tuple[str, ...]) -> str:
+def _resolve_json_resource_path(resource_folder: str, resource_name: str) -> str:
     """
-    Resolve the absolute path to a shared JSON runtime resource.
+    Resolve the absolute path to a JSON resource file.
 
-    Constructs the expected "<prefix><resource_name>.json" filename, locates the runtime directory under the project root, verifies that the file exists there, and returns the absolute filesystem path.
+    Constructs the JSON filename from the logical resource name, enumerates JSON files in the given folder, verifies that the target file exists, and returns its absolute path.
 
     Args:
-        resource_name (str): Logical resource name without prefix or extension (for example, "settings" or "log_msg").
-        resource_folder_parts (tuple[str, ...]): Folder path segments under the project root that contain the JSON resources.
+        resource_folder (str): Absolute path to the folder containing JSON resource files.
+        resource_name (str): Logical file stem without extension (for example, "log_msg").
 
     Returns:
         str: Absolute filesystem path to the JSON resource file.
 
     Raises:
-        FileNotFoundError: If the runtime folder cannot be inspected or the target resource file does not exist.
+        FileNotFoundError: If the folder cannot be inspected or the target resource file does not exist.
     """
-    # Build canonical resource filename with prefix and JSON extension.
+    # Build the expected JSON filename from the logical resource name.
     target_filename = resource_name + json_io.JSON_FILE_EXT
 
-    # Locate directory relative to the project root.
-    project_root = folder_path.resolve_project_folder()
-    runtime_folder = folder_path.construct_folder_path(project_root, resource_folder_parts)
+    # Discover all JSON files in the target folder.
+    available_filenames = file_path.get_files_in_folder(resource_folder, [json_io.JSON_FILE_EXT])
 
-    # Enumerate JSON files present in the directory.
-    available_filenames = file_path.get_files_in_folder(runtime_folder, [json_io.JSON_FILE_EXT])
-
-    # Validate presence of the requested resource file
+    # Fail fast if the requested resource file is not present.
     if target_filename not in available_filenames:
         raise FileNotFoundError(
-            f"JSON resource file '{target_filename}' was not found in runtime folder '{runtime_folder}'.")
+            f"JSON resource file '{target_filename}' was not found in folder '{resource_folder}'.")
 
     # Construct and return the absolute file path
-    return file_path.construct_file_path(runtime_folder, target_filename)
+    return file_path.construct_file_path(resource_folder, target_filename)
 
 
 def _load_json_resource(resource_name: str, resource_path: str) -> dict[str, Any]:
@@ -174,20 +169,15 @@ class JsonCache:
     Loads a single JSON resource file from the project runtime folders, verifies its checksum, enforces required-key presence, and exposes safe, type-checked access to its values. Used across the application wherever read-only JSON resources are needed.
     """
 
-    def __init__(
-            self,
-            resource_name: str,
-            resource_folder_parts: tuple[str, ...],
-            required_keys: tuple[str, ...],
-    ) -> None:
+    def __init__(self, resource_folder: str, resource_name: str, required_keys: tuple[str, ...]) -> None:
         """
-        Initialize a cache for a JSON runtime resource.
+        Initialize the cache for a JSON runtime resource.
 
-        Resolves the resource file path, loads the JSON document, verifies integrity and required keys, and stores the resulting payload mapping in memory for later retrieval.
+        Resolves the JSON resource path, loads and validates the JSON package, enforces required-key presence, and stores the resulting payload mapping in memory.
 
         Args:
-            resource_name (str): Logical file stem without prefix or extension (for example, "log_msg").
-            resource_folder_parts (tuple[str, ...]): Folder path segments under the project root where the resource resides.
+            resource_folder (str): Absolute path to the folder containing the JSON resource file.
+            resource_name (str): Logical file stem without extension for the resource (for example, "log_msg").
             required_keys (tuple[str, ...]): Keys that must be present in the resource payload.
 
         Returns:
@@ -198,21 +188,23 @@ class JsonCache:
         """
 
         # Initialize empty state; will be populated once loading succeeds.
-        self._resource: str | None = None
+        self._resource_name: str | None = None
+        self._resource_path: str | None = None
         self._data_map: dict[str, Any] | None = None
 
         try:
-            # Resolve the JSON file path
-            resource_file_path = _resolve_json_resource_path(resource_name, resource_folder_parts)
+            # Resolve the JSON resource path based on the runtime folder and logical name.
+            resource_file_path = _resolve_json_resource_path(resource_folder, resource_name)
 
-            # Load JSON and extract data
+            # Load and validate the payload mapping from disk.
             data = _load_json_resource(resource_name, resource_file_path)
 
-            # Validate schema integrity
+            # Enforce required-key presence before exposing the mapping.
             _assert_required_keys(data, required_keys)
 
-            # Commit validated resource state to the cache.
-            self._resource = resource_name
+            # Cache the validated resource state for future lookups.
+            self._resource_name = resource_name
+            self._resource_path = resource_file_path
             self._data_map = data
 
         except Exception as err:
