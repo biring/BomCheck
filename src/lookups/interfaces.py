@@ -27,16 +27,10 @@ License:
     - Internal Use Only
 """
 
-
-
-# noinspection PyProtectedMember
-from ._constants import (
-    FOLDER_PARTS,
-    COMPONENT_TYPE_FILE_NAME,
-)
-
 # noinspection PyProtectedMember
 from ._resources import (
+    FOLDER_PARTS,
+    COMPONENT_TYPE_FILE_NAME,
     load_cache,
     get_component_type_cache,
 )

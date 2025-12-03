@@ -38,9 +38,6 @@ from src.utils import json_io
 # noinspection PyProtectedMember
 from src.lookups import _resources as resource  # Module under test
 
-# noinspection PyProtectedMember
-from src.lookups import _constants as constant
-
 
 class TestLoadSettingsCache(unittest.TestCase):
     """
@@ -93,12 +90,12 @@ class TestLoadComponentTypeCache(unittest.TestCase):
         # Mirror the on-disk runtime layout used by production code
         runtime_dir = folder_path.construct_folder_path(
             self.tmp_project_root,
-            constant.FOLDER_PARTS,
+            resource.FOLDER_PARTS,
         )
         folder_path.create_folder_if_missing(runtime_dir)
 
         # Build resource file paths and names
-        resource_filename = constant.COMPONENT_TYPE_FILE_NAME + util.json_io.JSON_FILE_EXT
+        resource_filename = resource.COMPONENT_TYPE_FILE_NAME + util.json_io.JSON_FILE_EXT
         resource_path = util.file_path.construct_file_path(runtime_dir, resource_filename)
 
         # Wrap the payload in the standard packet envelope expected by the loader

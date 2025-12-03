@@ -28,9 +28,14 @@ License:
 """
 __all__ = []  # Internal-only; not part of public API.
 
+from typing import Final
+
 from src.common import JsonCache
-from . import _constants as constant
 from . import _component_type as component_type
+
+# MODULE CONSTANTS
+FOLDER_PARTS: Final[tuple[str, ...]] = ("src", "lookups",)
+COMPONENT_TYPE_FILE_NAME: Final[str] = "_component_type"  # Name of the JSON resource file (without prefix and extension)
 
 
 def load_cache() -> None:
@@ -76,14 +81,14 @@ def _load_component_type_cache() -> None:
     # Build the component_type JsonCache and store it in the shared module-level cache.
     try:
         _component_type_cache = JsonCache(
-            resource_name=constant.COMPONENT_TYPE_FILE_NAME,
-            resource_folder_parts=constant.FOLDER_PARTS,
+            resource_name=COMPONENT_TYPE_FILE_NAME,
+            resource_folder_parts=FOLDER_PARTS,
             required_keys=component_type.REQUIRED_KEYS,
         )
     except Exception as err:
         # All underlying exceptions are wrapped in RuntimeError for uniformity.
         raise RuntimeError(
-            f"Failed to load '{constant.COMPONENT_TYPE_FILE_NAME}' settings cache."
+            f"Failed to load '{COMPONENT_TYPE_FILE_NAME}' settings cache."
             f"\n{type(err).__name__}: {str(err)}"
         ) from err
 
