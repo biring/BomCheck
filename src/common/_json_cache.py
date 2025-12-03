@@ -142,6 +142,31 @@ def _assert_required_keys(key_value_map: dict[str, Any], required_keys: tuple[st
             raise KeyError(f"JSON resource is missing required keys: {missing_keys}.")
 
 
+def extract_uppercase_keys(globals_dict: dict, allowed_value_type: tuple[type, ...]) -> tuple[str, ...]:
+    """
+    Extract uppercase constant names from a globals mapping.
+
+    Scans the provided mapping and returns all keys that are fully uppercase and whose associated values match at least one of the allowed types. The result is sorted to ensure stable ordering across environments.
+
+    Args:
+        globals_dict (dict): A mapping of names to objects, typically a module-level globals().
+        allowed_value_type (tuple[type, ...]): Tuple of permitted value types used to filter constants.
+
+    Returns:
+        tuple[str, ...]: A sorted tuple containing all valid uppercase constant names.
+    """
+    exported_names: list[str] = []
+
+    # Iterate through globals as (name, value) pairs
+    for name, value in globals_dict.items():
+        # Only include all-uppercase names (conventional constants)
+        if name.isupper() and isinstance(value, allowed_value_type):
+            exported_names.append(name)
+
+    # Return as a sorted tuple for stable ordering and testability
+    return tuple(sorted(exported_names))
+
+
 class JsonCache:
     """
     Shared JSON resource cache for settings, configuration, and other runtime data.

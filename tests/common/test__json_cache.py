@@ -175,7 +175,6 @@ class TestJsonCache(_Asserts, _TestFixture):
         Should raise error when one or more required keys are missing.
         """
         # ARRANGE
-        required_keys = ("List", "MissingKey")
         expected_error = ImportError.__name__
 
         # ACT
@@ -193,6 +192,99 @@ class TestJsonCache(_Asserts, _TestFixture):
 
         # ASSERT
         self.assert_equal(actual=actual_error, expected=expected_error)
+
+
+class TestExtractUppercaseKeys(unittest.TestCase):
+    """
+    Unit tests for the `extract_uppercase_keys` helper function.
+
+    The tests cover:
+    - Filtering only ALL-CAPS keys.
+    - Enforcing allowed value types via the `allowed_value_type` parameter.
+    - Returning results as a sorted tuple for stable ordering.
+    """
+
+    def test_happy_path(self):
+        """
+        Should return only uppercase names whose values match the allowed types.
+        """
+        # ARRANGE
+        module_globals = {
+            "USER_NAME": "foo",
+            "MY_CODE": "bar",
+            "mask": "value",
+            "Mixed": "type is mixed",
+            "RETRY": 123,
+            "LOWER_THRESHOLD": -123,
+            "boundary_number": 589,
+            "REQUIRED_KEYS": ["X"],
+            "NUMBER_LIST": [1, 2, 3],
+            "Cypher": [1, 2, 3],
+        }
+
+        cases = (
+            ((str,), ("MY_CODE", "USER_NAME")),
+            ((int,), ("LOWER_THRESHOLD", "RETRY")),
+            ((list,), ("NUMBER_LIST", "REQUIRED_KEYS")),
+            ((int, str), ("LOWER_THRESHOLD", "MY_CODE", "RETRY", "USER_NAME")),
+
+        )
+
+        for allowed_value_type, expected in cases:
+            # ACT
+            # Call the helper to extract uppercase keys matching allowed types
+            result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+
+            # ASSERT
+            # Verify tuple content and ordering
+            with self.subTest(Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+    def test_without_any_matching_entries(self):
+        """
+        Should return an empty tuple when no uppercase keys match allowed types.
+        """
+        # ARRANGE
+        module_globals = {
+            "lower": "value",  # lowercase key, excluded
+            "MixedCase": 100,  # mixed case key, excluded
+            "LIST": [1, 2, 3],  # uppercase but list, not allowed type
+            "NUM": 42,  # uppercase but int, not allowed type
+        }
+        allowed_value_type = (str,)
+        expected: tuple[str, ...] = ()  # Expect empty tuple
+
+        # ACT
+        result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+    def test_with_multiple_allowed_value_types(self):
+        """
+        Should include uppercase keys whose values match any allowed type,
+        including bool when int is allowed (bool is a subclass of int).
+        """
+        # ARRANGE
+        module_globals = {
+            "NAME": "Widget",  # str, allowed
+            "COUNT": 10,  # int, allowed
+            "PRICE": 9.99,  # float, excluded
+            "ENABLED": True,  # bool, included because bool is a subclass of int
+            "label": "skip",  # lowercase key, excluded
+        }
+        allowed_value_type = (str, int)
+        # Expect uppercase keys whose values are str or int (including bool),
+        # sorted by key name
+        expected = ("COUNT", "ENABLED", "NAME")
+
+        # ACT
+        result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
 
 
 class TestGetDataMapCopy(_Asserts, _TestFixture):
@@ -259,8 +351,7 @@ class TestGetKeys(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS,)
+            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
         expected_keys = ("A_Char", "B_String", "C_List",)  # Sorted
 
         # ACT
@@ -282,8 +373,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS,)
+            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
         cases = (
             (str, "B_String", "ABC123!@#"),
             (list, "C_List", ["1", "ABC"]),
@@ -302,8 +392,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS,
-                                      TEST_VALID_REQ_KEYS,)
+            test_cache = jc.JsonCache(TEST_VALID_RESOURCE_NAME, TEST_RESOURCE_FOLDER_PARTS, TEST_VALID_REQ_KEYS)
         requested_key = "MissingKeyName"
         expected_error = KeyError.__name__
 
