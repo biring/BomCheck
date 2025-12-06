@@ -28,7 +28,7 @@ from typing import Any
 from unittest.mock import patch
 
 from src import utils
-from src.common import ChangeLog, JsonCache
+from src.common import ChangeLog, CacheReadOnly
 
 from src.utils import folder_path
 from src.utils import json_io
@@ -75,9 +75,9 @@ class TestChangeLog(unittest.TestCase):
                 self.assertEqual(out_row, exp_row)
 
 
-class TestJsonCacheInterface(unittest.TestCase):
+class TestCacheReadOnlyInterface(unittest.TestCase):
     """
-    Interface-level unit tests for JsonCache via `src.common`.
+    Interface-level unit tests for CacheReadOnly via `src.common`.
 
     These tests focus on:
         - get_data_map_copy: returns a copy of the JSON payload.
@@ -99,7 +99,7 @@ class TestJsonCacheInterface(unittest.TestCase):
     def setUp(self) -> None:
         """
         Prepare a temporary project root and runtime folder, and write a JSON
-        resource packet for use by JsonCache interface tests.
+        resource packet for use by CacheReadOnly interface tests.
         """
         # ARRANGE: create isolated project root; removed in tearDown()
         self.tmp_project_root = tempfile.mkdtemp(prefix="runtime_api_tmp_")
@@ -122,7 +122,7 @@ class TestJsonCacheInterface(unittest.TestCase):
             source_file=resource_filename,
         )
 
-        # Persist packet where JsonCache will look for it
+        # Persist packet where CacheReadOnly will look for it
         json_io.save_json_file(resource_path, packet)
 
         # Patch `find_root_folder` so runtime resolution points at our temp root
@@ -151,7 +151,7 @@ class TestJsonCacheInterface(unittest.TestCase):
         Should return a dictionary containing the validated JSON payload.
         """
         # ARRANGE
-        cache = JsonCache(
+        cache = CacheReadOnly(
             resource_folder=self.cache_folder,
             resource_name=self.resource_name,
             required_keys=self.required_keys,
@@ -169,7 +169,7 @@ class TestJsonCacheInterface(unittest.TestCase):
         Should return all JSON keys as a sorted tuple.
         """
         # ARRANGE
-        cache = JsonCache(
+        cache = CacheReadOnly(
             resource_folder=self.cache_folder,
             resource_name=self.resource_name,
             required_keys=self.required_keys,
@@ -189,7 +189,7 @@ class TestJsonCacheInterface(unittest.TestCase):
         type matches the stored value type.
         """
         # ARRANGE
-        cache = JsonCache(
+        cache = CacheReadOnly(
             resource_folder=self.cache_folder,
             resource_name=self.resource_name,
             required_keys=self.required_keys,

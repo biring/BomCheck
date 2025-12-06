@@ -23,12 +23,12 @@ License:
 # noinspection PyProtectedMember
 from ._change_log import ChangeLog  # Direct internal import for export via package interface
 # noinspection PyProtectedMember
-from ._json_cache import extract_uppercase_keys  # Direct internal import for export via package interface
+from ._cache_read_only import extract_uppercase_keys  # Direct internal import for export via package interface
 # noinspection PyProtectedMember
-from ._json_cache import JsonCache  # Direct internal import for export via package interface
+from ._cache_read_only import CacheReadOnly # Direct internal import for export via package interface
 
 __all__ = [
     "ChangeLog",
-    "JsonCache",
+    "CacheReadOnly",
     "extract_uppercase_keys",
 ]

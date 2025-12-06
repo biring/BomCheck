@@ -3,7 +3,7 @@ JSON-backed temporary settings stored in the application temp folder.
 
 This module provides:
  - Strongly typed keys for temporary settings used across workflows
- - A JsonCache-based loader for reading and persisting the temporary settings file
+ - A JSON Cache based loader for reading and persisting the temporary settings file
  - A lazy singleton accessor for internal components that require shared temp state
 
 These settings are intended for short-lived, workflow-level state such as last-used source and destination folders, without touching user-facing configuration files.
@@ -21,7 +21,7 @@ Dependencies:
     - Python >= 3.10
     - Standard Library: typing
     - External Packages: None
-    - Internal Modules: src.common.JsonCache, src.utils.folder_path, src.utils.json_io
+    - Internal Modules: src.common.CacheReadOnly, src.utils.folder_path, src.utils.json_io
 
 Notes:
     - This module is internal to the settings subsystem; it is not part of the public API.
@@ -42,7 +42,7 @@ __all__ = [
 from dataclasses import dataclass, asdict
 from typing import Any, Final
 
-from src.common import JsonCache
+from src.common import CacheReadOnly
 from src.utils import folder_path
 from src.utils import file_path
 from src.utils import json_io
@@ -74,7 +74,7 @@ class TemporarySettingsKeys:
 # Single instance used throughout this module
 KEYS: Final[TemporarySettingsKeys] = TemporarySettingsKeys()
 
-# REQUIRED_KEYS drives JsonCache schema validation; values are the JSON key names.
+# REQUIRED_KEYS drives cache schema validation; values are the JSON key names.
 REQUIRED_KEYS: Final[tuple[str, ...]] = tuple(sorted(asdict(KEYS).values()))
 
 # Default values for each temporary setting
@@ -86,11 +86,11 @@ DEFAULT_TEMP_SETTINGS: Final[dict[str, Any]] = {
 _TEMP_FILE_NAME: Final[str] = "temporary_settings"
 
 
-class TemporarySettingsCache(JsonCache):
+class TemporarySettingsCache(CacheReadOnly):
     """
     JSON-backed cache for short-lived temporary settings.
 
-    This class wraps JsonCache to manage a key-value map stored under the application temp folder. If the JSON resource is missing or invalid, a new default file is created using DEFAULT_TEMP_SETTINGS.
+    This class wraps `CacheReadOnly` to manage a key-value map stored under the application temp folder. If the JSON resource is missing or invalid, a new default file is created using DEFAULT_TEMP_SETTINGS.
 
     Args:
 
@@ -105,7 +105,7 @@ class TemporarySettingsCache(JsonCache):
         """
         Initialize the temporary settings cache and load the JSON resource.
 
-        This sets the required file paths, required keys, and invokes the JsonCache loader. If the resource is missing, a new default file is created before retrying load.
+        This sets the required file paths, required keys, and invokes the `CacheReadOnly` loader. If the resource is missing, a new default file is created before retrying load.
 
         Args:
 
@@ -123,7 +123,7 @@ class TemporarySettingsCache(JsonCache):
         self._temp_folder_path: Final[str] = folder_path.get_temp_folder()
         self._temp_file_path: Final[str] = file_path.construct_file_path(self._temp_folder_path, self._temp_file_name)
 
-        # Attempt to load the existing JSON resource through the base JsonCache implementation
+        # Attempt to load the existing JSON resource through the base CacheReadOnly implementation
         try:
             super().__init__(self._temp_folder_path, self._temp_cache_name, self._temp_required_keys)
         except ImportError:
@@ -196,7 +196,7 @@ class TemporarySettingsCache(JsonCache):
         """
         Update a temporary setting and persist the change to disk.
 
-        The current cache map is copied, the key updated, and the map is re-persisted. JsonCache is reloaded so get_value() reflects updated state.
+        The current cache map is copied, the key updated, and the map is re-persisted. `CacheReadOnly` is reloaded so get_value() reflects updated state.
 
         Args:
             key (str): A required settings key.
@@ -224,7 +224,7 @@ class TemporarySettingsCache(JsonCache):
             # Write updated payload
             self._persist(kv_map)
 
-            # Reload JsonCache state so get_value() reflects the new contents
+            # Reload cache state so get_value() reflects the new contents
             super().__init__(self._temp_folder_path, self._temp_cache_name, self._temp_required_keys)
         except Exception as exc:
             raise RuntimeError(

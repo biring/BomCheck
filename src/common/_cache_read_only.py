@@ -5,8 +5,8 @@ This module centralizes loading of JSON-backed resources (settings, configuratio
 
 Example Usage:
     # Preferred usage via package interface:
-    from src.common import JsonCache
-    cache = JsonCache(
+    from src.common import CacheReadOnly
+    cache = CacheReadOnly(
         resource_folder="C://runtime/config",
         resource_name="settings",
         required_keys=("app_version", "log_level"),
@@ -14,8 +14,8 @@ Example Usage:
     log_level = cache.get_value("log_level", str)
 
     # Direct internal usage (tests or internal tooling only):
-    from src.common._json_cache import JsonCache
-    cache = JsonCache(
+    from src.common._cache_read_only import CacheReadOnly
+    cache = CacheReadOnly(
         resource_folder="D://runtime/messages",
         resource_name="log_msg",
         required_keys=("E001",),
@@ -28,7 +28,7 @@ Dependencies:
     - Internal Packages: src.utils (JSON file I/O, path and checksum helpers)
 
 Notes:
-    - Internal-only module; JsonCache is re-exported from src.common for shared settings, configuration, and message catalogs.
+    - Internal-only module; CacheReadOnly is re-exported from src.common for shared settings, configuration, and message catalogs.
     - Intended for read-only JSON resources that are loaded once at startup and reused across the application.
     - get_value enforces the expected type for each key and exposes keys and data via defensive copies.
 
@@ -162,7 +162,7 @@ def extract_uppercase_keys(globals_dict: dict, allowed_value_type: tuple[type, .
     return tuple(sorted(exported_names))
 
 
-class JsonCache:
+class CacheReadOnly:
     """
     Shared JSON resource cache for settings, configuration, and other runtime data.
 

@@ -1,7 +1,7 @@
 """
 Unit tests for internal lookup resource loaders.
 
-These tests validate the behavior of the private loader functions in `src.lookups._resources`, including initialization, error propagation, and correct construction of JsonCache instances.
+These tests validate the behavior of the private loader functions in `src.lookups._resources`, including initialization, error propagation, and correct construction of CacheReadOnly instances.
 
 Example Usage:
     # Preferred usage via project-root invocation:
@@ -17,8 +17,8 @@ Dependencies:
 
 Notes:
     - Uses patching to isolate and count loader invocations.
-    - Writes temporary JSON packets to validate that JsonCache loads data exactly as written.
-    - Ensures errors from JsonCache construction are wrapped as RuntimeError.
+    - Writes temporary JSON packets to validate that CacheReadOnly loads data exactly as written.
+    - Ensures errors from CacheReadOnly construction are wrapped as RuntimeError.
     - Temporary directories prevent contamination of actual lookup resource folders.
 
 License:
@@ -104,7 +104,7 @@ class TestLoadComponentTypeCache(unittest.TestCase):
             source_file=resource_filename,
         )
 
-        # Persist the packet where JsonCache will look for it
+        # Persist the packet where CacheReadOnly will look for it
         json_io.save_json_file(resource_path, resource_packet)
 
     def tearDown(self):
@@ -117,12 +117,12 @@ class TestLoadComponentTypeCache(unittest.TestCase):
 
     def test_happy_path(self):
         """
-        Should construct a JsonCache and populate the data map from the on-disk packet.
+        Should construct a CacheReadOnly and populate the data map from the on-disk packet.
         """
         # ARRANGE
         expected_map = self.TEST_JSON_DATA
 
-        # Force JsonCache to resolve its root under the temporary project root
+        # Force CacheReadOnly to resolve its root under the temporary project root
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
 
@@ -136,13 +136,13 @@ class TestLoadComponentTypeCache(unittest.TestCase):
 
     def test_raise(self):
         """
-        Should wrap any underlying JsonCache construction error as RuntimeError.
+        Should wrap any underlying CacheReadOnly construction error as RuntimeError.
         """
         # ARRANGE
         expected_error = RuntimeError.__name__
 
-        # Replace JsonCache with a stub that always raises an error
-        with patch.object(resource, "JsonCache") as mock_cache_ctor:
+        # Replace CacheReadOnly with a stub that always raises an error
+        with patch.object(resource, "CacheReadOnly") as mock_cache_ctor:
             mock_cache_ctor.side_effect = ValueError("boom")
 
             # ACT
@@ -170,14 +170,14 @@ class TestGetComponentTypeCache(unittest.TestCase):
 
     def test_happy_path(self):
         """
-        Should return the initialized JsonCache instance after `_load_component_type_cache` runs.
+        Should return the initialized CacheReadOnly instance after `_load_component_type_cache` runs.
         """
         # ARRANGE
-        # Patch JsonCache so we can control and observe the instance returned
+        # Patch CacheReadOnly so we can control and observe the instance returned
         fake_cache = object()
 
         with (
-            patch.object(resource, "JsonCache") as mock_cache_ctor,
+            patch.object(resource, "CacheReadOnly") as mock_cache_ctor,
             patch.object(folder_path, "resolve_project_folder") as p_root
         ):
             # We do not care about disk access here; root folder can be any placeholder

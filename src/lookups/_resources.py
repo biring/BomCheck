@@ -1,7 +1,7 @@
 """
 Internal loader and access layer for JSON-backed lookup resources.
 
-This module coordinates loading, validation, and caching of lookup resources. It wraps `JsonCache` to provide checksum verification, required-key validation, and map-style access to JSON payloads. All public access occurs through `interfaces.py`; this module remains internal to preserve API stability.
+This module coordinates loading, validation, and caching of lookup resources. It wraps `CacheReadOnly` to provide checksum verification, required-key validation, and map-style access to JSON payloads. All public access occurs through `interfaces.py`; this module remains internal to preserve API stability.
 
 Example Usage:
     # Preferred usage via public package interface:
@@ -16,11 +16,11 @@ Example Usage:
 Dependencies:
     - Python >= 3.10
     - Standard Library: functools, typing
-    - External: src.common.JsonCache
+    - External: src.common.CacheReadOnly
 
 Notes:
     - Designed for one-time initialization at application startup.
-    - Each resource loader should assign exactly one shared JsonCache instance.
+    - Each resource loader should assign exactly one shared CacheReadOnly instance.
     - New lookup types should register their loader in load_cache().
 
 License:
@@ -30,7 +30,7 @@ __all__ = []  # Internal-only; not part of public API.
 
 from typing import Final
 
-from src.common import JsonCache
+from src.common import CacheReadOnly
 from src.utils import folder_path
 from . import _component_type as component_type
 
@@ -43,7 +43,7 @@ def load_cache() -> None:
     """
     Initialize all lookup resource caches.
 
-    This function invokes each registered loader to construct and validate the module-level JsonCache instances required by the lookup subsystem.
+    This function invokes each registered loader to construct and validate the module-level CacheReadOnly instances required by the lookup subsystem.
 
     Args:
 
@@ -51,7 +51,7 @@ def load_cache() -> None:
         None: All configured caches are initialized on success.
 
     Raises:
-        RuntimeError: If any underlying loader fails to build or validate its JsonCache instance.
+        RuntimeError: If any underlying loader fails to build or validate its CacheReadOnly instance.
     """
     # Initialize all settings cache; add new loaders here as new settings modules are introduced.
     _load_component_type_cache()
@@ -62,14 +62,14 @@ def load_cache() -> None:
 # ----------------------------------------------------------------------------
 
 # MODULE VARIABLES
-_component_type_cache: JsonCache | None = None  # Cache instance for storing component type settings data. Initialized once and reused for subsequent queries.
+_component_type_cache: CacheReadOnly | None = None  # Cache instance for storing component type settings data. Initialized once and reused for subsequent queries.
 
 
 def _load_component_type_cache() -> None:
     """
-    Build and cache the component-type JsonCache.
+    Build and cache the component-type CacheReadOnly.
 
-    Loads the component-type JSON resource, validates required keys, and stores the resulting JsonCache instance in the module-level cache variable for reuse.
+    Loads the component-type JSON resource, validates required keys, and stores the resulting CacheReadOnly instance in the module-level cache variable for reuse.
 
     Args:
 
@@ -77,7 +77,7 @@ def _load_component_type_cache() -> None:
         None: The module-level cache is updated on success.
 
     Raises:
-        RuntimeError: If the JsonCache fails to load, validate, or if the resource file cannot be accessed.
+        RuntimeError: If the CacheReadOnly fails to load, validate, or if the resource file cannot be accessed.
     """
     global _component_type_cache  # Require to rebind or modify the module variable
 
@@ -85,9 +85,9 @@ def _load_component_type_cache() -> None:
     project_root = folder_path.resolve_project_folder()
     lookup_folder_path = folder_path.construct_folder_path(project_root, FOLDER_PARTS)
 
-    # Build the component_type JsonCache and store it in the shared module-level cache.
+    # Build the component_type CacheReadOnly and store it in the shared module-level cache.
     try:
-        _component_type_cache = JsonCache(
+        _component_type_cache = CacheReadOnly(
             resource_folder=lookup_folder_path,
             resource_name=COMPONENT_TYPE_FILE_NAME,
             required_keys=component_type.REQUIRED_KEYS,
@@ -99,16 +99,16 @@ def _load_component_type_cache() -> None:
         ) from err
 
 
-def get_component_type_cache() -> JsonCache:
+def get_component_type_cache() -> CacheReadOnly:
     """
-    Return the initialized component-type JsonCache.
+    Return the initialized component-type CacheReadOnly.
 
     Ensures that the corresponding cache was successfully initialized by load_cache() before returning the stored instance.
 
     Args:
 
     Returns:
-        JsonCache: The initialized cache for the component-type resource.
+        CacheReadOnly: The initialized cache for the component-type resource.
 
     Raises:
         RuntimeError: If the component-type cache has not been initialized.

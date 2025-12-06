@@ -1,11 +1,11 @@
 """
 Unit tests for the JSON resource cache and related helper functions.
 
-These tests verify JSON payload loading, required-key validation, path resolution, and cache isolation behavior for the JsonCache component.
+These tests verify JSON payload loading, required-key validation, path resolution, and cache isolation behavior for the CacheReadOnly component.
 
 Example Usage:
     # Preferred usage via project-root invocation:
-    python -m unittest tests/common/test__json_cache.py
+    python -m unittest tests/common/test__cache_read_only.py
 
     # Direct discovery (runs all tests under tests package):
     python -m unittest discover -s tests
@@ -33,7 +33,7 @@ from src.utils import folder_path
 from src.utils import json_io
 
 # noinspection PyProtectedMember
-import src.common._json_cache as jc  # module under test
+import src.common._cache_read_only as cro  # module under test
 
 # MODULE_CONSTANTS
 TEST_RESOURCE_FOLDER_PARTS: tuple[str, ...] = ("a", "b",)
@@ -140,9 +140,9 @@ class _TestFixture(unittest.TestCase):
         json_io.save_json_file(resource_path, resource_packet)
 
 
-class TestJsonCache(_Asserts, _TestFixture):
+class TestCacheReadOnly(_Asserts, _TestFixture):
     """
-    Unit tests for JsonCache initialization and required-key validation.
+    Unit tests for CacheReadOnly initialization and required-key validation.
     """
 
     def test_empty_payload(self):
@@ -157,7 +157,7 @@ class TestJsonCache(_Asserts, _TestFixture):
         try:
             with patch.object(folder_path, "resolve_project_folder") as p_root:
                 p_root.return_value = self.tmp_project_root
-                _ = jc.JsonCache(
+                _ = cro.CacheReadOnly(
                     self.cache_folder,
                     TEST_EMPTY_RESOURCE_NAME,
                     TEST_EMPTY_REQ_KEYS,
@@ -180,7 +180,7 @@ class TestJsonCache(_Asserts, _TestFixture):
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
             try:
-                _ = jc.JsonCache(
+                _ = cro.CacheReadOnly(
                     self.cache_folder,
                     TEST_EMPTY_RESOURCE_NAME,
                     TEST_VALID_REQ_KEYS,
@@ -232,7 +232,7 @@ class TestExtractUppercaseKeys(unittest.TestCase):
         for allowed_value_type, expected in cases:
             # ACT
             # Call the helper to extract uppercase keys matching allowed types
-            result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+            result = cro.extract_uppercase_keys(module_globals, allowed_value_type)
 
             # ASSERT
             # Verify tuple content and ordering
@@ -254,7 +254,7 @@ class TestExtractUppercaseKeys(unittest.TestCase):
         expected: tuple[str, ...] = ()  # Expect empty tuple
 
         # ACT
-        result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+        result = cro.extract_uppercase_keys(module_globals, allowed_value_type)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -279,7 +279,7 @@ class TestExtractUppercaseKeys(unittest.TestCase):
         expected = ("COUNT", "ENABLED", "NAME")
 
         # ACT
-        result = jc.extract_uppercase_keys(module_globals, allowed_value_type)
+        result = cro.extract_uppercase_keys(module_globals, allowed_value_type)
 
         # ASSERT
         with self.subTest(Out=result, Exp=expected):
@@ -298,7 +298,7 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -319,7 +319,7 @@ class TestGetDataMapCopy(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            cache = jc.JsonCache(
+            cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -350,7 +350,7 @@ class TestGetKeys(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -376,7 +376,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -399,7 +399,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -424,7 +424,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -449,7 +449,7 @@ class TestGetValue(_Asserts, _TestFixture):
         # ARRANGE
         with patch.object(folder_path, "resolve_project_folder") as p_root:
             p_root.return_value = self.tmp_project_root
-            test_cache = jc.JsonCache(
+            test_cache = cro.CacheReadOnly(
                 self.cache_folder,
                 TEST_VALID_RESOURCE_NAME,
                 TEST_VALID_REQ_KEYS,
@@ -487,7 +487,7 @@ class TestAssertRequiredKeys(_Asserts):
 
         # ACT
         try:
-            jc._assert_required_keys(key_value_map, required_keys)
+            cro._assert_required_keys(key_value_map, required_keys)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -509,7 +509,7 @@ class TestAssertRequiredKeys(_Asserts):
 
         # ACT
         try:
-            jc._assert_required_keys(key_value_map, required_keys)
+            cro._assert_required_keys(key_value_map, required_keys)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -530,7 +530,7 @@ class TestAssertRequiredKeys(_Asserts):
 
         # ACT
         try:
-            jc._assert_required_keys(key_value_map, required_keys)
+            cro._assert_required_keys(key_value_map, required_keys)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -552,7 +552,7 @@ class TestAssertRequiredKeys(_Asserts):
 
         # ACT
         try:
-            jc._assert_required_keys(key_value_map, required_keys)
+            cro._assert_required_keys(key_value_map, required_keys)
             result = ""  # No exception raised
         except Exception as e:
             result = type(e).__name__
@@ -571,14 +571,14 @@ class TestLoadRuntimeJson(_Asserts):
         Create a temporary runtime directory and (for forward compatibility) patch _resolve_json_resource_path to resolve into this directory.
         """
         self.tmpdir = tempfile.mkdtemp(prefix="runtime_json_")
-        self.orig_resolver = jc._resolve_json_resource_path
+        self.orig_resolver = cro._resolve_json_resource_path
 
         # Patch the path resolver to always return a file within our temp directory.
         def _resolver(resource_name: str):
             filename = resource_name + json_io.JSON_FILE_EXT
             return os.path.join(self.tmpdir, filename)
 
-        jc._resolve_json_resource_path = _resolver  # simple, library-free patch
+        cro._resolve_json_resource_path = _resolver  # simple, library-free patch
 
         # Convenience: name for our resource (e.g., "_info")
         self.resource = "_test_resource"
@@ -589,7 +589,7 @@ class TestLoadRuntimeJson(_Asserts):
         """
         Restore the original resolver and remove temp files.
         """
-        jc._resolve_json_resource_path = self.orig_resolver
+        cro._resolve_json_resource_path = self.orig_resolver
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_valid(self):
@@ -603,7 +603,7 @@ class TestLoadRuntimeJson(_Asserts):
         expected = payload
 
         # ACT
-        actual = jc._load_json_resource(self.resource, self.filepath)
+        actual = cro._load_json_resource(self.resource, self.filepath)
 
         # ASSERT
         self.assert_equal(actual=actual, expected=expected)
@@ -617,7 +617,7 @@ class TestLoadRuntimeJson(_Asserts):
 
         # ACT
         try:
-            _ = jc._load_json_resource(self.resource, self.filepath)
+            _ = cro._load_json_resource(self.resource, self.filepath)
             actual = ""  # Unexpected: no exception
         except Exception as e:
             actual = type(e).__name__
@@ -640,7 +640,7 @@ class TestLoadRuntimeJson(_Asserts):
 
             # ACT
             try:
-                _ = jc._load_json_resource(self.resource, self.filepath)
+                _ = cro._load_json_resource(self.resource, self.filepath)
                 actual = ""  # Unexpected: no exception
             except Exception as e:
                 actual = type(e).__name__
@@ -661,7 +661,7 @@ class TestLoadRuntimeJson(_Asserts):
 
         # ACT
         try:
-            _ = jc._load_json_resource(self.resource, self.filepath)
+            _ = cro._load_json_resource(self.resource, self.filepath)
             actual = ""  # Unexpected: no exception
         except Exception as e:
             actual = type(e).__name__
@@ -709,7 +709,7 @@ class TestResolveJsonFilePath(_Asserts):
             p_root.return_value = self.tmp_root
 
             # ACT
-            result = jc._resolve_json_resource_path(self.cache_folder, resource)
+            result = cro._resolve_json_resource_path(self.cache_folder, resource)
 
         # ASSERT
         self.assert_equal(actual=result, expected=expected_path)
@@ -727,7 +727,7 @@ class TestResolveJsonFilePath(_Asserts):
             # path project root to temp
             with patch.object(folder_path, "resolve_project_folder") as p_root:
                 p_root.return_value = self.tmp_root
-                _ = jc._resolve_json_resource_path(self.cache_folder, resource)
+                _ = cro._resolve_json_resource_path(self.cache_folder, resource)
             result = ""  # No exception raised (unexpected)
         except Exception as e:
             result = type(e).__name__
