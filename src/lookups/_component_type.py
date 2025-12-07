@@ -24,11 +24,8 @@ License:
     - Internal Use Only
 """
 
-
-from src.common import extract_uppercase_keys
-
 # Required key constants for this resource
 # No hardcoded symbolic constants defined here. Keys are dynamically derived from the JSON schema at settings.
 
 # Snapshot of required keys expected to exist in `_component_type.json`. Keep this in sync with the constant list above.
-REQUIRED_KEYS: tuple[str, ...] = extract_uppercase_keys(globals(), (str,list))
+REQUIRED_KEYS: tuple[str, ...] = ()  # No required keys for this module
