@@ -28,7 +28,7 @@ from typing import Any
 from unittest.mock import patch
 
 from src import utils
-from src.common import ChangeLog, CacheReadOnly
+from src.common import ChangeLog, CacheReadOnly, CacheReadWrite
 
 from src.utils import folder_path
 from src.utils import json_io
@@ -207,6 +207,123 @@ class TestCacheReadOnlyInterface(unittest.TestCase):
 
             with self.subTest(Key=key, Out=actual_value, Exp=expected_value):
                 self.assertEqual(actual_value, expected_value)
+
+
+class TestCacheReadWriteInterface(unittest.TestCase):
+    """
+    Interface-level unit tests for CacheReadWrite via `src.common`.
+
+    These tests focus on:
+        - Initialization with default values when no cache file exists.
+        - get_keys / get_value reflecting the current payload.
+        - update_value persisting changes to disk and visible to new instances.
+
+    Error paths (invalid keys, write failures, etc.) are validated in the
+    internal unit tests and are not re-tested here.
+    """
+
+    TEST_JSON_DEFAULTS: dict[str, Any] = {
+        "app_name": "BomCheck",
+        "last_opened_folder": "",
+        "retry_count": 0,
+    }
+
+    def setUp(self) -> None:
+        """
+        Prepare an isolated cache folder for CacheReadWrite interface tests.
+
+        Unlike CacheReadOnly, CacheReadWrite is responsible for creating
+        the JSON cache file on first use, so no file is written here.
+        """
+        # Isolated folder removed in tearDown()
+        self.cache_folder = tempfile.mkdtemp(prefix="runtime_crw_api_tmp_")
+
+        # Resource metadata for this test suite
+        self.resource_name = "settings_rw"
+        self.required_keys: tuple[str, ...] = tuple(self.TEST_JSON_DEFAULTS.keys())
+        self.default_values: dict[str, Any] = dict(self.TEST_JSON_DEFAULTS)
+
+    def tearDown(self) -> None:
+        """
+        Remove the temporary cache folder after tests.
+        """
+        shutil.rmtree(self.cache_folder, ignore_errors=True)
+
+    def test_init_uses_default_values(self) -> None:
+        """
+        Should create the cache file and populate it with the default values when no JSON resource exists.
+        """
+        # ARRANGE
+        cache = CacheReadWrite(
+            resource_folder_path=self.cache_folder,
+            resource_name=self.resource_name,
+            required_keys=self.required_keys,
+            default_values=self.default_values,
+        )
+
+        # ACT
+        data_copy = cache.get_data_map_copy()
+
+        # ASSERT
+        with self.subTest(Scenario="data_map", Out=data_copy, Exp=self.TEST_JSON_DEFAULTS):
+            self.assertEqual(data_copy, self.TEST_JSON_DEFAULTS)
+
+    def test_get_keys(self) -> None:
+        """
+        Should return all JSON keys as a sorted tuple.
+        """
+        # ARRANGE
+        cache = CacheReadWrite(
+            resource_folder_path=self.cache_folder,
+            resource_name=self.resource_name,
+            required_keys=self.required_keys,
+            default_values=self.default_values,
+        )
+        expected_keys = tuple(sorted(self.TEST_JSON_DEFAULTS.keys()))
+
+        # ACT
+        actual_keys = cache.get_keys()
+
+        # ASSERT
+        with self.subTest(Out=actual_keys, Exp=expected_keys):
+            self.assertEqual(actual_keys, expected_keys)
+
+    def test_value_persists(self) -> None:
+        """
+        Should persist updated values to disk so that a new CacheReadWrite instance sees the same updated payload.
+        """
+        # ARRANGE
+        first_cache = CacheReadWrite(
+            resource_folder_path=self.cache_folder,
+            resource_name=self.resource_name,
+            required_keys=self.required_keys,
+            default_values=self.default_values,
+        )
+
+        new_folder_value = "C:/Temp/BomCheck"
+        new_retry_count = 5
+
+        # ACT
+        first_cache.update_value("last_opened_folder", new_folder_value)
+        first_cache.update_value("retry_count", new_retry_count)
+
+        # Create a fresh instance pointing at the same folder/resource
+        second_cache = CacheReadWrite(
+            resource_folder_path=self.cache_folder,
+            resource_name=self.resource_name,
+            required_keys=self.required_keys,
+            default_values=self.default_values,
+        )
+
+        # ASSERT
+        actual_folder = second_cache.get_value("last_opened_folder", str)
+        actual_retry = second_cache.get_value("retry_count", int)
+
+        with self.subTest(Key="last_opened_folder", Out=actual_folder, Exp=new_folder_value):
+            self.assertEqual(actual_folder, new_folder_value)
+
+        with self.subTest(Key="retry_count", Out=actual_retry, Exp=new_retry_count):
+            self.assertEqual(actual_retry, new_retry_count)
 
 
 if __name__ == "__main__":

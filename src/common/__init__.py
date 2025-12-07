@@ -26,9 +26,12 @@ from ._change_log import ChangeLog  # Direct internal import for export via pack
 from ._cache_read_only import extract_uppercase_keys  # Direct internal import for export via package interface
 # noinspection PyProtectedMember
 from ._cache_read_only import CacheReadOnly # Direct internal import for export via package interface
+# noinspection PyProtectedMember
+from ._cache_read_write import CacheReadWrite # Direct internal import for export via package interface
 
 __all__ = [
     "ChangeLog",
     "CacheReadOnly",
+    'CacheReadWrite',
     "extract_uppercase_keys",
 ]
