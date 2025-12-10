@@ -42,10 +42,6 @@ from src.common import CacheReadWrite
 from src.utils import folder_path
 
 
-# ---------------------------------------------------------------------------
-# Key definitions and required-key schema
-# ---------------------------------------------------------------------------
-
 @dataclass(frozen=True)
 class _TemporarySettingsKeys:
     """
