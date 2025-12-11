@@ -36,6 +36,9 @@ import pandas as pd
 from src.utils import file_path
 from src.utils import excel_io
 
+# Module Constants
+EXCEL_FILE_TYPES = (excel_io.EXCEL_FILE_TYPE,)
+
 
 def read_excel_as_dict(excel_path: str) -> dict[str, pd.DataFrame]:
     """
@@ -57,7 +60,7 @@ def read_excel_as_dict(excel_path: str) -> dict[str, pd.DataFrame]:
         normalized_path = file_path.normalize_file_path(excel_path)
 
         # Enforce the expected Excel file extension (e.g., ".xlsx")
-        file_path.assert_file_name(normalized_path, (excel_io.EXCEL_FILE_TYPE,))
+        file_path.assert_file_name(normalized_path, EXCEL_FILE_TYPES)
 
         # Ensure the path refers to an existing regular file
         file_path.assert_file_path(normalized_path)

@@ -29,8 +29,9 @@ License:
 
 # Re-export approved API functions from internal modules
 # noinspection PyProtectedMember
-from ._excel_file import read_excel_as_dict
+from ._excel_file import EXCEL_FILE_TYPES, read_excel_as_dict
 
 __all__ = [
+    "EXCEL_FILE_TYPES",
     "read_excel_as_dict",
 ]
