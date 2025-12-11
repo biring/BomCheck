@@ -29,8 +29,9 @@ License:
 
 # Re-export approved API functions from internal modules
 # noinspection PyProtectedMember
-from . import _file_selector as file_selector
-from . import _folder_selector as folder_selector
+from ._file_selector import file_selector
+# noinspection PyProtectedMember
+from ._folder_selector import folder_selector
 
 __all__ = [
     "file_selector",

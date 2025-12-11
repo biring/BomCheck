@@ -74,7 +74,7 @@ class TestInterfaces(unittest.TestCase):
         with patch.object(cli, "prompt_menu_selection") as mock_prompt:
             mock_prompt.return_value = 0
             # ACT
-            result = menu.file_selector.file_selector(
+            result = menu.file_selector(
                 folder_path_in=folder,
                 extensions=(".csv",),
             )
@@ -105,7 +105,7 @@ class TestInterfaces(unittest.TestCase):
         with patch.object(cli, "prompt_menu_selection") as mock_prompt:
             mock_prompt.return_value = 1
             # ACT
-            result = menu.folder_selector.folder_selector(start_path=start_path)
+            result = menu.folder_selector(start_path=start_path)
 
         normalized_result = os.path.normpath(result)
 
