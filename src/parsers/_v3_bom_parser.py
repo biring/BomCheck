@@ -178,20 +178,21 @@ def _parse_board_table_row(row: pd.Series) -> Row:
         ) from e
 
 
-def is_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> bool:
+def is_v3_bom(sheets: dict[str, pd.DataFrame]) -> bool:
     """
-    Checks if any sheet in the workbook uses the Version 3 BOM format.
+    Check whether any sheet in the workbook appears to use the Version 3 BOM template.
 
-    Scans all provided sheets for required identifiers to detect a v3 BOM template.
+    A workbook is treated as v3 if at least one sheet contains all required v3 template
+    identifiers in a single row.
 
     Args:
-        sheets (list[tuple[str, pd.DataFrame]]): List of (sheet name, DataFrame) tuples.
+        sheets (dict[str, pd.DataFrame]): Workbook sheets keyed by sheet name.
 
     Returns:
-        bool: True if any sheet matches the v3 BOM structure, False otherwise.
+        bool: True if any sheet matches the v3 template identifiers, otherwise False.
     """
     # Iterate through all sheets and check for required identifiers
-    for sheet_name, sheet_data in sheets:
+    for sheet_name, sheet_data in sheets.items():
         # If it contains the labels that identify it as version 3 template
         if common.has_all_identifiers_in_single_row(sheet_name, sheet_data, Row.get_v3_template_labels()):
             # TODO: logger.info(f"✅ Sheet '{name}' is using version 3 BOM template.")
@@ -207,7 +208,7 @@ def is_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> bool:
     return False
 
 
-def parse_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> Bom:
+def parse_v3_bom(sheets: dict[str, pd.DataFrame]) -> Bom:
     """
     Parses Version 3 BOM sheets into a structured Bom object.
 
@@ -215,7 +216,7 @@ def parse_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> Bom:
     structured Board instances. Raises an exception if none are valid.
 
     Args:
-        sheets (list[tuple[str, pd.DataFrame]]): List of (sheet name, DataFrame) tuples.
+        sheets (dict[str, pd.DataFrame]): Workbook sheets keyed by sheet name.
 
     Returns:
         Bom: Parsed BOM with one or more structured boards.
@@ -227,7 +228,7 @@ def parse_v3_bom(sheets: list[tuple[str, pd.DataFrame]]) -> Bom:
     boards: list[Board] = []
 
     # Loop through each sheet
-    for sheet_name, sheet_data in sheets:
+    for sheet_name, sheet_data in sheets.items():
         # Check if sheet is a valid board BOM
         if _is_v3_board_sheet(sheet_name, sheet_data):
             # Parse and append valid boards to the BOM
