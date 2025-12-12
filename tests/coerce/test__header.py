@@ -32,8 +32,6 @@ from dataclasses import dataclass
 from src.models import interfaces as mdl
 from tests.fixtures import v3_value as vfx
 # noinspection PyProtectedMember
-from src.coerce import _helper as helper  # Direct internal import — acceptable in tests
-# noinspection PyProtectedMember
 from src.coerce import _header as header  # Direct internal import — acceptable in tests
 # noinspection PyProtectedMember
 from src.coerce import _regex as regex  # Direct internal import — acceptable in tests
@@ -307,6 +305,7 @@ class TestMaterialCost(Assert):
         # ARRANGE
         cases = [
             CoercionCase(" 1.25 \n", "1.25", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("", "0", regex.EMPTY_TO_ZERO.description),
         ]
         # ACT
         for case in cases:
@@ -319,9 +318,7 @@ class TestMaterialCost(Assert):
         Should return the input text unchanged and an empty log when there is no rule match.
         """
         # ARRANGE
-        cases = [
-            CoercionCase("", "", ""),
-        ]
+        cases = []
         for cost in vfx.COST_GOOD:
             cases.append(CoercionCase(cost, cost, ""))
         # ACT
@@ -344,6 +341,7 @@ class TestOverheadCost(Assert):
         # ARRANGE
         cases = [
             CoercionCase(" 1.25 \n", "1.25", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("", "0", regex.EMPTY_TO_ZERO.description),
         ]
         # ACT
         for case in cases:
@@ -356,9 +354,7 @@ class TestOverheadCost(Assert):
         Should return the input text unchanged and an empty log when there is no rule match.
         """
         # ARRANGE
-        cases = [
-            CoercionCase("", "", ""),
-        ]
+        cases = []
         for cost in vfx.COST_GOOD:
             cases.append(CoercionCase(cost, cost, ""))
         # ACT
@@ -381,6 +377,7 @@ class TestTotalCost(Assert):
         # ARRANGE
         cases = [
             CoercionCase(" 1.25 \n", "1.25", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("", "0", regex.EMPTY_TO_ZERO.description),
         ]
         # ACT
         for case in cases:
@@ -393,9 +390,7 @@ class TestTotalCost(Assert):
         Should return the input text unchanged and an empty log when there is no rule match.
         """
         # ARRANGE
-        cases = [
-            CoercionCase("", "", ""),
-        ]
+        cases = []
         for cost in vfx.COST_GOOD:
             cases.append(CoercionCase(cost, cost, ""))
         # ACT

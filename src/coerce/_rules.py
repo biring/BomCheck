@@ -63,14 +63,17 @@ BOM_DATE: list = [
 # material_cost
 MATERIAL_COST: list = [
     rx.REMOVE_WHITESPACES,
+    rx.EMPTY_TO_ZERO,
 ]
 # overhead_cost
 OVERHEAD_COST: list = [
     rx.REMOVE_WHITESPACES,
+    rx.EMPTY_TO_ZERO,
 ]
 # total_cost
 TOTAL_COST: list = [
     rx.REMOVE_WHITESPACES,
+    rx.EMPTY_TO_ZERO,
 ]
 # item
 ITEM: list = [
@@ -123,8 +126,10 @@ DESIGNATOR: list = [
 # unit_price
 UNIT_PRICE: list = [
     rx.REMOVE_WHITESPACES,
+    rx.EMPTY_TO_ZERO,
 ]
 # sub_total
 SUB_TOTAL: list = [
     rx.REMOVE_WHITESPACES,
+    rx.EMPTY_TO_ZERO,
 ]

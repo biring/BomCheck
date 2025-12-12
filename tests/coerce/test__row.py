@@ -561,6 +561,7 @@ class TestUnitPrice(Assert):
         # ARRANGE
         cases = [
             CoercionCase("\n1.24\t ", "1.24", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("", "0", regex.EMPTY_TO_ZERO.description),
         ]
         # ACT
         for case in cases:
@@ -573,9 +574,7 @@ class TestUnitPrice(Assert):
         Should return the input text unchanged and an empty log when there is no rule match.
         """
         # ARRANGE
-        cases = [
-            CoercionCase("", "", ""),
-        ]
+        cases = []
         for value in vfx.PRICE_GOOD:
             cases.append(CoercionCase(value, value, ""))
         # ACT
@@ -598,6 +597,7 @@ class TestSubTotal(Assert):
         # ARRANGE
         cases = [
             CoercionCase("\n1.24\t ", "1.24", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("", "0", regex.EMPTY_TO_ZERO.description),
         ]
         # ACT
         for case in cases:
@@ -611,7 +611,6 @@ class TestSubTotal(Assert):
         """
         # ARRANGE
         cases = [
-            CoercionCase("", "", ""),
         ]
         for value in vfx.PRICE_GOOD:
             cases.append(CoercionCase(value, value, ""))

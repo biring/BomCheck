@@ -168,3 +168,9 @@ COLLAPSE_MULTIPLE_SPACES = types.Rule(
     " ",
     "Collapsed multiple spaces into one."
 )
+
+EMPTY_TO_ZERO = types.Rule(
+    r"^\s*$",
+    "0",
+    "Replaced empty or whitespace-only field with zero."
+)
