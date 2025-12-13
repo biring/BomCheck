@@ -6,11 +6,11 @@ This module provides a menu-driven helper that lets a user select a file from a 
 Example Usage:
     # Preferred usage via the CLI package interface:
     from src.menus import interfaces as menu
-    chosen_file = menu.select_file(folder_path="C:\\Data\\Inputs", extensions=(".csv", ".xlsx"))
+    chosen_file_name = menu.select_file(folder_path="C:\\Data\\Inputs", extensions=(".csv", ".xlsx"))
 
     # Direct module usage in tests or internal scripts:
     import src.menus._file_selector as fs
-    chosen_file = fs.file_selector(folder_path="C:\\Data\\Configs",extensions=(".json",))
+    chosen_file_name = fs.file_selector(folder_path="C:\\Data\\Configs",extensions=(".json",))
 
 Dependencies:
     - Python >= 3.10
@@ -45,9 +45,9 @@ def file_selector(
         menu_prompt: str | None = None,
 ) -> str:
     """
-    Run an interactive file selector and return the chosen file path.
+    Run an interactive file selector and return the chosen file name.
 
-    The selector lists only the files directly contained in the provided folder. If `extensions` are supplied, only files with those extensions are shown. The user selects one file, and the full path is returned.
+    The selector lists only the files directly contained in the provided folder. If `extensions` are supplied, only files with those extensions are shown.
 
     Args:
         folder_path_in (str): The folder to scan for files. Must be a valid directory.
@@ -57,7 +57,7 @@ def file_selector(
 
     Returns:
         str:
-            Full file system path to the selected file.
+            File name of the selected file.
 
     Raises:
         ValueError:
@@ -98,7 +98,6 @@ def file_selector(
     menu_options: list[str] = file_names
 
     # Keep prompting until the user selects a valid file
-    chosen_file_path = ""
     while True:
         # Prompt user for selection (indices are expected to be 0..len(files)-1)
         selected_index = cli.prompt_menu_selection(
@@ -115,7 +114,5 @@ def file_selector(
             continue
 
     chosen_file_name = file_names[selected_index]
-    chosen_file_path = file_path.construct_file_path(normalized_folder, chosen_file_name)
 
-    # Join folder and file into a full path
-    return file_path.normalize_file_path(chosen_file_path)
+    return chosen_file_name

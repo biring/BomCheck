@@ -33,15 +33,14 @@ class TestFileSelector(unittest.TestCase):
 
     def test_happy_path(self):
         """
-        Should return a normalized full file path for the user-selected file.
+        Should return the file name for the user-selected file.
         """
         # ARRANGE
         folder = "/data/input"
 
         # Files returned by the helper (unsorted on purpose to exercise sorting)
         helper_files = ["b.csv", "a.csv"]
-        expected_file = "b.csv"
-        expected_full_path = f"{folder}/{expected_file}"
+        expected_file_name = "b.csv"
 
         with patch(f"{MODULE_PATH}.folder_path") as mock_folder_path, \
                 patch(f"{MODULE_PATH}.file_path") as mock_file_path, \
@@ -53,12 +52,6 @@ class TestFileSelector(unittest.TestCase):
             # Helper returns an unsorted set of file names
             mock_file_path.get_files_in_folder.return_value = tuple(helper_files)
 
-            # Build and normalize the full path in a predictable way
-            mock_file_path.construct_file_path.side_effect = (
-                lambda base, name: f"{base}/{name}"
-            )
-            mock_file_path.normalize_file_path.side_effect = lambda p: p
-
             # User selects index 1 → second entry in the *sorted* list = "b.csv"
             mock_cli.prompt_menu_selection.return_value = 1
 
@@ -66,8 +59,8 @@ class TestFileSelector(unittest.TestCase):
             result = file_selector.file_selector(folder_path_in=folder)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected_full_path):
-            self.assertEqual(result, expected_full_path)
+        with self.subTest(Out=result, Exp=expected_file_name):
+            self.assertEqual(result, expected_file_name)
 
     def test_menu_index_out_of_range(self):
         """
@@ -77,7 +70,7 @@ class TestFileSelector(unittest.TestCase):
         folder = "/data/input"
         helper_files = ["b.csv", "a.csv"]
         # Sorted list will be ["a.csv", "b.csv"]; we will eventually select index 0.
-        expected_full_path = f"{folder}/a.csv"
+        expected_file_name = "a.csv"
 
         with patch(f"{MODULE_PATH}.folder_path") as mock_folder_path, \
                 patch(f"{MODULE_PATH}.file_path") as mock_file_path, \
@@ -86,10 +79,6 @@ class TestFileSelector(unittest.TestCase):
             mock_folder_path.normalize_folder_path.side_effect = lambda p: p
 
             mock_file_path.get_files_in_folder.return_value = tuple(helper_files)
-            mock_file_path.construct_file_path.side_effect = (
-                lambda base, name: f"{base}/{name}"
-            )
-            mock_file_path.normalize_file_path.side_effect = lambda p: p
 
             # First selection: out-of-range index (e.g., 99)
             # Second selection: valid index 0
@@ -99,8 +88,8 @@ class TestFileSelector(unittest.TestCase):
             result = file_selector.file_selector(folder_path_in=folder)
 
         # ASSERT
-        with self.subTest(Out=result, Exp=expected_full_path):
-            self.assertEqual(result, expected_full_path)
+        with self.subTest(Out=result, Exp=expected_file_name):
+            self.assertEqual(result, expected_file_name)
 
     def test_msg_custom(self):
         """
@@ -120,10 +109,6 @@ class TestFileSelector(unittest.TestCase):
             mock_folder_path.normalize_folder_path.side_effect = lambda p: p
 
             mock_file_path.get_files_in_folder.return_value = tuple(helper_files)
-            mock_file_path.construct_file_path.side_effect = (
-                lambda base, name: f"{base}/{name}"
-            )
-            mock_file_path.normalize_file_path.side_effect = lambda p: p
 
             # User selects the first file to exit the loop
             mock_cli.prompt_menu_selection.return_value = 0
@@ -170,10 +155,6 @@ class TestFileSelector(unittest.TestCase):
             mock_folder_path.normalize_folder_path.side_effect = lambda p: p
 
             mock_file_path.get_files_in_folder.return_value = tuple(helper_files)
-            mock_file_path.construct_file_path.side_effect = (
-                lambda base, name: f"{base}/{name}"
-            )
-            mock_file_path.normalize_file_path.side_effect = lambda p: p
 
             # User selects first file
             mock_cli.prompt_menu_selection.return_value = 0

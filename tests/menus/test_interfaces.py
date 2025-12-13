@@ -63,11 +63,11 @@ class TestInterfaces(unittest.TestCase):
 
     def test_file_selector(self):
         """
-        Should return the full path to the single CSV file in the folder when invoked via the `interfaces` façade, using only a patched CLI response.
+        Should return the file name for the single CSV file in the folder when invoked via the `interfaces` façade, using only a patched CLI response.
         """
         # ARRANGE
         folder = str(self.base_path)
-        expected = os.path.normpath(str(self.selected_file))
+        expected = self.selected_file.name
 
         # Patch ONLY the CLI menu selection for the file selector.
         # With exactly one file, the valid index is 0.
@@ -79,13 +79,10 @@ class TestInterfaces(unittest.TestCase):
                 extensions=(".csv",),
             )
 
-        # Normalize paths to make the assertion robust across platforms
-        normalized_result = os.path.normpath(result)
-
         # ASSERT
-        # Verify that the selector returns the expected file path
-        with self.subTest(Out=normalized_result, Exp=expected):
-            self.assertEqual(normalized_result, expected)
+        # Verify that the selector returns the expected file name
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
 
         # Verify the CLI prompt was called exactly once on the happy path
         call_count = mock_prompt.call_count
