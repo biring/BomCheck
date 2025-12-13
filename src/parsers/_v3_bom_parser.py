@@ -208,7 +208,7 @@ def is_v3_bom(sheets: dict[str, pd.DataFrame]) -> bool:
     return False
 
 
-def parse_v3_bom(sheets: dict[str, pd.DataFrame]) -> Bom:
+def parse_v3_bom(file_name: str, sheets: dict[str, pd.DataFrame]) -> Bom:
     """
     Parses Version 3 BOM sheets into a structured Bom object.
 
@@ -216,6 +216,7 @@ def parse_v3_bom(sheets: dict[str, pd.DataFrame]) -> Bom:
     structured Board instances. Raises an exception if none are valid.
 
     Args:
+        file_name (str): The name of the file to parse.
         sheets (dict[str, pd.DataFrame]): Workbook sheets keyed by sheet name.
 
     Returns:
@@ -239,7 +240,7 @@ def parse_v3_bom(sheets: dict[str, pd.DataFrame]) -> Bom:
             # If not ignore the sheet
             pass
 
-    bom = Bom(file_name="", boards=tuple(boards))
+    bom = Bom(file_name=file_name, boards=tuple(boards))
 
     # Raise an error if the BOM remains empty after parsing
     if not bom.boards:

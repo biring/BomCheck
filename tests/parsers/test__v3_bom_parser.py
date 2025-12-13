@@ -544,7 +544,8 @@ class TestParseBom(unittest.TestCase):
         """
         # ARRANGE
         base_dir = os.path.dirname(__file__)
-        file_path = os.path.join(base_dir, "test_data", "Version3BomMultiBoard.xlsx")
+        file_name = "Version3BomMultiBoard.xlsx"
+        file_path = os.path.join(base_dir, "test_data", file_name)
         with pd.ExcelFile(file_path, engine="openpyxl") as xls:
             # Create an empty dictionary to store (sheet_name, DataFrame) pairs
             sheets = {}
@@ -556,7 +557,7 @@ class TestParseBom(unittest.TestCase):
                 sheets[name] =df
 
         expected = Bom(
-            file_name="",
+            file_name=file_name,
             boards=(
                 Board(
                     header=Header(
@@ -641,14 +642,13 @@ class TestParseBom(unittest.TestCase):
 
         # ACT
         # Run the parser
-        result = v3_parser.parse_v3_bom(sheets)
+        result = v3_parser.parse_v3_bom(file_name, sheets)
 
         # ASSERT
         # Verify file name
-        expected_file_name = expected.file_name
         result_file_name = result.file_name
-        with self.subTest("File Name", Out=result_file_name, Exp=expected_file_name):
-            self.assertEqual(result_file_name, expected_file_name)
+        with self.subTest("File Name", Out=result_file_name, Exp=file_name):
+            self.assertEqual(result_file_name, file_name)
 
         # Verify number of boards
         expected_boards = len(expected.boards)
