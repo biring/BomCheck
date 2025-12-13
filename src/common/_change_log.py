@@ -67,24 +67,24 @@ class ChangeLog:
         self._section_name = ""
         self._entries: list[str] = []
 
-    def set_module_name(self, file: str) -> None:
+    def set_module_name(self, module: str) -> None:
         """
-        Set the active module context.
+        Set the active module context used for subsequent entries.
 
         Args:
-            file (str): Module name to associate with subsequent entries.
+            module (str): Module name to include in rendered rows.
 
         Returns:
             None
         """
-        self._module_name = file
+        self._module_name = module
 
     def set_file_name(self, file: str) -> None:
         """
-        Set the active file context.
+        Set the active file context used for subsequent entries.
 
         Args:
-            file (str): File name to associate with subsequent entries.
+            file (str): File name to include in rendered rows.
 
         Returns:
             None
@@ -93,10 +93,10 @@ class ChangeLog:
 
     def set_sheet_name(self, sheet: str) -> None:
         """
-        Set the active sheet context.
+        Set the active worksheet context used for subsequent entries.
 
         Args:
-            sheet (str): Worksheet name to associate with subsequent entries.
+            sheet (str): Worksheet name to include in rendered rows.
 
         Returns:
             None
@@ -105,10 +105,10 @@ class ChangeLog:
 
     def set_section_name(self, section: str) -> None:
         """
-        Set the active section context.
+        Set the active section/block context used for subsequent entries.
 
         Args:
-            section (str): Section or block name to associate with subsequent entries.
+            section (str): Section or block name to include in rendered rows.
 
         Returns:
             None
@@ -119,7 +119,7 @@ class ChangeLog:
         """
         Append a single message under the current context.
 
-        Skips empty or whitespace-only messages.
+        Entries are added as a flat rows: "module | file | sheet | section | message". Skips empty or whitespace-only messages.
 
         Args:
             message (str): Human-readable description of the change.
@@ -129,11 +129,20 @@ class ChangeLog:
         """
         entry = message.strip()
         if entry:
-            self._entries.append(entry)
+            # Flatten messages to "module | file | sheet | section | message"
+            msg_format = "{a} | {b} | {c} | {d} | {e}"
+            msg = msg_format.format(
+                a=self._module_name,
+                b=self._file_name,
+                c=self._sheet_name,
+                d=self._section_name,
+                e=entry
+            )
+            self._entries.append(msg)
 
     def render(self) -> tuple[str, ...]:
         """
-        Render all entries as flat rows: "module | file | sheet | section | message".
+        Render all entries as flat context-rich rows.
 
         Args:
             self
@@ -141,13 +150,4 @@ class ChangeLog:
         Returns:
             tuple[str, ...]: One formatted row per entry, in insertion order.
         """
-        render_list: list[str] = []
-        for entry in self._entries:
-            # Flatten messages to "module | file | sheet | section | message"
-            msg_format = "{a} | {b} | {c} | {d} | {e}"
-            msg = msg_format.format(
-                a=self._module_name, b=self._file_name, c=self._sheet_name, d=self._section_name, e=entry
-            )
-            render_list.append(msg)
-
-        return tuple(render_list)
+        return tuple(self._entries)

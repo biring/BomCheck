@@ -33,12 +33,12 @@ from src.common._change_log import ChangeLog  # Direct internal import — accep
 
 class TestChangeLog(unittest.TestCase):
     """
-    Unit test for the `ChangeLog` function.
+    Unit test for the `ChangeLog` class.
     """
 
     def test_snapshot(self):
         """
-        Should render each non-empty message as 'file | sheet | section | message' using the current context.
+        Should render each non-empty message as 'module | file | sheet | section | message' using the current context.
         """
         # ARRANGE
         log = ChangeLog()
@@ -93,7 +93,7 @@ class TestChangeLog(unittest.TestCase):
 
     def test_context(self):
         """
-        Should apply the latest file, sheet, and section context when rendering log entries at snapshot time.
+        Should capture the active context at add time so earlier entries keep earlier context after later context changes.
         """
         # ARRANGE
         log = ChangeLog()
@@ -103,19 +103,24 @@ class TestChangeLog(unittest.TestCase):
         log.set_section_name("Meta")
         log.add_entry("Rule A")
 
-        # Change context after adding messages
+        # Change context and add an entry
         log.set_file_name("v2.xlsx")
         log.set_sheet_name("MP")
         log.set_section_name("Table")
+        log.add_entry("Rule B")
 
-        expected = ("test_context | v2.xlsx | MP | Table | Rule A",)
+        expected = (
+            "test_context | v1.xlsx | EB0 | Meta | Rule A",
+            "test_context | v2.xlsx | MP | Table | Rule B",
+        )
 
         # ACT
         rows = log.render()
 
         # ASSERT
-        with self.subTest("Context After Change", Out=rows, Exp=expected):
-            self.assertEqual(rows, expected)
+        for out_row, exp_row in zip(rows, expected):
+            with self.subTest("Context Change", Out=out_row, Exp=exp_row):
+                self.assertEqual(out_row, exp_row)
 
 
 if __name__ == "__main__":
