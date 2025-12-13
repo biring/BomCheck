@@ -35,6 +35,10 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 
 from . import _regex as rx
 
+PRE_RULES = [
+    rx.REMOVE_EXCEL_XML_CONTROL_CHARS,
+]
+
 # model_no
 MODEL_NUMBER: list = [
     rx.TO_UPPER,

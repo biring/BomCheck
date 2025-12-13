@@ -297,6 +297,36 @@ class TestApplyRule(unittest.TestCase):
         with self.subTest("Last Log AFTER visible", Out=result.changes[-1].after, Exp=expected_after_vis):
             self.assertEqual(result.changes[-1].after, expected_after_vis)
 
+    def test_pre_rules_remove_excel_xml_control_artifacts(self):
+        """
+        Should remove Excel XML artifacts for TAB, VT, FF, LF, CR via PRE_RULES.
+        """
+        # ARRANGE
+        attr = "AnyField"
+        text = "A_x0009_B_x000B_C_x000C_D_x000A_E_x000D_"
+
+        # Field rules are intentionally irrelevant here; pre-rules should do the work.
+        rules = [
+            common.Rule(pattern=r"\s+", replacement="", description="strip whitespace"),
+        ]
+
+        expected_out = "ABCDE"
+
+        # ACT
+        result = common.apply_rule(text, rules, attr)
+
+        # ASSERT
+        with self.subTest("Value Out", Out=result.coerced_value, Exp=expected_out):
+            self.assertEqual(result.coerced_value, expected_out)
+
+        # Only PRE_RULES should have matched (whitespace rule should no-op after artifacts removed).
+        with self.subTest("Log Count", Out=len(result.changes), Exp=1):
+            self.assertEqual(len(result.changes), 1)
+
+        with self.subTest("Log Msg", Out=result.changes[0].description):
+            self.assertIn("Excel XML", result.changes[0].description)
+
+
 
 class TestShow(unittest.TestCase):
     """

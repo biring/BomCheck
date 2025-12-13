@@ -31,6 +31,8 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 import re
 from ._types import Rule, Result, Log
 
+from ._rules import PRE_RULES
+
 
 def _show(text: str, max_len: int = 32) -> str:
     """
@@ -46,7 +48,7 @@ def _show(text: str, max_len: int = 32) -> str:
         str: A readable preview with control characters escaped and length limited.
 
     Raises:
-        ValueError: If max_len is less than 1.
+        None
     """
     visible = text.replace("\n", "\\n").replace("\t", "\\t")
     if len(visible) > max_len:
@@ -58,7 +60,7 @@ def apply_rule(str_in: str, rules: list[Rule], attr_name: str) -> Result:
     """
     Apply ordered regex coercion rules and collect per-rule change logs.
 
-    Each rule runs sequentially; the output of one becomes the input to the next. A change log entry is recorded only when a rule makes a substitution.
+    Runs a fixed set of pre-rules to remove known artifacts (e.g., Excel XML escapes, control characters), then applies caller rules. Each rule runs sequentially; the output of one becomes the input to the next. A change log entry is recorded only when a rule makes a substitution.
 
     Args:
         str_in (str): Raw input string to transform.
@@ -69,13 +71,24 @@ def apply_rule(str_in: str, rules: list[Rule], attr_name: str) -> Result:
         Result: Result object containing original, coerced value, and per-rule change logs.
 
     Raises:
-        TypeError: If rules is not a list of Rule instances.
-        ValueError: If attr_name is empty or whitespace.
         re.error: If any rule contains an invalid regex pattern.
     """
     result = Result(attr_name=attr_name, original_value=str_in, coerced_value="", changes=[])
     text_in = str_in
     text_out = str_in
+
+    # Apply pre-rules first to normalize known artifacts before field-specific coercion rules run.
+    for rule in PRE_RULES:
+        # Apply the regex substitution
+        text_out = re.sub(rule.pattern, rule.replacement, text_in)
+
+        # Log only on change to avoid noisy, redundant entries.
+        if text_out != text_in:
+            log = Log(before=_show(text_in), after=_show(text_out), description=rule.description)
+            result.changes.append(log)
+
+        # Carry forward the output as the next input to preserve deterministic sequencing.
+        text_in = text_out
 
     # Process rules in order; stable transformations depend on deterministic sequencing.
     for rule in rules:

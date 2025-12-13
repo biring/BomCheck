@@ -99,6 +99,11 @@ REMOVE_SPACES_ONLY = types.Rule(
     "",
     "Removed space characters."
 )
+REMOVE_EXCEL_XML_CONTROL_CHARS = types.Rule(
+    r"(?i)_x000[9A-D]_",
+    "",
+    "Removed Excel XML control-character artifacts (CR, LF, TAB, FF, VT)."
+)
 
 # Punctuation to comma
 NEWLINE_TO_COMMA = types.Rule(
