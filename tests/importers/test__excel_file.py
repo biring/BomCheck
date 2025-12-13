@@ -49,11 +49,12 @@ class TestReadExcelAsDict(unittest.TestCase):
         Create a temporary folder and a real Excel workbook for testing.
         """
         # ARRANGE (common for tests)
+        self.file_name = "sample_workbook.xlsx"
         # Create a temporary directory to hold the test Excel file
         self.temp_dir = tempfile.mkdtemp(prefix="excel_load_test_")
 
         # Full path to the temporary Excel file
-        self.excel_path = os.path.join(self.temp_dir, "sample_workbook.xlsx")
+        self.excel_path = os.path.join(self.temp_dir, self.file_name)
 
         # Build realistic sample DataFrames for multiple sheets.
         sheet1_df = pd.DataFrame(
@@ -94,11 +95,12 @@ class TestReadExcelAsDict(unittest.TestCase):
         Should load a valid Excel file and return a dict of DataFrames keyed by sheet name.
         """
         # ARRANGE
-        excel_path = self.excel_path
+        folder_path = self.temp_dir
+        file_name = self.file_name
         expected_result = set(self.expected_sheets.keys())
 
         # ACT
-        actual_result = excel_file.read_excel_as_dict(excel_path)
+        actual_result = excel_file.read_excel_as_dict(folder_path,file_name)
         actual_sheet_names = set(actual_result.keys())
 
         # ASSERT
@@ -122,12 +124,13 @@ class TestReadExcelAsDict(unittest.TestCase):
         Should raise an error when the file is missing.
         """
         # ARRANGE
-        missing_path = os.path.join(self.temp_dir, "does_not_exist.xlsx")
+        folder_path = self.temp_dir
+        missing_file_name = "does_not_exist.xlsx"
         expected = RuntimeError.__name__
 
         # ACT
         try:
-            excel_file.read_excel_as_dict(missing_path)
+            excel_file.read_excel_as_dict(folder_path, missing_file_name)
             actual = ""
         except Exception as exc:
             actual = type(exc).__name__
@@ -141,7 +144,9 @@ class TestReadExcelAsDict(unittest.TestCase):
         Should raise an error when the file does not have .xlsx extension.
         """
         # ARRANGE
-        bad_path = os.path.join(self.temp_dir, "invalid.txt")
+        folder_path = self.temp_dir
+        bad_file_name_extension = "not_excel.txt"
+        bad_path = os.path.join(folder_path, bad_file_name_extension)
         with open(bad_path, "w") as f:
             f.write("not an excel file")
 
@@ -149,7 +154,7 @@ class TestReadExcelAsDict(unittest.TestCase):
 
         # ACT
         try:
-            excel_file.read_excel_as_dict(bad_path)
+            excel_file.read_excel_as_dict(folder_path, bad_file_name_extension)
             actual = ""
         except Exception as exc:
             actual = type(exc).__name__
@@ -163,7 +168,9 @@ class TestReadExcelAsDict(unittest.TestCase):
         Should raise an error when the filename contains more than one dot.
         """
         # ARRANGE
-        bad_path = os.path.join(self.temp_dir, "sample.bad.name.xlsx")
+        folder_path = self.temp_dir
+        bad_file_name = "two.dot.name.xlsx"
+        bad_path = os.path.join(folder_path, bad_file_name)
 
         # Create a valid Excel file but with invalid filename structure
         df = pd.DataFrame({"A": [1, 2, 3]})
@@ -174,7 +181,7 @@ class TestReadExcelAsDict(unittest.TestCase):
 
         # ACT
         try:
-            excel_file.read_excel_as_dict(bad_path)
+            excel_file.read_excel_as_dict(folder_path, bad_file_name)
             actual = ""
         except Exception as exc:
             actual = type(exc).__name__

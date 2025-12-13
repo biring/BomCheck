@@ -40,14 +40,14 @@ from src.utils import excel_io
 EXCEL_FILE_TYPES = (excel_io.EXCEL_FILE_TYPE,)
 
 
-def read_excel_as_dict(excel_path: str) -> dict[str, pd.DataFrame]:
+def read_excel_as_dict(folder_path: str, file_name: str) -> dict[str, pd.DataFrame]:
     """
     Read an Excel workbook from disk and return all sheets as a dict of DataFrames.
 
     This helper normalizes and validates the input path, enforces the expected Excel file extension, and delegates reading to the shared excel_io utilities. All failures are wrapped in a RuntimeError with a consistent message.
 
     Args:
-        excel_path (str): Absolute or relative path to the source .xlsx file.
+        file_name (str): Absolute or relative path to the source .xlsx file.
 
     Returns:
         dict[str, pd.DataFrame]: Mapping of sheet name to loaded DataFrame.
@@ -56,6 +56,8 @@ def read_excel_as_dict(excel_path: str) -> dict[str, pd.DataFrame]:
         RuntimeError: If the path is invalid, the file is not an Excel workbook, or reading the workbook fails for any reason.
     """
     try:
+        excel_path = file_path.construct_file_path(folder_path, file_name)
+
         # Normalize the given path into a Path object
         normalized_path = file_path.normalize_file_path(excel_path)
 
@@ -70,10 +72,10 @@ def read_excel_as_dict(excel_path: str) -> dict[str, pd.DataFrame]:
 
     except (TypeError, ValueError, RuntimeError) as e:
         raise RuntimeError(
-            f"Failed to read Excel workbook '{excel_path}'.\n{e}"
+            f"Failed to read Excel workbook '{file_name}' from '{folder_path}'.\n{e}"
         ) from e
 
     except Exception as e:
         raise RuntimeError(
-            f"Unexpected error while reading Excel workbook '{excel_path}'.\n{e}"
+            f"Unexpected error while reading Excel workbook '{file_name}' from '{folder_path}'.\n{e}"
         ) from e

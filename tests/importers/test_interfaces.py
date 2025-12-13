@@ -42,11 +42,13 @@ class TestInterface(unittest.TestCase):
         Create a temporary folder with real data for integration testing.
         """
         # ARRANGE (common for tests)
+        self.file_name = "interface_workbook.xlsx"
+
         # Create a temporary directory to hold the test Excel file
         self.temp_dir = tempfile.mkdtemp(prefix="importer_interface_test_")
 
         # Full path to the temporary Excel file
-        self.excel_path = os.path.join(self.temp_dir, "workbook.xlsx")
+        self.excel_path = os.path.join(self.temp_dir, self.file_name)
 
         # Build realistic sample DataFrames for multiple sheets.
         sheet1_df = pd.DataFrame(
@@ -87,12 +89,13 @@ class TestInterface(unittest.TestCase):
         Should load a valid Excel file via the public interface and return a dict of DataFrames.
         """
         # ARRANGE
-        excel_path = self.excel_path
+        folder_path = self.temp_dir
+        file_name = self.file_name
         expected_sheet_names = sorted(self.expected_sheets.keys())
 
         # ACT
         # Call the public façade, exercising the integration with internal helpers.
-        result = importer.read_excel_as_dict(excel_path)
+        result = importer.read_excel_as_dict(folder_path,file_name)
 
         # ASSERT
         # Verify type of the result
