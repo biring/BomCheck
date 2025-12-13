@@ -127,12 +127,12 @@ MFG_PART_NO_RULE: str = (
 MFG_PART_NO_PATTERN = re.compile(r'^[A-Za-z0-9._-]+$')
 
 UL_VDE_NO_RULE: str = (
-    "Valid '{a}' starts with 1–4 alphabets followed by 1–8 digits, "
+    "Valid '{a}' may be empty, or start with 1–4 alphabets followed by 1–8 digits, "
     "optionally separated by a single '-' or space "
-    "(e.g., 'E1234', 'UL 567890', 'VDE-12345678')."
+    "(e.g., '', 'E1234', 'UL 567890', 'VDE-12345678')."
 )
 
-UL_VDE_NO_PATTERN = re.compile(r'^[A-Za-z]{1,4}[- ]?[0-9]{1,8}$')
+UL_VDE_NO_PATTERN = re.compile(r'^$|^[A-Za-z]{1,4}[- ]?[0-9]{1,8}$')
 
 VALIDATED_AT_RULE: str = (
     "Valid '{a}' is either empty or a list of tokens separated "

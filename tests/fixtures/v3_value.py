@@ -296,6 +296,7 @@ MFG_PART_NO_BAD: Final[list[str]] = [
 ]
 
 UL_VDE_NO_GOOD: Final[list[str]] = [
+    "",  # not allowed
     "E1234",  # 1 letter + digits
     "UL 567890",  # 2 letters + space + digits
     "VDE-12345678",  # 3 letters + dash + 8 digits
@@ -304,7 +305,6 @@ UL_VDE_NO_GOOD: Final[list[str]] = [
 ]
 
 UL_VDE_NO_BAD: Final[list[str]] = [
-    "",  # not allowed
     "12345",  # must start with letters
     "ULVD",  # missing digits
     "ABCDE1234",  # >4 letters not allowed
