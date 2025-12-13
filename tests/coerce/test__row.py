@@ -450,6 +450,7 @@ class TestValidationAt(Assert):
         # ARRANGE
         cases = [
             CoercionCase(" EB1,\nEB2,\tMP ", "EB1,EB2,MP", regex.REMOVE_WHITESPACES.description),
+            CoercionCase("/", "", regex.REMOVE_STANDALONE_FORWARD_SLASH.description),
         ]
         # ACT
         for case in cases:

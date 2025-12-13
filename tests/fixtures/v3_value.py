@@ -336,6 +336,7 @@ VALIDATED_AT_GOOD: Final[list[str]] = [
 
 # BAD validated-at strings
 VALIDATED_AT_BAD: Final[list[str]] = [
+    "/",  # only forward slash not allowed
     "P1 / EB0",  # whitespace not allowed
     "/P1",  # cannot start with separator
     "P1/",  # cannot end with separator

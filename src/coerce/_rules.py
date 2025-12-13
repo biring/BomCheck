@@ -118,6 +118,7 @@ UL_VDE_NUMBER: list = [
 # validated_at
 VALIDATED_AT: list = [
     rx.REMOVE_WHITESPACES,
+    rx.REMOVE_STANDALONE_FORWARD_SLASH,
 ]
 # qty
 QTY: list = [

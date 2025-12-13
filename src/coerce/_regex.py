@@ -104,6 +104,11 @@ REMOVE_EXCEL_XML_CONTROL_CHARS = types.Rule(
     "",
     "Removed Excel XML control-character artifacts (CR, LF, TAB, FF, VT)."
 )
+REMOVE_STANDALONE_FORWARD_SLASH = types.Rule(
+    r"^/$",
+    "",
+    "Removed standalone forward slash."
+)
 
 # Punctuation to comma
 NEWLINE_TO_COMMA = types.Rule(
