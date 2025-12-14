@@ -15,7 +15,7 @@ Example Usage:
     # Not exposed publicly; this is an internal module.
 
     # Direct module usage (acceptable in unit tests or internal scripts only):
-    import src.models import _v3_raw as models
+    from src.models import _v3_raw as models
     board = models.Board(header=header, rows=tuple(rows), sheet_name="Sheet1")
 
 Dependencies:
@@ -217,8 +217,10 @@ class Bom:
     Top-level model representing the structure of a Version 3 BOM file.
 
     Attributes:
-        boards (tuple[Board, ...]): board BOMs extracted from the file.
+        boards (tuple[Board, ...]): Board BOMs extracted from the file.
         file_name (str): Original filename of the BOM file.
+        is_cost_bom (bool): True if the file represents a costed BOM; defaults to True and may be downgraded by the parser.
     """
     boards: tuple[Board, ...]  # Any length. No default, assigned when created
     file_name: str = ""
+    is_cost_bom: bool = True # Fail-safe default; parser sets False only when confidently detected

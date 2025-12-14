@@ -38,6 +38,141 @@ from src.models.interfaces import *
 import src.parsers._v3_bom_parser as v3_parser
 
 
+class TestIsCostBom(unittest.TestCase):
+    """
+    Unit tests for the `_is_cost_bom` function.
+    """
+
+    @staticmethod
+    def _make_board(material_cost: str, total_cost: str) -> Board:
+        header = Header(
+            model_no="X",
+            board_name="Y",
+            manufacturer="Z",
+            build_stage="EB0",
+            date="2025-01-01 00:00:00",
+            material_cost=material_cost,
+            overhead_cost="",
+            total_cost=total_cost,
+        )
+        return Board(header=header, rows=tuple(), sheet_name="S1")
+
+    def test_not_costed_bom_both_empty(self):
+        """
+        Should not classify BOM as costed BOM when both cost fields are empty.
+        """
+        # ARRANGE
+        boards = [self._make_board("", "")]
+        expected = False
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_both_zero(self):
+        """
+        Should not classify BOM as costed BOM when both cost fields are zero.
+        """
+        # ARRANGE
+        boards = [self._make_board("0", "0")]
+        expected = False
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_both_numeric_values(self):
+        """
+        Should classify BOM as costed BOM when both cost fields are number.
+        """
+        # ARRANGE
+        boards = [self._make_board("12.34", "56.78")]
+        expected = True
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_both_comma_formatted_numbers(self):
+        """
+        Should classify BOM as costed BOM when cost fields are numbers but comma formatted.
+        """
+        # ARRANGE (comma unlikely but supported)
+        boards = [self._make_board("1,234.50", "2,345.60")]
+        expected = True
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_unparseable_non_empty(self):
+        """
+        Should classify BOM as costed BOM when cost fields are non-empty, non-zero and not parsable to number.
+        """
+        # ARRANGE
+        boards = [self._make_board("$12O.34", "$56.78")]  # "O" not zero
+        expected = True
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_one_empty_other_number(self):
+        """
+        Should classify BOM as costed BOM when one cost fields is empty and other is a number.
+        """
+        # ARRANGE
+        boards = [self._make_board("", "10.00")]
+        expected = True
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_one_zero_other_number(self):
+        """
+        Should classify BOM as costed BOM when one cost fields is zero and other is a number.
+        """
+        # ARRANGE
+        boards = [self._make_board("0", "10.00")]
+        expected = True
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+    def test_multi_board_with_one_not_costed_bom(self):
+        """
+        Should NOT classify BOM as costed BOM when one or more boards is classified as a not costed BOM.
+        """
+        # ARRANGE
+        boards = [
+            self._make_board("12.34", "56.78"), # costed BOM
+            self._make_board("", ""), # NOT costed BOM
+        ]
+        expected = False
+
+        # ACT
+        result = v3_parser._is_cost_bom(boards)
+
+        # ASSERT
+        self.assertEqual(result, expected)
+
+
 class TestIsV3BoardSheet(unittest.TestCase):
     """
     Unit tests for the `_is_v3_board_sheet` function in the v3_parser module.

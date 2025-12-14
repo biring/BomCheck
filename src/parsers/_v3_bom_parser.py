@@ -2,8 +2,7 @@
 Parser for Version 3 Bill of Materials (BOM) Excel sheets.
 
 This module identifies and parses Excel workbooks that follow the Version 3 BOM template.
-It extracts board-level metadata and BOM table from sheets that match expected
-structure and headers.
+It extracts board-level metadata and BOM tables from sheets that match expected structure and headers.
 
 Main capabilities:
  - Detects whether an Excel workbook uses the v3 BOM format (`is_v3_bom`)
@@ -40,6 +39,42 @@ import pandas as pd
 
 import src.parsers._common as common
 from src.models.interfaces import *
+
+
+def _is_cost_bom(boards: list[Board]) -> bool:
+    """
+    Determine whether the parsed BOM represents a costed BOM.
+
+    Classification rule:
+    - If ANY board has both material_cost and total_cost blank or zero, the BOM is classified as NOT costed BOM.
+    - Otherwise, the BOM is classified as costed BOM (fail-safe default).
+
+    Args:
+        boards (list[Board]): Parsed board BOMs.
+
+    Returns:
+        bool: True if the BOM is classified as a costed BOM, otherwise False.
+    """
+
+    def _is_empty_or_zero(s: str) -> bool:
+        s = (s or "").strip().replace(",", "")
+        if s == "":
+            return True
+        try:
+            return float(s) == 0.0
+        except ValueError:
+            return False  # not empty/zero; could be badly formatted number
+
+    for board in boards:
+        material_cost_raw = (board.header.material_cost or "").strip().replace(",", "")
+        total_cost_raw = (board.header.total_cost or "").strip().replace(",", "")
+
+        # Strong not a cost BOM signature: both cost fields are empty or zero
+        if _is_empty_or_zero(material_cost_raw) and _is_empty_or_zero(total_cost_raw):
+            return False
+
+    # If we never saw the strong not a cost BOM signature, assume cost BOM
+    return True
 
 
 def _is_v3_board_sheet(sheet_name: str, sheet_data: pd.DataFrame) -> bool:
@@ -127,6 +162,7 @@ def _parse_board_header(sheet_header: pd.DataFrame) -> Header:
         raise ValueError(
             f"Header mapping issue during header parsing. Provided keys: {field_map.keys()}"
         ) from e
+
 
 def _parse_board_table(sheet_table: pd.DataFrame) -> tuple[Row, ...]:
     """
@@ -240,7 +276,11 @@ def parse_v3_bom(file_name: str, sheets: dict[str, pd.DataFrame]) -> Bom:
             # If not ignore the sheet
             pass
 
-    bom = Bom(file_name=file_name, boards=tuple(boards))
+    bom = Bom(
+        file_name=file_name,
+        is_cost_bom=_is_cost_bom(boards),
+        boards=tuple(boards)
+    )
 
     # Raise an error if the BOM remains empty after parsing
     if not bom.boards:
