@@ -28,6 +28,7 @@ __all__ = []  # Internal-only; not part of public API. Star import from this mod
 import re
 from src.models import interfaces as mdl
 from src.lookups import interfaces as lookup
+from src.settings import application as app_settings
 from src.utils import parser
 
 # TODO : Reorganize to one shared folder for all rules or make math a utility
@@ -68,7 +69,9 @@ def component_type_lookup(row: mdl.Row) -> tuple[str, str]:
     str_out = str_in
     change_log = ""
 
-    ignore_str: tuple[str, ...] = ()  # TODO - Get it from configuration/runtime
+    ignore_str: tuple[str, ...] = (
+        tuple(app_settings.get_settings().get_value(app_settings.KEYS.COMPONENT_TYPE_STRING_IGNORE_MASK, list))
+    )
     lookup_dict: dict[str, list[str]] = lookup.get_component_type_cache().get_data_map_copy()
 
     # ignore strings such as SMD and DIP if found in component type name as they add not value

@@ -47,21 +47,28 @@ class TestComponentTypeLookup(unittest.TestCase):
         importlib.reload(lookup)
         # Load component type resource
         lookup.load_cache()
+        self.lookup_dict = {
+            "Capacitor": ["Ceramic Capacitor"],
+            "Diode": ["SMD Diode", "SMD Zener"],
+            "Zener": ["SMD Zener"],  # Duplicate alias to create ambiguity
+            "IC": ["Integrated Circuit"],
+        }
+        self.ignore_str = ["SMD", "Surface Mount"]
 
-    def test_exact_match(self):
+    def test_match(self):
         """
         Should return the canonical key when both metrics match a known alias above the threshold.
         """
         # ARRANGE
         row = replace(bfx.ROW_A_1, component_type="SMD Ceramic Capacitor")
-        lookup_dict = {
-            "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
-            "Resistor": ["Resistor", "Res", "Resistance"]
-        }
         expected_out = "Capacitor"
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
-            p_data_map.return_value = lookup_dict
+        with (
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(auto.app_settings, "get_settings") as p_get_settings,
+        ):
+            p_data_map.return_value = self.lookup_dict
+            p_get_settings.return_value.get_value.return_value = self.ignore_str
             # ACT
             result, log = auto.component_type_lookup(row)
 
@@ -79,13 +86,13 @@ class TestComponentTypeLookup(unittest.TestCase):
         """
         # ARRANGE
         row = replace(bfx.ROW_A_1, component_type="Unknown Part")
-        lookup_dict = {
-            "Capacitor": ["Ceramic Capacitor", "Electrolytic Capacitor"],
-            "Resistor": ["Resistor", "Res", "Resistance"]
-        }
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
-            p_data_map.return_value = lookup_dict
+        with (
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(auto.app_settings, "get_settings") as p_get_settings,
+        ):
+            p_data_map.return_value = self.lookup_dict
+            p_get_settings.return_value.get_value.return_value = self.ignore_str
             # ACT
             result, log = auto.component_type_lookup(row)
 
@@ -100,14 +107,14 @@ class TestComponentTypeLookup(unittest.TestCase):
         Should return the original input when multiple canonical keys match (ambiguity).
         """
         # ARRANGE
-        row = replace(bfx.ROW_A_1, component_type="Ceramic Capacitor")
-        lookup_dict = {
-            "Capacitor": ["Ceramic Capacitor"],
-            "Resistor": ["Ceramic Capacitor"],  # Duplicate alias to create ambiguity
-        }
+        row = replace(bfx.ROW_A_1, component_type="Zener")
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
-            p_data_map.return_value = lookup_dict
+        with (
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(auto.app_settings, "get_settings") as p_get_settings,
+        ):
+            p_data_map.return_value = self.lookup_dict
+            p_get_settings.return_value.get_value.return_value = self.ignore_str
             # ACT
             result, log = auto.component_type_lookup(row)
 
@@ -116,6 +123,49 @@ class TestComponentTypeLookup(unittest.TestCase):
             self.assertEqual(result, row.component_type)
         with self.subTest("Log", Out=log, Exp=""):
             self.assertEqual(log, "")
+
+    def test_no_match_without_ignore_mask(self):
+        """
+        Should NOT match when ignore mask is empty and noisy token remains.
+        """
+        row = replace(bfx.ROW_A_1, component_type="Surface Mount MCU Integrated Circuit")
+
+        with (
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(auto.app_settings, "get_settings") as p_get_settings,
+        ):
+            p_data_map.return_value = self.lookup_dict
+            p_get_settings.return_value.get_value.return_value = []  # no ignore mask
+
+            result, log = auto.component_type_lookup(row)
+
+        with self.subTest("Output", Out=result, Exp=row.component_type):
+            self.assertEqual(result, row.component_type)
+        with self.subTest("Log", Out=log, Exp=""):
+            self.assertEqual(log, "")
+
+    def test_match_requires_ignore_mask(self):
+        """
+        Should match ONLY when ignore mask removes noisy token.
+        """
+        row = replace(bfx.ROW_A_1, component_type="Surface Mount MCU Integrated Circuit")
+        expected = "IC"
+
+        with (
+            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(auto.app_settings, "get_settings") as p_get_settings,
+        ):
+            p_data_map.return_value = self.lookup_dict
+            p_get_settings.return_value.get_value.return_value = self.ignore_str
+
+            result, log = auto.component_type_lookup(row)
+
+        with self.subTest("Output", Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+        with self.subTest("Log", Out=log):
+            self.assertIn(row.component_type, log)
+            self.assertIn(expected, log)
+            self.assertIn(mdl.RowFields.COMPONENT, log)
 
 
 class TestExpandDesignators(unittest.TestCase):
