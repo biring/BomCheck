@@ -51,7 +51,9 @@ from dataclasses import dataclass
 from src.utils import folder_path as folder
 from src.utils import file_path as file
 from src.utils import json_io as json
+
 from src.lookups import interfaces as lookup
+from src.settings import application as app_settings
 
 
 @dataclass(frozen=True)
@@ -81,6 +83,7 @@ class FileLocation:
 SUCCESS: int = 0
 FAILURE: int = -1
 TARGET_JSON_FILES: tuple[FileLocation, ...] = (
+    FileLocation(app_settings.FOLDER_PARTS, app_settings.RESOURCE_NAME, json.JSON_FILE_EXT),
     FileLocation(lookup.FOLDER_PARTS, lookup.COMPONENT_TYPE_FILE_NAME, json.JSON_FILE_EXT),
 )
 
