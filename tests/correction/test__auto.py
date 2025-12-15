@@ -266,8 +266,6 @@ class TestMaterialCost(unittest.TestCase):
         Should raise ValueError when a base field cannot be parsed as float.
         """
         # ARRANGE
-        good_rows = (bfx.ROW_A_1, bfx.ROW_A_2)
-        good_header = bfx.HEADER_A
         # Case 1: a row with bad sub_total
         rows_bad_sub_total = (replace(bfx.ROW_A_1, sub_total="*"), bfx.ROW_A_2)
 
@@ -360,7 +358,7 @@ class TestSubTotal(unittest.TestCase):
         for row in rows:
             # ACT
             try:
-                out, log = auto.sub_total(row)
+                _, _ = auto.sub_total(row)
                 result = ""
             except ValueError as e:
                 result = type(e).__name__
@@ -412,7 +410,6 @@ class TestTotalCost(unittest.TestCase):
             value_out, log = auto.total_cost(header)
 
             # ASSERT
-            value_in = header.total_cost
             with self.subTest("Value Out", Out=value_out, Exp=value_exp):
                 self.assertEqual(value_out, value_exp)
             with self.subTest("Log", Out=log):
@@ -435,7 +432,7 @@ class TestTotalCost(unittest.TestCase):
         for header in headers:
             # ACT
             try:
-                out, log = auto.total_cost(header)
+                _, __ = auto.total_cost(header)
                 result = ""
             except ValueError as e:
                 result = type(e).__name__
