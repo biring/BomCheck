@@ -80,7 +80,12 @@ def component_type_lookup(row: mdl.Row) -> tuple[str, str]:
         str_test = str_test.replace(remove_str, '')
 
     # Get all values from the component dict
-    value_list = [value for sublist in lookup_dict.values() for value in sublist]
+    value_list = []
+    for value in lookup_dict.values():
+        if isinstance(value, str):
+            value_list.append(value)
+        elif isinstance(value, list):
+            value_list.extend(value)
     value_list = tuple(value_list)
 
     # Get the best matched value
