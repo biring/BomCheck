@@ -1,7 +1,7 @@
 """
-Public initializer and facade for the `settings` package.
+Public initializer and facade for the settings package.
 
-This module exposes stable, public entry points to settings submodules (for example, temporary settings used by the application at runtime).
+This module defines the supported public surface for application settings and re-exports stable entry points for runtime and application-level configuration access.
 
 Example Usage:
     # Preferred usage via package import:
@@ -13,18 +13,21 @@ Dependencies:
     - Standard Library only
 
 Notes:
-    - Intended as the public entry point for the `settings` package.
-    - Submodules listed in `__all__` are part of the supported surface area.
-    - Internal layout of the `src.settings` package may change without affecting this facade.
+    - This module is the only supported public entry point for the settings package.
+    - Submodules explicitly re-exported here are considered stable API.
+    - Internal module structure may change without notice outside this facade.
+    - Callers should not import protected modules directly.
 
 License:
     - Internal Use Only
 """
 
 # --- public module namespaces ---
+from . import _application as application
 from . import _temporary as temporary
 
 # --- Combined public symbols ---
 __all__ = [
+    "application",
     "temporary",
 ]
