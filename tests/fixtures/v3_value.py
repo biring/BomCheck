@@ -206,9 +206,13 @@ DEVICE_PACKAGE_GOOD: Final[list[str]] = [
     "QFN32",  # letters + numbers, no dash
     "QFN-32",  # with dash
     "BGA-256-X",  # multiple dashes
-    "10x12mm" # dimensions separated by 'x'
+    "10x12mm",  # dimensions using 'x'
+    "10.9x12.8mm",  # dimensions with decimal points
+    "P=15mm,L=3.5mm",  # key=value pairs with comma and decimals
 ]
 DEVICE_PACKAGE_BAD: Final[list[str]] = [
+    "X",  # single character not allowed
+    "\\",  # symbol not allowed
     "QFN 32",  # space not allowed
     "-QFN32",  # cannot start with dash
     "QFN32-",  # cannot end with dash

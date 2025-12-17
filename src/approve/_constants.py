@@ -82,11 +82,20 @@ COMPONENT_TYPE_PATTERN = re.compile(
     r'^(?:ALT(?:[1-9][0-9]*)?|(?!ALT[A-Za-z])[A-Za-z]+(?:[ /][A-Za-z]+)*)$')
 
 DEVICE_PACKAGE_RULE: str = (
-    "Valid '{a}' is either empty or a string of alphabets and numbers "
-    "with optional '-' characters (e.g., '0603', 'QFN-32', 'SMA')."
+    "Valid '{a}' is either empty or a string that starts and ends with a letter or digit, "
+    "contains only letters, digits, '.', '=', ',', and '-' characters, "
+    "and does not contain two consecutive characters from the set ('.', '=', ',', '-') "
+    "(e.g., '0603', 'QFN-32', 'SMA', '10.5x25.6mm', 'D=12mm,L=5mm')."
 )
 
-DEVICE_PACKAGE_PATTERN = re.compile(r'^[A-Za-z0-9]+(?:-[A-Za-z0-9]+)*$|^$')
+DEVICE_PACKAGE_PATTERN = re.compile(
+    r'^(?:'
+    r'[A-Za-z0-9]'                       # must start with letter or digit
+    r'(?!.*[.=,\-]{2})'                  # no repeated symbols
+    r'[A-Za-z0-9.=,\-]*'                 # allowed characters
+    r'[A-Za-z0-9]'                       # must end with letter or digit
+    r'|$)'                               # or empty
+)
 
 DESCRIPTION_RULE: str = (
     "Valid '{a}' must not be empty and contain no whitespace "
