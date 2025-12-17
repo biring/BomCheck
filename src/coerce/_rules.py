@@ -90,6 +90,7 @@ COMPONENT_TYPE: list = [
 # device_package
 DEVICE_PACKAGE: list = [
     rx.REMOVE_WHITESPACES_EXCEPT_SPACE,
+    rx.DIMENSION_SEPARATOR_STAR,
 ]
 # description
 DESCRIPTION: list = [

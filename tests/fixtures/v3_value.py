@@ -206,6 +206,7 @@ DEVICE_PACKAGE_GOOD: Final[list[str]] = [
     "QFN32",  # letters + numbers, no dash
     "QFN-32",  # with dash
     "BGA-256-X",  # multiple dashes
+    "10x12mm" # dimensions separated by 'x'
 ]
 DEVICE_PACKAGE_BAD: Final[list[str]] = [
     "QFN 32",  # space not allowed

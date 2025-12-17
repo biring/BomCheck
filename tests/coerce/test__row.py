@@ -190,6 +190,7 @@ class TestDevicePackage(Assert):
         # ARRANGE
         cases = [
             CoercionCase("\tSOIC \n8", "SOIC 8", regex.REMOVE_WHITESPACES_EXCEPT_SPACE.description),
+            CoercionCase("99*54mm", "99x54mm", regex.DIMENSION_SEPARATOR_STAR.description),
         ]
         # ACT
         for case in cases:

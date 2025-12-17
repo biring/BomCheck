@@ -184,3 +184,9 @@ EMPTY_TO_ZERO = types.Rule(
     "0",
     "Replaced empty or whitespace-only field with zero."
 )
+
+DIMENSION_SEPARATOR_STAR = types.Rule(
+    r"(?<=[0-9a-zA-Z])\*(?=[0-9])",
+    "x",
+    "Replaced '*' with 'x' in dimension notation."
+)
