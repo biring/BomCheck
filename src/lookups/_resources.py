@@ -35,8 +35,8 @@ from src.utils import folder_path
 from . import _component_type as component_type
 
 # MODULE CONSTANTS
-FOLDER_PARTS: Final[tuple[str, ...]] = ("src", "lookups",)
-COMPONENT_TYPE_FILE_NAME: Final[str] = "_component_type"  # Name of the JSON resource file
+FOLDER_PARTS: Final[tuple[str, ...]] = ("src", "resources", "lookups",)
+COMPONENT_TYPE_FILE_NAME: Final[str] = "component_type"  # Name of the JSON resource file
 
 
 def load_cache() -> None:
