@@ -72,7 +72,7 @@ def component_type_lookup(row: mdl.Row) -> tuple[str, str]:
     ignore_str: tuple[str, ...] = (
         tuple(app_settings.get_settings().get_value(app_settings.KEYS.COMPONENT_TYPE_STRING_IGNORE_MASK, list))
     )
-    lookup_dict: dict[str, list[str]] = lookup.get_component_type_cache().get_data_map_copy()
+    lookup_dict: dict[str, list[str]] = lookup.get_component_type_lookup_table()
 
     # ignore strings such as SMD and DIP if found in component type name as they add not value
     str_test = str_in

@@ -1,14 +1,12 @@
 """
-Public interface for the 'lookups' package.
+Public interface for JSON-backed lookup resources.
 
 This module exposes a stable API for loading JSON-backed lookup resources and accessing their caches, while keeping per-resource implementation modules private.
 
 Example Usage:
     # Preferred usage via public package interface:
     from src.lookups import interfaces as lookup
-    lookup.load_cache()
-    cache = lookup.get_component_type_cache()
-    data_map = cache.get_data_map_copy()
+    table = lookup.get_component_type_lookup_table()
 
     # Direct imports of private modules (acceptable only in unit tests):
     # Not applicable. Use public package interface.
@@ -16,31 +14,24 @@ Example Usage:
 Dependencies:
     - Python >= 3.10
     - Standard Library: typing
-    - Internal Modules: ._constants, ._resources
+    - Internal Modules: src.lookups._component_type
 
 Notes:
-    - Provides a stable surface for all lookup-related resource loading.
-    - Internal modules may change structure, but this API remains consistent.
-    - Supports centralized lookup/coercion maps used across settings, parsing, and validation.
+    - Acts as the sole public access point for lookup resources.
 
 License:
     - Internal Use Only
 """
 
 # noinspection PyProtectedMember
-from ._resources import (
-    FOLDER_PARTS,
-    COMPONENT_TYPE_FILE_NAME,
-    load_cache,
-    get_component_type_cache,
+from ._component_type import (
+    COMPONENT_TYPE_FOLDER_PARTS,
+    COMPONENT_TYPE_RESOURCE_NAME,
+    get_component_type_lookup_table,
 )
 
 __all__ = [
-    # Constants
-    FOLDER_PARTS,
-    COMPONENT_TYPE_FILE_NAME,
-    # All resource loader
-    'load_cache',
-    # Resource(s)
-    'get_component_type_cache',
+    "COMPONENT_TYPE_FOLDER_PARTS",
+    "COMPONENT_TYPE_RESOURCE_NAME",
+    "get_component_type_lookup_table",
 ]

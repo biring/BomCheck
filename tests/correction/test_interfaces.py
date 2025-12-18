@@ -20,7 +20,6 @@ Notes:
 License:
     - Internal Use Only
 """
-import importlib
 import unittest
 from dataclasses import replace
 from typing import Any, Callable
@@ -749,12 +748,8 @@ class TestInterface(_Asserts):
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
         expected = "IC"
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
+        with patch.object(lookup, "get_component_type_lookup_table") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = fn(row)
@@ -775,12 +770,9 @@ class TestInterface(_Asserts):
             "Resistor": ["Resistor", "Res", "Resistance"]
         }
         expected = "Silicon Diode"
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
+
+        with patch.object(lookup, "get_component_type_lookup_table") as p_data_map:
             p_data_map.return_value = lookup_dict
             # ACT
             result, log = fn(row)

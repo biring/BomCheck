@@ -23,7 +23,6 @@ License:
     - Internal Use Only
 """
 
-import importlib
 import unittest
 from dataclasses import replace
 from unittest.mock import patch
@@ -43,10 +42,6 @@ class TestComponentTypeLookup(unittest.TestCase):
     """
 
     def setUp(self):
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
         self.lookup_dict = {
             "Capacitor": ["Ceramic Capacitor"],
             "Diode": ["SMD Diode", "SMD Zener"],
@@ -64,7 +59,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         expected_out = "Capacitor"
 
         with (
-            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(lookup, "get_component_type_lookup_table") as p_data_map,
             patch.object(auto.app_settings, "get_settings") as p_get_settings,
         ):
             p_data_map.return_value = self.lookup_dict
@@ -88,7 +83,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         row = replace(bfx.ROW_A_1, component_type="Unknown Part")
 
         with (
-            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(lookup, "get_component_type_lookup_table") as p_data_map,
             patch.object(auto.app_settings, "get_settings") as p_get_settings,
         ):
             p_data_map.return_value = self.lookup_dict
@@ -110,7 +105,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         row = replace(bfx.ROW_A_1, component_type="Zener")
 
         with (
-            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(lookup, "get_component_type_lookup_table") as p_data_map,
             patch.object(auto.app_settings, "get_settings") as p_get_settings,
         ):
             p_data_map.return_value = self.lookup_dict
@@ -131,7 +126,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         row = replace(bfx.ROW_A_1, component_type="Surface Mount MCU Integrated Circuit")
 
         with (
-            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(lookup, "get_component_type_lookup_table") as p_data_map,
             patch.object(auto.app_settings, "get_settings") as p_get_settings,
         ):
             p_data_map.return_value = self.lookup_dict
@@ -152,7 +147,7 @@ class TestComponentTypeLookup(unittest.TestCase):
         expected = "IC"
 
         with (
-            patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map,
+            patch.object(lookup, "get_component_type_lookup_table") as p_data_map,
             patch.object(auto.app_settings, "get_settings") as p_get_settings,
         ):
             p_data_map.return_value = self.lookup_dict

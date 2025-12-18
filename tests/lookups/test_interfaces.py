@@ -1,125 +1,62 @@
 """
-Unit tests for the lookup interface.
+Integration tests for the public lookups interfaces.
 
-These tests verify that the public `interfaces` API correctly initializes lookup caches, exposes a valid JsonCache instance, and raises appropriate exceptions when misused.
+This module verifies that lookup APIs exposed by the lookups package provide valid, populated lookup tables and related constants, without asserting internal resource-loading or caching behavior.
 
 Example Usage:
     # Preferred usage via project-root invocation:
     python -m unittest tests/lookups/test_interfaces.py
 
-    # Direct discovery:
+    # Direct discovery (runs all tests, including this module):
     python -m unittest discover -s tests
 
 Dependencies:
     - Python >= 3.10
-    - Standard Library: unittest, importlib
-    - Internal: src.lookups.interfaces, src.lookups._resources
+    - Standard Library: unittest
+    - Internal Packages: src.lookups.interfaces
 
 Notes:
-    - Tests ensure that caches initialize cleanly after module reload.
-    - Verifies behavior for valid lookups and error cases (missing keys, uninitialized cache).
-    - JsonCache behavior is validated through its public interface only.
+    - Tests are integration-style and exercise happy-path behavior only.
+    - Interfaces are treated as stable API contracts; tests assert presence, type, and basic validity of outputs.
+    - Resource files, paths, and parsing logic are owned by private lookup modules and are not patched or inspected here.
+    - Designed to catch API regressions as lookup resources and internals evolve.
 
 License:
     - Internal Use Only
 """
 
-import importlib
 import unittest
 
-# noinspection PyProtectedMember
-from src.lookups import interfaces as lookup  # module under test
-
-# noinspection PyProtectedMember
-from src.lookups import _resources as resource  # to reset before each test
+from src.lookups import interfaces as lookup
 
 
-class TestComponentTypeCache(unittest.TestCase):
+class TestInterfaces(unittest.TestCase):
     """
-    Unit tests for the component-type interfaces via the public API.
+    Integration tests for the public lookups interface.
     """
 
-    def test_load(self):
+    def test_component_type(self):
         """
-        Should load the resource and return valid data_map, keys and value.
+        Should expose a populated component-type lookup table and related constants via the public interfaces API.
         """
         # ARRANGE
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(resource)
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
-        # Fetch cache via the public getter
-        cache = lookup.get_component_type_cache()
+        # n/a
 
         # ACT
-        # Fetch data map
-        out_map = cache.get_data_map_copy()
-        # Fetch keys
-        out_keys = cache.get_keys()
-        # Fetch values
-        out_vals = cache.get_value(out_keys[0], str)
+        out_map = lookup.get_component_type_lookup_table()
+        folder_parts = lookup.COMPONENT_TYPE_FOLDER_PARTS
+        resource_name = lookup.COMPONENT_TYPE_RESOURCE_NAME
 
         # ASSERT
-        # data map
-        with self.subTest("Map Not Empty", Actual=out_map):
+        with self.subTest("Lookup table"):
             self.assertIsInstance(out_map, dict)
             self.assertGreater(len(out_map), 0)
-        # keys
-        with self.subTest("Number of keys is not zero", Actual=out_keys):
-            self.assertIsInstance(out_keys, tuple)
-            self.assertNotEqual(len(out_keys), 0)
-        # values
-        with self.subTest("Key value not empty", Actual=out_vals):
-            self.assertIsInstance(out_vals, str)
-            self.assertNotEqual(out_vals, "")
-
-    def test_value_raise(self):
-        """
-        Should raise when requesting values for a missing key.
-        """
-        # ARRANGE
-        missing_key = "NotARealKey"
-        expected_error = KeyError.__name__
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(resource)
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
-        # Fetch cache via the public getter
-        cache = lookup.get_component_type_cache()
-
-        # ACT
-        try:
-            _ = cache.get_value(missing_key, str)
-            actual_error = ""
-        except Exception as e:
-            actual_error = type(e).__name__
-
-        # ASSERT
-        with self.subTest(Actual=actual_error, Expected=expected_error):
-            self.assertEqual(expected_error, actual_error)
-
-    def test_cache_raise(self):
-        """
-        Should raise when requesting cache before the resource has been loaded.
-        """
-        # ARRANGE
-        expected_error = RuntimeError.__name__
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(resource)
-        importlib.reload(lookup)
-
-        # ACT
-        try:
-            _ = lookup.get_component_type_cache()
-            actual_error = ""
-        except Exception as e:
-            actual_error = type(e).__name__
-
-        # ASSERT
-        with self.subTest(Actual=actual_error, Expected=expected_error):
-            self.assertEqual(expected_error, actual_error)
+        with self.subTest("Folder parts"):
+            self.assertIsInstance(folder_parts, tuple)
+            self.assertGreater(len(folder_parts), 0)
+        with self.subTest("Resource name"):
+            self.assertIsInstance(resource_name, str)
+            self.assertGreater(len(resource_name), 0)
 
 
 if __name__ == '__main__':

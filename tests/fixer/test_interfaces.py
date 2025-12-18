@@ -34,25 +34,12 @@ from unittest.mock import patch
 
 from tests.fixtures import v3_bom as fx
 from src.fixer import interfaces as fixer
-from src.lookups import interfaces as lookup  # for patch
-
-COMPONENT_TYPE_LOOKUP = {
-    "Capacitor": ["Cap", "Capacitor", "Ceramic Capacitor", "Electrolytic Capacitor"],
-    "Resistor": ["Res", "Resistor", "Wire Wound Resistance"],
-    "Relay": ["Relay"],
-}
 
 
 class TestV3Bom(unittest.TestCase):
     """
     Tests for `v3_Bom`.
     """
-
-    def setUp(self):
-        # Reload internal resources to clear any prior cache state
-        importlib.reload(lookup)
-        # Load component type resource
-        lookup.load_cache()
 
     def test_valid(self):
         """
@@ -61,10 +48,9 @@ class TestV3Bom(unittest.TestCase):
         # ARRANGE
         src = fx.BOM_A  # Clean fixture
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
-            p_data_map.return_value = COMPONENT_TYPE_LOOKUP
-            # ACT
-            out_bom, log = fixer.v3_bom(src)
+        # ACT
+        out_bom, log = fixer.v3_bom(src)
+
         # ASSERT
         with self.subTest("Log size", Out=len(log), Exp=0):
             self.assertEqual(len(log), 0, log)
@@ -87,10 +73,8 @@ class TestV3Bom(unittest.TestCase):
             ),
         )
 
-        with patch.object(lookup.get_component_type_cache(), "get_data_map_copy") as p_data_map:
-            p_data_map.return_value = COMPONENT_TYPE_LOOKUP
-            # ACT
-            bom_out, log = fixer.v3_bom(bom_in)
+        # ACT
+        bom_out, log = fixer.v3_bom(bom_in)
 
         # ASSERT
         with self.subTest("Log size", Out=len(log), Exp=">0"):
