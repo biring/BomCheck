@@ -28,7 +28,10 @@ License:
 # Re-export approved API functions from internal modules
 # noinspection PyProtectedMember
 from ._build_filename import build_checker_log_filename
+# noinspection PyProtectedMember
+from ._text_file import write_text_file_lines
 
 __all__ = [
-    "build_checker_log_filename"
+    "build_checker_log_filename",
+    "write_text_file_lines",
 ]
