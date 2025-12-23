@@ -207,6 +207,20 @@ def get_files_in_folder(folder_path: str, extensions: Optional[list[str]] = None
     return tuple(matched_files)
 
 
+def is_file_path(file_path: str) -> bool:
+    """
+    Checks whether the specified file path exists and is a file.
+
+    Args:
+        file_path (str): The filesystem path to check.
+
+    Returns:
+        bool: True if the path exists and is a folder, False otherwise.
+    """
+    # Return True only if the path exists and is a folder
+    return os.path.isfile(file_path)
+
+
 def is_valid_windows_file_path(name: str) -> bool:
     """
     Checks whether a given file path name contains only safe characters on Windows.

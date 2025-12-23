@@ -555,6 +555,62 @@ class TestGetFilesInFolder(unittest.TestCase):
             self.assertEqual(result, expected)
 
 
+class TestIsFilePath(unittest.TestCase):
+    """
+    Unit tests for the `is_file_path` function.
+
+    These tests verify that the function returns:
+      - True for an existing regular file path
+      - False for a directory path
+      - False for a non-existent path
+    """
+
+    def setUp(self):
+        """
+        Create temporary filesystem entries for test isolation.
+        """
+        # ARRANGE
+        # Create a real temporary file
+        self.temp_file = tempfile.NamedTemporaryFile(delete=False)
+        self.temp_file_path = self.temp_file.name
+        self.temp_file.close()
+
+        # Create a temporary directory
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.temp_dir_path = self.temp_dir.name
+
+        # Create a non-existent path inside the temp directory
+        self.missing_path = os.path.join(self.temp_dir_path, "missing_file.txt")
+
+    def tearDown(self):
+        """
+        Clean up created resources after tests.
+        """
+        # ARRANGE / CLEANUP
+        if os.path.exists(self.temp_file_path):
+            os.unlink(self.temp_file_path)
+        self.temp_dir.cleanup()
+
+    def test_happy_path(self):
+        """
+        Should return correct boolean for file, directory, and missing paths.
+        """
+        # ARRANGE
+        test_cases = [
+            ("existing_file", self.temp_file_path, True),
+            ("directory_path", self.temp_dir_path, False),
+            ("missing_path", self.missing_path, False),
+        ]
+
+        for name, path, expected in test_cases:
+            # ACT
+            result = fp.is_file_path(path)
+
+            # ASSERT
+            with self.subTest(Case=name, Out=result, Exp=expected):
+                self.assertEqual(result, expected)
+
+
 class TestIsValidWindowsFilePath(unittest.TestCase):
     """
     Unit test for the `is_valid_windows_file_path` function in the file utility module.
