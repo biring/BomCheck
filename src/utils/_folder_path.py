@@ -48,6 +48,39 @@ _SOURCE_CODE_FOLDER_NAME: Final[str] = 'src'
 _TEMP_FOLDER_NAME: Final[str] = 'BomCheckTemp'
 
 
+def assert_folder_path(folder_path: str) -> None:
+    """
+    Validate that a filesystem path exists and refers to a real directory.
+
+    The path must be a string, must exist on disk, must be a directory, and must not be a symbolic link.
+
+    Args:
+        folder_path (str): Filesystem path to validate.
+
+    Returns:
+        None: Validation succeeds silently when the path is valid.
+
+    Raises:
+        TypeError: If path is not a string.
+        ValueError: If the path does not exist, is not a directory, or is a symbolic link.
+    """
+    # Enforce type contract early
+    if not isinstance(folder_path, str):
+        raise TypeError(f"Folder path '{folder_path}' must be a string, got {type(folder_path).__name__}.")
+
+    # Must exist and be a directory
+    if not os.path.isdir(folder_path):
+        raise ValueError(
+            f"Folder path '{folder_path}' must exist and be a directory."
+        )
+
+    # Explicitly reject symbolic links
+    if os.path.islink(folder_path):
+        raise ValueError(
+            f"Folder path '{folder_path}' must be a directory and not a symbolic link."
+        )
+
+
 def construct_folder_path(base_path: str, subfolders: tuple[str, ...]) -> str:
     """
     Constructs a fully normalized folder path from a base path and a sequence of sub folders.

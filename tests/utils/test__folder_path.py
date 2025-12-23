@@ -36,6 +36,153 @@ from unittest.mock import patch
 import src.utils._folder_path as folder_path
 
 
+class TestAssertFolderPath(unittest.TestCase):
+    """
+    Unit tests for the `assert_folder_path` function.
+    """
+
+    def setUp(self) -> None:
+        """
+        Create a temporary directory structure for testing.
+        """
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.base_path = self.temp_dir.name
+
+        # Create a real file inside the temp directory
+        self.file_path = os.path.join(self.base_path, "test_file.txt")
+        with open(self.file_path, "w", encoding="utf-8") as f:
+            f.write("dummy")
+
+        # Create a subfolder
+        self.sub_folder = os.path.join(self.base_path, "sub_folder")
+        os.mkdir(self.sub_folder)
+
+        # Create a symbolic link if supported
+        self.symlink_path = os.path.join(self.base_path, "symlink")
+        try:
+            os.symlink(self.sub_folder, self.symlink_path)
+            self.symlink_supported = True
+        except (OSError, NotImplementedError):
+            self.symlink_supported = False
+
+    def tearDown(self) -> None:
+        """
+        Clean up temporary filesystem artifacts.
+        """
+        self.temp_dir.cleanup()
+
+    def test_valid_folder_path(self):
+        """
+        Should succeed silently when given a real existing directory.
+        """
+        # ARRANGE
+        folder_path_input = self.sub_folder
+        expected = None
+
+        # ACT
+        try:
+            folder_path.assert_folder_path(folder_path_input)
+            actual = None
+        except Exception as ex:
+            actual = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
+
+    def test_non_string_input_raises_type_error(self):
+        """
+        Should raise TypeError when input is not a string.
+        """
+        # ARRANGE
+        bad_input = 12345
+        expected = TypeError.__name__
+
+        # ACT
+        try:
+            folder_path.assert_folder_path(bad_input)  # type: ignore[arg-type]
+            actual = ""
+        except Exception as ex:
+            actual = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
+
+    def test_non_existent_path_raises_value_error(self):
+        """
+        Should raise ValueError when the path does not exist.
+        """
+        # ARRANGE
+        bad_path = os.path.join(self.base_path, "does_not_exist")
+        expected = ValueError.__name__
+
+        # ACT
+        try:
+            folder_path.assert_folder_path(bad_path)
+            actual = ""
+        except Exception as ex:
+            actual = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
+
+    def test_file_path_raises_value_error(self):
+        """
+        Should raise ValueError when the path exists but is a file.
+        """
+        # ARRANGE
+        expected = ValueError.__name__
+
+        # ACT
+        try:
+            folder_path.assert_folder_path(self.file_path)
+            actual = ""
+        except Exception as ex:
+            actual = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=actual, Exp=expected):
+            self.assertEqual(actual, expected)
+
+    def test_symlink_raises_value_error(self):
+        """
+        Should raise ValueError when the path is a symbolic link.
+
+        If the platform does not support creating symlinks in this environment,
+        fall back to mocking os.path.isdir/os.path.islink to force the symlink branch.
+        """
+        # ARRANGE
+        expected = ValueError.__name__
+
+        # ACT
+        if self.symlink_supported:
+            # Real symlink path (preferred)
+            try:
+                folder_path.assert_folder_path(self.symlink_path)
+                result = ""
+            except Exception as ex:
+                result = type(ex).__name__
+        else:
+            # Fallback: simulate a "directory that is a symlink"
+            fake_path = os.path.join(self.base_path, "fake_symlink_dir")
+
+            with (
+                patch("os.path.isdir", return_value=True),
+                patch("os.path.islink", return_value=True),
+            ):
+                try:
+                    folder_path.assert_folder_path(fake_path)
+                    result = ""
+                except Exception as ex:
+                    result = type(ex).__name__
+
+        # ASSERT
+        with self.subTest(Out=result, Exp=expected):
+            self.assertEqual(result, expected)
+
+
 class TestConstructFolderPath(unittest.TestCase):
     """
     Unit test for the `folder_path.construct_folder_path` function in the `folder_path` module.
